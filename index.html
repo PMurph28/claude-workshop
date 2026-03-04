@@ -10,6 +10,24 @@
   button { font-family: inherit; cursor: pointer; }
   input, textarea { font-family: inherit; }
 
+  /* ── Status badges ── */
+  .review-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: #FEE2E2; color: #991B1B;
+    border: 1.5px solid #FCA5A5; border-radius: 6px;
+    padding: 2px 9px; font-size: 10px; font-weight: 600;
+    font-style: italic; letter-spacing: 0.2px;
+  }
+  .reviewed-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: #F0FDF4; color: #166534;
+    border: 1.5px solid #86EFAC; border-radius: 6px;
+    padding: 2px 9px; font-size: 10px; font-weight: 600;
+  }
+  .lever-card.needs-review { border-color: #FCA5A5; }
+  .lever-card.is-reviewed { border-color: #86EFAC; }
+  .section-unread-dot { width: 8px; height: 8px; border-radius: 50%; background: #fff; flex-shrink: 0; opacity: 0.7; }
+
   /* ── Login ── */
   #login-screen {
     min-height: 100vh;
@@ -43,7 +61,7 @@
   /* ── Lever list ── */
   #lever-list { padding: 32px 24px; max-width: 1100px; margin: 0 auto; }
   .lever-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 16px; }
-  .lever-card { background: #fff; border-radius: 14px; padding: 20px; border: 1.5px solid #e2e8f0; cursor: pointer; transition: box-shadow 0.15s, transform 0.15s; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+  .lever-card { background: #fff; border-radius: 14px; padding: 20px; border: 1.5px solid #e2e8f0; cursor: pointer; transition: box-shadow 0.15s, transform 0.15s; box-shadow: 0 2px 8px rgba(0,0,0,0.04); position: relative; }
   .lever-card:hover { box-shadow: 0 8px 24px rgba(27,58,140,0.15); transform: translateY(-2px); }
   .lever-card-inner { display: flex; align-items: flex-start; gap: 12px; }
   .lever-icon { font-size: 28px; flex-shrink: 0; }
@@ -53,18 +71,18 @@
   .value-badge { border-radius: 12px; padding: 3px 10px; font-size: 11px; font-weight: 700; }
 
   /* ── Lever detail ── */
-  #lever-detail { display: none; height: 100vh; flex-direction: column; overflow: hidden; }
-  .lever-body { display: flex; flex: 1; overflow: hidden; }
-  .sidebar { width: 220px; background: #1a2744; flex-shrink: 0; overflow-y: auto; }
-  .sidebar-item { padding: 13px 16px; cursor: pointer; border-left: 3px solid transparent; color: #94a3b8; font-size: 13px; display: flex; align-items: center; gap: 8px; transition: background 0.1s; }
-  .sidebar-item.active { border-left-color: #60a5fa; background: rgba(96,165,250,0.12); color: #fff; font-weight: 700; }
+  #lever-detail { display: none; height: calc(100vh - 52px); flex-direction: column; overflow: hidden; }
+  .lever-body { display: flex; height: 100%; overflow: hidden; }
+  .sidebar { width: 320px; background: #1a2744; flex-shrink: 0; overflow-y: auto; }
+  .sidebar-item { padding: 18px 24px; cursor: pointer; border-left: 5px solid transparent; color: #94a3b8; font-size: 16px; display: flex; align-items: center; gap: 14px; transition: background 0.1s; line-height: 1.4; }
+  .sidebar-item.active { border-left-color: #60a5fa; background: rgba(96,165,250,0.12); color: #fff; font-weight: 700; font-size: 16px; }
   .sidebar-item:hover:not(.active) { background: rgba(255,255,255,0.05); color: #cbd5e1; }
   .sidebar-dot { width: 6px; height: 6px; border-radius: 50%; background: #60a5fa; flex-shrink: 0; }
-  .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; height: 100%; }
   .section-header { background: #2A4FA8; padding: 14px 28px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
   .section-counter { font-size: 11px; color: #93c5fd; font-weight: 600; }
   .section-title { font-size: 18px; font-weight: 800; color: #fff; }
-  .content-area { flex: 1; overflow-y: auto; padding: 28px 32px; background: #f1f5f9; }
+  .content-area { flex: 1; overflow-y: auto; padding: 28px 32px; background: #f1f5f9; min-height: 0; }
 
   /* ── Bullet cards (large) ── */
   .bullet-card {
@@ -157,12 +175,20 @@
   .placeholder-box { padding: 60px 20px; text-align: center; color: #94a3b8; }
 
   /* ── Pagination ── */
-  .pagination { background: #fff; border-top: 1px solid #f1f5f9; padding: 12px 28px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
-  .btn-prev { background: none; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 8px 18px; font-size: 13px; color: #475569; }
+  .pagination { background: #fff; border-top: 2px solid #e2e8f0; padding: 18px 32px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; gap: 12px; box-shadow: 0 -2px 12px rgba(0,0,0,0.06); }
+  .btn-prev { background: none; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 11px 24px; font-size: 15px; color: #475569; font-weight: 500; }
   .btn-prev:disabled { color: #cbd5e1; cursor: not-allowed; }
-  .page-indicator { font-size: 13px; color: #64748b; }
-  .btn-next { background: #1B3A8C; color: #fff; border: none; border-radius: 8px; padding: 8px 18px; font-size: 13px; font-weight: 700; }
+  .page-indicator { font-size: 14px; color: #64748b; font-weight: 500; }
+  .btn-next { background: #1B3A8C; color: #fff; border: none; border-radius: 10px; padding: 11px 24px; font-size: 15px; font-weight: 700; }
   .btn-next:hover { background: #132d70; }
+  .btn-done-reviewing {
+    background: #fff; color: #1B3A8C;
+    border: 2px solid #1B3A8C; border-radius: 10px;
+    padding: 11px 22px; font-size: 14px; font-weight: 700;
+    display: flex; align-items: center; gap: 8px;
+    transition: all 0.15s;
+  }
+  .btn-done-reviewing:hover { background: #1B3A8C; color: #fff; }
 
   /* ── Summary ── */
   #summary-screen { display: none; min-height: 100vh; background: #f1f5f9; }
@@ -209,8 +235,7 @@
     </div>
     <div class="top-bar-actions">
       <span class="saved-indicator" id="saved-indicator">✓ Saved</span>
-      <button class="btn-outline-white" id="btn-summary" style="display:none">📋 Reactions Summary</button>
-      <button class="btn-ghost" id="btn-back">← All Levers</button>
+<button class="btn-ghost" id="btn-back">← All Levers</button>
     </div>
   </div>
 
@@ -224,7 +249,14 @@
   <!-- Lever detail -->
   <div id="lever-detail">
     <div class="lever-body">
-      <div class="sidebar" id="sidebar"></div>
+      <div class="sidebar" id="sidebar" style="display:flex;flex-direction:column;">
+        <div id="sidebar-items" style="flex:1;overflow-y:auto;"></div>
+        <div style="padding:20px 24px;border-top:1px solid rgba(255,255,255,0.08);flex-shrink:0;">
+          <button onclick="renderLeverList()" style="width:100%;background:rgba(255,255,255,0.08);color:#cbd5e1;border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:12px 16px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">
+            ← Back to All Levers
+          </button>
+        </div>
+      </div>
       <div class="main-content">
         <div class="section-header">
           <span style="font-size:22px" id="section-icon"></span>
@@ -237,7 +269,10 @@
         <div class="pagination">
           <button class="btn-prev" id="btn-prev" onclick="navigate(-1)">← Previous</button>
           <span class="page-indicator" id="page-indicator"></span>
-          <button class="btn-next" id="btn-next" onclick="navigate(1)">Next →</button>
+          <div style="display:flex;align-items:center;gap:12px">
+            <button class="btn-done-reviewing" onclick="renderLeverList()">✓ Done Reviewing this Lever</button>
+            <button class="btn-next" id="btn-next" onclick="navigate(1)">Next →</button>
+          </div>
         </div>
       </div>
     </div>
@@ -397,6 +432,9 @@ let allVotes = [];
 let pollInterval = null;
 // pending text inputs: { bulletKey: { reaction, text } }
 let pendingText = {};
+// tracks which levers and sections the user has visited: { leverId: Set(sectionIdx) }
+let visitedLevers = new Set();
+let visitedSections = {};
 
 // ── Login ──────────────────────────────────────────────────────────────────────
 const nameInput = document.getElementById("name-input");
@@ -418,7 +456,7 @@ function renderLeverList() {
   document.getElementById("lever-detail").style.display = "none";
   document.getElementById("lever-list").style.display = "block";
   document.getElementById("top-bar-title").textContent = "CS Optimization — 12 Levers";
-  document.getElementById("btn-summary").style.display = "none";
+  // summary button removed
   document.getElementById("btn-back").style.display = "none";
   clearInterval(pollInterval); currentLever = null;
 
@@ -428,16 +466,24 @@ function renderLeverList() {
     const card = document.createElement("div");
     card.className = "lever-card";
     const voteCount = allVotes.filter(v => v.lever_id === lever.id).length;
-    card.innerHTML = `<div class="lever-card-inner">
-      <div class="lever-icon">${lever.icon}</div>
-      <div style="flex:1">
-        <div class="lever-number">LEVER ${lever.number}</div>
-        <div class="lever-name">${lever.title}</div>
-        <div class="lever-meta">
-          <span class="value-badge" style="background:${lever.valueColor}20;color:${lever.valueColor}">${lever.valueProvided}</span>
-          ${voteCount > 0 ? `<span style="font-size:11px;color:#64748b">💬 ${voteCount}</span>` : ""}
+    const isReviewed = visitedLevers.has(lever.id);
+    card.className = "lever-card " + (isReviewed ? "is-reviewed" : "needs-review");
+    const statusBadge = isReviewed
+      ? `<span class="reviewed-badge">✓ Reviewed</span>`
+      : `<span class="review-badge">● Review needed</span>`;
+    card.innerHTML = `
+      <div style="position:absolute;bottom:calc(100% - 20px - 11px);right:20px">${statusBadge}</div>
+      <div class="lever-card-inner">
+        <div class="lever-icon">${lever.icon}</div>
+        <div style="flex:1">
+          <div class="lever-number">LEVER ${lever.number}</div>
+          <div class="lever-name">${lever.title}</div>
+          <div class="lever-meta">
+            <span class="value-badge" style="background:${lever.valueColor}20;color:${lever.valueColor}">${lever.valueProvided}</span>
+            ${voteCount > 0 ? `<span style="font-size:11px;color:#64748b">💬 ${voteCount}</span>` : ""}
+          </div>
         </div>
-      </div></div>`;
+      </div>`;
     card.addEventListener("click", () => openLever(lever));
     grid.appendChild(card);
   });
@@ -448,12 +494,14 @@ document.getElementById("btn-back").addEventListener("click", renderLeverList);
 // ── Open lever ─────────────────────────────────────────────────────────────────
 async function openLever(lever) {
   currentLever = lever; currentSectionIdx = 0; pendingText = {};
+  visitedLevers.add(lever.id);
+  if (!visitedSections[lever.id]) visitedSections[lever.id] = new Set();
   document.getElementById("lever-list").style.display = "none";
   document.getElementById("lever-detail").style.display = "flex";
   document.getElementById("lever-detail").style.flexDirection = "column";
   document.getElementById("summary-screen").style.display = "none";
   document.getElementById("top-bar-title").textContent = lever.title;
-  document.getElementById("btn-summary").style.display = "inline-flex";
+  // summary button removed
   document.getElementById("btn-back").style.display = "inline-flex";
   renderSidebar(); renderSection();
   clearInterval(pollInterval);
@@ -470,14 +518,16 @@ async function refreshVotes() {
 // ── Sidebar ────────────────────────────────────────────────────────────────────
 function renderSidebar() {
   if (!currentLever) return;
-  const sidebar = document.getElementById("sidebar");
+  const sidebar = document.getElementById("sidebar-items");
   sidebar.innerHTML = "";
   currentLever.sections.forEach((sec, idx) => {
     const hasReaction = allVotes.some(v => v.section_key === sec.id);
     const active = idx === currentSectionIdx;
+    const visited = visitedSections[currentLever.id] && visitedSections[currentLever.id].has(idx);
     const item = document.createElement("div");
     item.className = "sidebar-item" + (active ? " active" : "");
-    item.innerHTML = `<span style="font-size:15px">${sec.icon}</span><span style="flex:1;line-height:1.3">${sec.label}</span>${hasReaction ? '<span class="sidebar-dot"></span>' : ""}`;
+    const trailingDot = !visited ? '<span class="section-unread-dot"></span>' : hasReaction ? '<span class="sidebar-dot"></span>' : "";
+    item.innerHTML = `<span style="font-size:22px">${sec.icon}</span><span style="flex:1;line-height:1.4">${sec.label}</span>${trailingDot}`;
     item.addEventListener("click", () => { currentSectionIdx = idx; pendingText = {}; renderSidebar(); renderSection(); });
     sidebar.appendChild(item);
   });
@@ -494,6 +544,7 @@ function renderSection() {
   document.getElementById("page-indicator").textContent = (currentSectionIdx+1) + " / " + total;
   document.getElementById("btn-prev").disabled = currentSectionIdx === 0;
   document.getElementById("btn-next").textContent = currentSectionIdx < total-1 ? "Next →" : "Back to Levers →";
+  if (currentLever) { if (!visitedSections[currentLever.id]) visitedSections[currentLever.id] = new Set(); visitedSections[currentLever.id].add(currentSectionIdx); }
 
   const area = document.getElementById("content-area");
   area.innerHTML = buildSectionHTML(sec);
@@ -548,7 +599,10 @@ function buildSectionHTML(sec) {
   }
   if (c.type === "owner") {
     let html = `<div class="section-label-sm">OWNERS</div>`;
-    c.owners.forEach(o => { html += `<div class="info-card"><div class="owner-row"><span class="owner-role">${o.role}</span><span class="owner-name">${o.name}</span></div></div>`; });
+    c.owners.forEach((o, i) => {
+      const label = `<span style="font-weight:700;color:#1B3A8C">${o.role}</span><br><span style="font-weight:400">${o.name}</span>`;
+      html += bulletCardHTML(sec.id+"_own", i, label);
+    });
     html += `<div class="section-label-sm" style="margin-top:20px">NEXT STEPS</div>`;
     c.nextSteps.forEach((step, i) => { html += bulletCardHTML(sec.id, i, step); });
     return html;
@@ -741,7 +795,7 @@ function navigate(dir) {
 }
 
 // ── Summary ────────────────────────────────────────────────────────────────────
-document.getElementById("btn-summary").addEventListener("click", showSummaryScreen);
+// summary button removed
 
 async function showSummaryScreen() {
   await refreshVotes();
