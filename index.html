@@ -373,7 +373,8 @@ async function deleteVote(userName, leverId, bulletKey) {
   return sbReq("DELETE", `votes?user_name=eq.${enc(userName)}&lever_id=eq.${enc(leverId)}&bullet_key=eq.${enc(bulletKey)}`, null);
 }
 async function fetchVotes(leverId) {
-  return sbReq("GET", `votes?lever_id=eq.${enc(leverId)}&select=*`, null);
+  // Only fetch this user's own votes — all votes still saved in Supabase for facilitator
+  return sbReq("GET", `votes?lever_id=eq.${enc(leverId)}&user_name=eq.${enc(currentUser)}&select=*`, null);
 }
 function enc(s) { return encodeURIComponent(s); }
 
@@ -480,7 +481,7 @@ function renderLeverList() {
           <div class="lever-name">${lever.title}</div>
           <div class="lever-meta">
             <span class="value-badge" style="background:${lever.valueColor}20;color:${lever.valueColor}">${lever.valueProvided}</span>
-            ${voteCount > 0 ? `<span style="font-size:11px;color:#64748b">💬 ${voteCount}</span>` : ""}
+  
           </div>
         </div>
       </div>`;
@@ -506,7 +507,7 @@ async function openLever(lever) {
   renderSidebar(); renderSection();
   clearInterval(pollInterval);
   refreshVotes().then(() => { renderSidebar(); renderSection(); });
-  pollInterval = setInterval(async () => { await refreshVotes(); renderSection(); renderSidebar(); }, 10000);
+  // No polling needed — each user only sees their own votes
 }
 
 async function refreshVotes() {
@@ -616,9 +617,8 @@ function bulletCardHTML(subKey, idx, text) {
   const myReaction = myVote ? myVote.reaction : null;
   const pending = pendingText[bulletKey];
 
-  // count all reactions on this bullet
+  // only show current user's own reaction state — no aggregate counts
   const counts = { Agree:0, Question:0, Concern:0, Agenda:0 };
-  allVotes.filter(v => v.bullet_key === bulletKey).forEach(v => { if (counts[v.reaction]!==undefined) counts[v.reaction]++; });
 
   // notes from others (and own submitted notes)
   const notes = allVotes.filter(v => v.bullet_key === bulletKey && v.note && v.note.trim() && (v.reaction==="Question"||v.reaction==="Concern"||v.reaction==="Agenda"));
@@ -635,7 +635,7 @@ function bulletCardHTML(subKey, idx, text) {
     const count = counts[r];
     return `<button class="bullet-react-btn ${active?"active-"+cls:""}" data-key="${bulletKey}" data-reaction="${r}" data-needs-text="${needsText}">
       ${emoji} ${r==="Agenda"?"Add to Agenda":r}
-      ${count > 0 ? `<span class="react-pill" style="background:${active?col:"#e2e8f0"};color:${active?"#fff":"#64748b"}">${count}</span>` : ""}
+
     </button>`;
   }).join("");
 
