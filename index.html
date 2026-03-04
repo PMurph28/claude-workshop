@@ -155,9 +155,9 @@
   .note-chip-delete:hover { color: #EF4444; }
 
   /* section subheaders */
-  .section-subheader { font-weight: 700; font-size: 15px; margin-bottom: 12px; margin-top: 4px; }
+  .section-subheader { font-weight: 700; font-size: 22px; margin-bottom: 14px; margin-top: 4px; }
   .section-divider { border: none; border-bottom: 1px solid #e2e8f0; margin-bottom: 16px; }
-  .impact-badge { display: inline-block; background: #FEF3C7; color: #92400E; border-radius: 20px; padding: 4px 14px; font-weight: 700; font-size: 13px; margin-bottom: 16px; }
+  .impact-badge { display: inline-block; background: #FEF3C7; color: #92400E; border-radius: 20px; padding: 6px 18px; font-weight: 700; font-size: 18px; margin-bottom: 18px; }
 
   /* non-bullet content cards */
   .info-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px 24px; margin-bottom: 14px; }
@@ -167,11 +167,11 @@
   .interdep-system { font-weight: 700; color: #1B3A8C; font-size: 14px; }
   .dep-badge { border-radius: 12px; padding: 2px 10px; font-size: 12px; font-weight: 700; }
   .interdep-detail { font-size: 14px; color: #334155; line-height: 1.6; }
-  .phase-header { font-weight: 700; color: #1B3A8C; font-size: 15px; margin-bottom: 12px; }
+  .phase-header { font-weight: 700; color: #1B3A8C; font-size: 22px; margin-bottom: 14px; }
   .owner-row { display: flex; gap: 12px; align-items: flex-start; }
   .owner-role { font-weight: 700; color: #1B3A8C; font-size: 13px; min-width: 140px; flex-shrink: 0; }
   .owner-name { font-size: 14px; color: #334155; }
-  .section-label-sm { font-weight: 700; color: #475569; font-size: 11px; letter-spacing: 1px; margin-bottom: 12px; margin-top: 4px; }
+  .section-label-sm { font-weight: 700; color: #475569; font-size: 18px; letter-spacing: 0.5px; margin-bottom: 14px; margin-top: 4px; }
   .placeholder-box { padding: 60px 20px; text-align: center; color: #94a3b8; }
 
   /* ── Pagination ── */
@@ -563,10 +563,19 @@ function buildSectionHTML(sec) {
     return html;
   }
   if (c.type === "fromto") {
+    // Merge all current bullets into one card, all future bullets into one card
+    const currentText = c.current.map((item, i) => i === 0
+      ? `<div style="margin-bottom:${c.current.length > 1 ? '14px' : '0'};font-size:15px;font-weight:500;color:#1e293b;line-height:1.7">${item}</div>`
+      : `<div style="margin-bottom:${i < c.current.length-1 ? '10px' : '0'};padding-left:16px;border-left:2px solid #e2e8f0;font-size:13px;font-style:italic;color:#64748b;line-height:1.6">${item}</div>`
+    ).join("");
+    const futureText  = c.future.map((item, i)  => i === 0
+      ? `<div style="margin-bottom:${c.future.length > 1 ? '14px' : '0'};font-size:15px;font-weight:500;color:#1e293b;line-height:1.7">${item}</div>`
+      : `<div style="margin-bottom:${i < c.future.length-1 ? '10px' : '0'};padding-left:16px;border-left:2px solid #e2e8f0;font-size:13px;font-style:italic;color:#64748b;line-height:1.6">${item}</div>`
+    ).join("");
     let html = `<div class="section-subheader" style="color:#DC2626">Current State ❌</div><hr class="section-divider">`;
-    c.current.forEach((item, i) => { html += bulletCardHTML(sec.id+"_cur", i, item); });
-    html += `<div class="section-subheader" style="color:#059669;margin-top:8px">Future State ✅</div><hr class="section-divider">`;
-    c.future.forEach((item, i) => { html += bulletCardHTML(sec.id+"_fut", i, item); });
+    html += bulletCardHTML(sec.id+"_cur", 0, currentText);
+    html += `<div class="section-subheader" style="color:#059669;margin-top:16px">Future State ✅</div><hr class="section-divider">`;
+    html += bulletCardHTML(sec.id+"_fut", 0, futureText);
     return html;
   }
   if (c.type === "impact") {
@@ -672,7 +681,10 @@ function bulletCardHTML(subKey, idx, text) {
   }
 
   return `<div class="bullet-card ${borderClass}" id="bc-${bulletKey}">
-    <div class="bullet-text">${text}</div>
+    <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:20px">
+      <span style="flex-shrink:0;width:28px;height:28px;border-radius:50%;background:#1B3A8C;color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px">${idx+1}</span>
+      <div class="bullet-text" style="margin-bottom:0">${text}</div>
+    </div>
     <div class="bullet-reactions">${reactionBtns}</div>
     ${textArea}
     ${notesHTML}
