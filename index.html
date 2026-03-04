@@ -317,7 +317,6 @@
 // ── Supabase config ────────────────────────────────────────────────────────────
 const SUPABASE_URL = "https://torfbjxvvdmycbufggbi.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRvcmZianh2dmRteWNidWZnZ2JpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2NDgxNjYsImV4cCI6MjA4ODIyNDE2Nn0._YVi8fae1ijXRwzQpKuKRdWLk-BCV67z4quqWk9RacQ";
-
 async function sbRequest(method, path, body) {
   const res = await fetch(SUPABASE_URL + "/rest/v1/" + path, {
     method,
