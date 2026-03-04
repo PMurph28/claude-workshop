@@ -347,7 +347,9 @@ async function fetchVotes(leverId) {
 }
 
 async function upsertStar(userName, leverId, sectionKey, itemIdx, starred) {
-  return sbRequest("POST", "stars?on_conflict=user_name,lever_id,section_key,item_idx", { user_name: userName, lever_id: leverId, section_key: sectionKey, item_idx: itemIdx, starred });
+  await sbRequest("DELETE", `stars?user_name=eq.${encodeURIComponent(userName)}&lever_id=eq.${encodeURIComponent(leverId)}&section_key=eq.${encodeURIComponent(sectionKey)}&item_idx=eq.${itemIdx}`, null);
+  if (starred) return sbRequest("POST", "stars", { user_name: userName, lever_id: leverId, section_key: sectionKey, item_idx: itemIdx, starred: true });
+  return null;
 }
 
 async function fetchStars(leverId) {
