@@ -8,68 +8,42 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f1f5f9; color: #1e293b; }
   button { font-family: inherit; cursor: pointer; }
-  input { font-family: inherit; }
+  input, textarea { font-family: inherit; }
 
-  /* Login */
+  /* ── Login ── */
   #login-screen {
     min-height: 100vh;
     background: linear-gradient(135deg, #132d70 0%, #2A4FA8 60%, #4A6FD4 100%);
     display: flex; align-items: center; justify-content: center;
   }
-  .login-card {
-    background: #fff; border-radius: 20px; padding: 48px 44px; width: 420px;
-    box-shadow: 0 24px 60px rgba(0,0,0,0.3);
-  }
+  .login-card { background: #fff; border-radius: 20px; padding: 48px 44px; width: 420px; box-shadow: 0 24px 60px rgba(0,0,0,0.3); }
   .login-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 2px; color: #94a3b8; margin-bottom: 6px; }
   .login-title { font-size: 26px; font-weight: 800; color: #1B3A8C; margin-bottom: 4px; }
   .login-sub { font-size: 14px; color: #64748b; margin-bottom: 32px; }
   .login-label { font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 8px; }
-  .login-input {
-    width: 100%; border: 1.5px solid #e2e8f0; border-radius: 10px;
-    padding: 12px 14px; font-size: 15px; outline: none; margin-bottom: 16px;
-    transition: border-color 0.2s;
-  }
+  .login-input { width: 100%; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 12px 14px; font-size: 15px; outline: none; margin-bottom: 16px; transition: border-color 0.2s; }
   .login-input:focus { border-color: #1B3A8C; }
-  .login-btn {
-    width: 100%; background: #1B3A8C; color: #fff; border: none;
-    border-radius: 10px; padding: 13px; font-size: 15px; font-weight: 700;
-    transition: background 0.2s;
-  }
+  .login-btn { width: 100%; background: #1B3A8C; color: #fff; border: none; border-radius: 10px; padding: 13px; font-size: 15px; font-weight: 700; transition: background 0.2s; }
   .login-btn:disabled { background: #e2e8f0; color: #94a3b8; cursor: not-allowed; }
   .login-btn:not(:disabled):hover { background: #132d70; }
 
-  /* App shell */
+  /* ── App shell ── */
   #app-screen { display: none; min-height: 100vh; }
-  .top-bar {
-    background: #1B3A8C; padding: 14px 28px;
-    display: flex; align-items: center; justify-content: space-between;
-  }
+  .top-bar { background: #1B3A8C; padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; }
   .top-bar-eyebrow { font-size: 11px; color: #93c5fd; letter-spacing: 2px; font-weight: 600; }
   .top-bar-title { font-size: 20px; font-weight: 800; color: #fff; }
   .top-bar-actions { display: flex; gap: 10px; align-items: center; }
-  .btn-ghost {
-    background: rgba(255,255,255,0.12); color: #fff; border: none;
-    border-radius: 8px; padding: 7px 14px; font-size: 13px;
-  }
+  .btn-ghost { background: rgba(255,255,255,0.12); color: #fff; border: none; border-radius: 8px; padding: 7px 14px; font-size: 13px; }
   .btn-ghost:hover { background: rgba(255,255,255,0.22); }
-  .btn-outline-white {
-    background: rgba(255,255,255,0.12); color: #fff;
-    border: 1px solid rgba(255,255,255,0.3);
-    border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 600;
-  }
+  .btn-outline-white { background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 600; }
   .btn-outline-white:hover { background: rgba(255,255,255,0.22); }
   .saved-indicator { color: #86efac; font-size: 12px; font-weight: 600; opacity: 0; transition: opacity 0.3s; }
   .saved-indicator.show { opacity: 1; }
 
-  /* Lever list */
+  /* ── Lever list ── */
   #lever-list { padding: 32px 24px; max-width: 1100px; margin: 0 auto; }
   .lever-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 16px; }
-  .lever-card {
-    background: #fff; border-radius: 14px; padding: 20px;
-    border: 1.5px solid #e2e8f0; cursor: pointer;
-    transition: box-shadow 0.15s, transform 0.15s;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  }
+  .lever-card { background: #fff; border-radius: 14px; padding: 20px; border: 1.5px solid #e2e8f0; cursor: pointer; transition: box-shadow 0.15s, transform 0.15s; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
   .lever-card:hover { box-shadow: 0 8px 24px rgba(27,58,140,0.15); transform: translateY(-2px); }
   .lever-card-inner { display: flex; align-items: flex-start; gap: 12px; }
   .lever-icon { font-size: 28px; flex-shrink: 0; }
@@ -77,124 +51,139 @@
   .lever-name { font-size: 15px; font-weight: 700; color: #1e293b; line-height: 1.3; margin-bottom: 10px; }
   .lever-meta { display: flex; align-items: center; justify-content: space-between; }
   .value-badge { border-radius: 12px; padding: 3px 10px; font-size: 11px; font-weight: 700; }
-  .reaction-count { font-size: 11px; color: #64748b; }
 
-  /* Lever detail */
+  /* ── Lever detail ── */
   #lever-detail { display: none; height: 100vh; flex-direction: column; overflow: hidden; }
   .lever-body { display: flex; flex: 1; overflow: hidden; }
   .sidebar { width: 220px; background: #1a2744; flex-shrink: 0; overflow-y: auto; }
-  .sidebar-item {
-    padding: 13px 16px; cursor: pointer;
-    border-left: 3px solid transparent;
-    color: #94a3b8; font-size: 13px;
-    display: flex; align-items: center; gap: 8px;
-    transition: background 0.1s;
-  }
+  .sidebar-item { padding: 13px 16px; cursor: pointer; border-left: 3px solid transparent; color: #94a3b8; font-size: 13px; display: flex; align-items: center; gap: 8px; transition: background 0.1s; }
   .sidebar-item.active { border-left-color: #60a5fa; background: rgba(96,165,250,0.12); color: #fff; font-weight: 700; }
   .sidebar-item:hover:not(.active) { background: rgba(255,255,255,0.05); color: #cbd5e1; }
   .sidebar-dot { width: 6px; height: 6px; border-radius: 50%; background: #60a5fa; flex-shrink: 0; }
   .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
   .section-header { background: #2A4FA8; padding: 14px 28px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
-  .section-header-icon { font-size: 22px; }
   .section-counter { font-size: 11px; color: #93c5fd; font-weight: 600; }
   .section-title { font-size: 18px; font-weight: 800; color: #fff; }
-  .content-area { flex: 1; overflow-y: auto; padding: 24px 28px; background: #f1f5f9; }
+  .content-area { flex: 1; overflow-y: auto; padding: 28px 32px; background: #f1f5f9; }
 
-  /* Content components */
-  .bullet-item {
-    background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
-    padding: 14px 16px; margin-bottom: 10px;
-    display: flex; align-items: flex-start; gap: 10px;
+  /* ── Bullet cards (large) ── */
+  .bullet-card {
+    background: #fff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    transition: border-color 0.2s, box-shadow 0.2s;
   }
-  .star-btn { background: none; border: none; font-size: 16px; color: #cbd5e1; flex-shrink: 0; padding-top: 2px; line-height: 1; }
-  .star-btn.starred { color: #F59E0B; }
-  .bullet-text { font-size: 14px; color: #334155; line-height: 1.6; flex: 1; }
-  .section-subheader { font-weight: 700; font-size: 15px; margin-bottom: 10px; }
-  .section-divider { border: none; border-bottom: 1px solid #e2e8f0; margin-bottom: 12px; }
+  .bullet-card:hover { box-shadow: 0 4px 16px rgba(27,58,140,0.08); }
+  .bullet-card.has-agree { border-left: 4px solid #10B981; }
+  .bullet-card.has-question { border-left: 4px solid #DC2626; }
+  .bullet-card.has-concern { border-left: 4px solid #F59E0B; }
+  .bullet-card.has-agenda { border-left: 4px solid #8B5CF6; }
+
+  .bullet-text {
+    font-size: 15px; color: #1e293b; line-height: 1.75;
+    margin-bottom: 20px; font-weight: 400;
+  }
+
+  /* reaction row on each bullet */
+  .bullet-reactions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .bullet-react-btn {
+    display: flex; align-items: center; gap: 5px;
+    background: #f8fafc; border: 1.5px solid #e2e8f0;
+    border-radius: 20px; padding: 6px 14px;
+    font-size: 12px; font-weight: 500; color: #64748b;
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .bullet-react-btn:hover { border-color: #94a3b8; background: #f1f5f9; }
+  .bullet-react-btn.active-agree  { background: #f0fdf4; border-color: #10B981; color: #10B981; font-weight: 700; }
+  .bullet-react-btn.active-question { background: #fef2f2; border-color: #DC2626; color: #DC2626; font-weight: 700; }
+  .bullet-react-btn.active-concern  { background: #fffbeb; border-color: #F59E0B; color: #D97706; font-weight: 700; }
+  .bullet-react-btn.active-agenda   { background: #f5f3ff; border-color: #8B5CF6; color: #7C3AED; font-weight: 700; }
+  .react-pill { border-radius: 10px; padding: 1px 7px; font-size: 11px; font-weight: 700; margin-left: 2px; }
+
+  /* text input that expands below button */
+  .bullet-text-input-wrap { margin-top: 14px; }
+  .bullet-text-input {
+    width: 100%; border: 1.5px solid #e2e8f0; border-radius: 10px;
+    padding: 10px 14px; font-size: 13px; resize: none; outline: none;
+    line-height: 1.5; color: #334155; background: #f8fafc;
+    transition: border-color 0.2s;
+  }
+  .bullet-text-input:focus { border-color: #1B3A8C; background: #fff; }
+  .text-input-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
+  .char-count { font-size: 11px; color: #94a3b8; }
+  .char-count.near-limit { color: #F59E0B; }
+  .char-count.at-limit { color: #EF4444; }
+  .submit-note-btn {
+    background: #1B3A8C; color: #fff; border: none; border-radius: 8px;
+    padding: 6px 14px; font-size: 12px; font-weight: 700;
+  }
+  .submit-note-btn:hover { background: #132d70; }
+  .submit-note-btn:disabled { background: #e2e8f0; color: #94a3b8; cursor: not-allowed; }
+
+  /* notes display below bullet */
+  .notes-display { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .note-chip {
+    display: flex; align-items: flex-start; gap: 8px;
+    background: #f8fafc; border-radius: 8px; padding: 8px 12px;
+    font-size: 12px; color: #475569; border: 1px solid #e2e8f0;
+  }
+  .note-chip-emoji { flex-shrink: 0; font-size: 13px; }
+  .note-chip-author { font-weight: 700; color: #1e293b; margin-right: 4px; }
+  .note-chip-text { flex: 1; line-height: 1.4; }
+  .note-chip-delete { margin-left: auto; background: none; border: none; color: #cbd5e1; font-size: 14px; padding: 0 2px; flex-shrink: 0; }
+  .note-chip-delete:hover { color: #EF4444; }
+
+  /* section subheaders */
+  .section-subheader { font-weight: 700; font-size: 15px; margin-bottom: 12px; margin-top: 4px; }
+  .section-divider { border: none; border-bottom: 1px solid #e2e8f0; margin-bottom: 16px; }
   .impact-badge { display: inline-block; background: #FEF3C7; color: #92400E; border-radius: 20px; padding: 4px 14px; font-weight: 700; font-size: 13px; margin-bottom: 16px; }
-  .geo-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin-bottom: 10px; }
+
+  /* non-bullet content cards */
+  .info-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px 24px; margin-bottom: 14px; }
   .geo-scope { font-weight: 700; color: #1B3A8C; margin-bottom: 4px; font-size: 14px; }
-  .geo-detail { font-size: 14px; color: #334155; }
-  .interdep-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; }
-  .interdep-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .geo-detail { font-size: 14px; color: #334155; line-height: 1.6; }
+  .interdep-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
   .interdep-system { font-weight: 700; color: #1B3A8C; font-size: 14px; }
   .dep-badge { border-radius: 12px; padding: 2px 10px; font-size: 12px; font-weight: 700; }
-  .interdep-detail { font-size: 14px; color: #334155; }
-  .phase-header { font-weight: 700; color: #1B3A8C; font-size: 15px; margin-bottom: 10px; }
-  .owner-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 16px; margin-bottom: 10px; display: flex; gap: 12px; }
-  .owner-role { font-weight: 700; color: #1B3A8C; font-size: 13px; min-width: 130px; }
+  .interdep-detail { font-size: 14px; color: #334155; line-height: 1.6; }
+  .phase-header { font-weight: 700; color: #1B3A8C; font-size: 15px; margin-bottom: 12px; }
+  .owner-row { display: flex; gap: 12px; align-items: flex-start; }
+  .owner-role { font-weight: 700; color: #1B3A8C; font-size: 13px; min-width: 140px; flex-shrink: 0; }
   .owner-name { font-size: 14px; color: #334155; }
-  .section-label { font-weight: 700; color: #475569; font-size: 12px; letter-spacing: 1px; margin-bottom: 10px; }
+  .section-label-sm { font-weight: 700; color: #475569; font-size: 11px; letter-spacing: 1px; margin-bottom: 12px; margin-top: 4px; }
   .placeholder-box { padding: 60px 20px; text-align: center; color: #94a3b8; }
-  .placeholder-icon { font-size: 40px; margin-bottom: 12px; }
-  .placeholder-title { font-weight: 700; font-size: 16px; margin-bottom: 4px; }
 
-  /* Reaction bar */
-  .reaction-bar {
-    background: #fff; border-top: 1px solid #e2e8f0;
-    padding: 12px 28px; display: flex; align-items: center;
-    justify-content: space-between; flex-shrink: 0; flex-wrap: wrap; gap: 8px;
-  }
-  .reaction-bar-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .reaction-label { font-size: 13px; color: #64748b; font-weight: 600; margin-right: 4px; }
-  .react-btn {
-    display: flex; align-items: center; gap: 6px;
-    background: #fff; border: 1.5px solid #e2e8f0;
-    border-radius: 20px; padding: 7px 14px;
-    font-size: 13px; font-weight: 500; color: #475569;
-    transition: all 0.15s;
-  }
-  .react-btn:hover { border-color: #94a3b8; }
-  .react-btn.active-agree { background: #10B98118; border-color: #10B981; color: #10B981; font-weight: 700; }
-  .react-btn.active-question { background: #DC262618; border-color: #DC2626; color: #DC2626; font-weight: 700; }
-  .react-btn.active-concern { background: #F59E0B18; border-color: #F59E0B; color: #F59E0B; font-weight: 700; }
-  .react-count { border-radius: 10px; padding: 1px 7px; font-size: 11px; font-weight: 700; }
-  .flag-btn {
-    display: flex; align-items: center; gap: 6px;
-    background: #fff; border: 1.5px solid #e2e8f0;
-    border-radius: 20px; padding: 7px 14px;
-    font-size: 13px; color: #475569;
-  }
-  .flag-btn.flagged { background: #FEE2E2; border-color: #EF4444; color: #EF4444; font-weight: 700; }
-
-  /* Pagination */
-  .pagination {
-    background: #fff; border-top: 1px solid #f1f5f9;
-    padding: 10px 28px; display: flex; align-items: center;
-    justify-content: space-between; flex-shrink: 0;
-  }
-  .btn-prev {
-    background: none; border: 1.5px solid #e2e8f0; border-radius: 8px;
-    padding: 8px 18px; font-size: 13px; color: #475569;
-  }
+  /* ── Pagination ── */
+  .pagination { background: #fff; border-top: 1px solid #f1f5f9; padding: 12px 28px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .btn-prev { background: none; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 8px 18px; font-size: 13px; color: #475569; }
   .btn-prev:disabled { color: #cbd5e1; cursor: not-allowed; }
   .page-indicator { font-size: 13px; color: #64748b; }
-  .btn-next {
-    background: #1B3A8C; color: #fff; border: none;
-    border-radius: 8px; padding: 8px 18px; font-size: 13px; font-weight: 700;
-  }
+  .btn-next { background: #1B3A8C; color: #fff; border: none; border-radius: 8px; padding: 8px 18px; font-size: 13px; font-weight: 700; }
   .btn-next:hover { background: #132d70; }
 
-  /* Summary */
+  /* ── Summary ── */
   #summary-screen { display: none; min-height: 100vh; background: #f1f5f9; }
-  .summary-body { max-width: 860px; margin: 0 auto; padding: 32px 24px; }
+  .summary-body { max-width: 900px; margin: 0 auto; padding: 32px 24px; }
   .summary-card { background: #fff; border-radius: 14px; padding: 24px; margin-bottom: 20px; border: 1px solid #e2e8f0; }
   .summary-section-label { font-size: 12px; font-weight: 700; letter-spacing: 1px; color: #94a3b8; margin-bottom: 16px; }
-  .overall-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .overall-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
   .overall-cell { background: #f8fafc; border-radius: 12px; padding: 20px; text-align: center; }
-  .overall-emoji { font-size: 32px; margin-bottom: 8px; }
-  .overall-count { font-size: 28px; font-weight: 800; }
-  .overall-lbl { font-size: 13px; color: #64748b; }
+  .overall-emoji { font-size: 28px; margin-bottom: 8px; }
+  .overall-count { font-size: 26px; font-weight: 800; }
+  .overall-lbl { font-size: 12px; color: #64748b; margin-top: 2px; }
   .participant-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
   .avatar { width: 32px; height: 32px; border-radius: 50%; background: #1B3A8C; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0; }
   .participant-name { flex: 1; font-weight: 600; color: #1e293b; font-size: 14px; }
   .p-badge { border-radius: 12px; padding: 2px 10px; font-size: 12px; font-weight: 700; }
-  .flagged-row { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; align-items: center; }
-  .starred-row { padding: 6px 0; font-size: 13px; color: #475569; border-bottom: 1px solid #f1f5f9; }
+  .sum-note-row { padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
+  .sum-note-section { font-size: 11px; font-weight: 700; color: #94a3b8; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .sum-note-text { font-size: 14px; color: #334155; line-height: 1.5; }
+  .sum-note-author { font-size: 12px; color: #64748b; margin-top: 3px; }
   .empty-state { color: #94a3b8; font-size: 14px; }
-
-  /* Loading */
-  .loading { display: flex; align-items: center; justify-content: center; padding: 40px; color: #94a3b8; font-size: 14px; gap: 8px; }
+  .agenda-row { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
 </style>
 </head>
 <body>
@@ -213,7 +202,6 @@
 
 <!-- APP -->
 <div id="app-screen">
-  <!-- Top bar -->
   <div class="top-bar">
     <div>
       <div class="top-bar-eyebrow">JJMT MEDTECH — TECHNOLOGY INITIATIVE</div>
@@ -229,7 +217,7 @@
   <!-- Lever list -->
   <div id="lever-list">
     <div style="font-size:14px;color:#64748b;margin-bottom:8px" id="user-greeting"></div>
-    <div style="font-size:14px;color:#64748b;margin-bottom:16px">Select a lever to review its initiative details and submit your reactions.</div>
+    <div style="font-size:14px;color:#64748b;margin-bottom:20px">Select a lever to review its initiative details and submit your reactions.</div>
     <div class="lever-grid" id="lever-grid"></div>
   </div>
 
@@ -239,22 +227,13 @@
       <div class="sidebar" id="sidebar"></div>
       <div class="main-content">
         <div class="section-header">
-          <span class="section-header-icon" id="section-icon"></span>
+          <span style="font-size:22px" id="section-icon"></span>
           <div>
             <div class="section-counter" id="section-counter"></div>
             <div class="section-title" id="section-title-text"></div>
           </div>
         </div>
         <div class="content-area" id="content-area"></div>
-        <div class="reaction-bar">
-          <div class="reaction-bar-left">
-            <span class="reaction-label">React to this section:</span>
-            <button class="react-btn" id="btn-agree" onclick="castVote('Agree')">👍 Agree <span class="react-count" id="count-agree" style="display:none"></span></button>
-            <button class="react-btn" id="btn-question" onclick="castVote('Question')">❓ Question <span class="react-count" id="count-question" style="display:none"></span></button>
-            <button class="react-btn" id="btn-concern" onclick="castVote('Concern')">⚠️ Concern <span class="react-count" id="count-concern" style="display:none"></span></button>
-          </div>
-          <button class="flag-btn" id="btn-flag" onclick="castVote('Flag')">🚩 Flag for Discussion <span class="react-count" id="count-flag" style="display:none"></span></button>
-        </div>
         <div class="pagination">
           <button class="btn-prev" id="btn-prev" onclick="navigate(-1)">← Previous</button>
           <span class="page-indicator" id="page-indicator"></span>
@@ -278,6 +257,8 @@
   </div>
   <div class="summary-body">
     <h2 style="font-size:22px;font-weight:800;color:#1e293b;margin-bottom:24px">Workshop Reactions Summary</h2>
+
+    <!-- Overall counts -->
     <div class="summary-card">
       <div class="summary-section-label">OVERALL REACTIONS</div>
       <div class="overall-grid">
@@ -293,134 +274,135 @@
         </div>
         <div class="overall-cell" style="border:1px solid #F59E0B30">
           <div class="overall-emoji">⚠️</div>
-          <div class="overall-count" style="color:#F59E0B" id="sum-concern">0</div>
+          <div class="overall-count" style="color:#D97706" id="sum-concern">0</div>
           <div class="overall-lbl">Concern</div>
+        </div>
+        <div class="overall-cell" style="border:1px solid #8B5CF630">
+          <div class="overall-emoji">🚩</div>
+          <div class="overall-count" style="color:#7C3AED" id="sum-agenda">0</div>
+          <div class="overall-lbl">Add to Agenda</div>
         </div>
       </div>
     </div>
+
+    <!-- By participant -->
     <div class="summary-card" id="summary-participants-card" style="display:none">
       <div class="summary-section-label">REACTIONS BY PARTICIPANT</div>
       <div id="summary-participants"></div>
     </div>
+
+    <!-- Questions -->
     <div class="summary-card">
-      <div class="summary-section-label" id="sum-flag-label">🚩 FLAGGED FOR DISCUSSION (0)</div>
-      <div id="sum-flagged"><span class="empty-state">No sections flagged yet.</span></div>
+      <div class="summary-section-label" id="sum-q-label">❓ QUESTIONS (0)</div>
+      <div id="sum-questions"><span class="empty-state">No questions submitted yet.</span></div>
     </div>
+
+    <!-- Concerns -->
     <div class="summary-card">
-      <div class="summary-section-label" id="sum-star-label">★ STARRED / HIGHLIGHTED POINTS (0)</div>
-      <div id="sum-starred"><span class="empty-state">No items starred yet. Click ☆ on any bullet to star it.</span></div>
+      <div class="summary-section-label" id="sum-c-label">⚠️ CONCERNS (0)</div>
+      <div id="sum-concerns"><span class="empty-state">No concerns submitted yet.</span></div>
+    </div>
+
+    <!-- Agenda -->
+    <div class="summary-card">
+      <div class="summary-section-label" id="sum-a-label">🚩 ADD TO AGENDA (0)</div>
+      <div id="sum-agenda-items"><span class="empty-state">No agenda items added yet.</span></div>
     </div>
   </div>
 </div>
 
 <script>
-// ── Supabase config ────────────────────────────────────────────────────────────
+// ── Supabase ───────────────────────────────────────────────────────────────────
 const SUPABASE_URL = "https://torfbjxvvdmycbufggbi.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRvcmZianh2dmRteWNidWZnZ2JpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2NDgxNjYsImV4cCI6MjA4ODIyNDE2Nn0._YVi8fae1ijXRwzQpKuKRdWLk-BCV67z4quqWk9RacQ";
 
-async function sbRequest(method, path, body, extraHeaders) {
-  const headers = {
-    "apikey": SUPABASE_KEY,
-    "Authorization": "Bearer " + SUPABASE_KEY,
-    "Content-Type": "application/json",
-    "Prefer": method === "POST" ? "resolution=merge-duplicates,return=representation" : "return=representation",
-    ...extraHeaders
-  };
+async function sbReq(method, path, body) {
   const res = await fetch(SUPABASE_URL + "/rest/v1/" + path, {
-    method, headers, body: body ? JSON.stringify(body) : undefined
+    method,
+    headers: {
+      "apikey": SUPABASE_KEY, "Authorization": "Bearer " + SUPABASE_KEY,
+      "Content-Type": "application/json",
+      "Prefer": method === "POST" ? "resolution=merge-duplicates,return=representation" : "return=representation"
+    },
+    body: body ? JSON.stringify(body) : undefined
   });
-  if (!res.ok) { const t = await res.text(); console.error("Supabase error:", t); return null; }
-  const text = await res.text();
-  return text ? JSON.parse(text) : [];
+  if (!res.ok) { console.error("Supabase error:", await res.text()); return null; }
+  const txt = await res.text(); return txt ? JSON.parse(txt) : [];
 }
 
-async function upsertVote(userName, leverId, sectionKey, reaction) {
-  return sbRequest("POST", "votes?on_conflict=user_name,lever_id,section_key", { user_name: userName, lever_id: leverId, section_key: sectionKey, reaction });
+// votes table: user_name, lever_id, section_key, bullet_key, reaction, note
+async function upsertVote(v) {
+  return sbReq("POST", "votes?on_conflict=user_name,lever_id,bullet_key", v);
 }
-
-async function deleteVote(userName, leverId, sectionKey) {
-  return sbRequest("DELETE", `votes?user_name=eq.${encodeURIComponent(userName)}&lever_id=eq.${encodeURIComponent(leverId)}&section_key=eq.${encodeURIComponent(sectionKey)}`, null);
+async function deleteVote(userName, leverId, bulletKey) {
+  return sbReq("DELETE", `votes?user_name=eq.${enc(userName)}&lever_id=eq.${enc(leverId)}&bullet_key=eq.${enc(bulletKey)}`, null);
 }
-
 async function fetchVotes(leverId) {
-  return sbRequest("GET", `votes?lever_id=eq.${encodeURIComponent(leverId)}&select=*`, null);
+  return sbReq("GET", `votes?lever_id=eq.${enc(leverId)}&select=*`, null);
 }
-
-async function upsertStar(userName, leverId, sectionKey, itemIdx, starred) {
-  await sbRequest("DELETE", `stars?user_name=eq.${encodeURIComponent(userName)}&lever_id=eq.${encodeURIComponent(leverId)}&section_key=eq.${encodeURIComponent(sectionKey)}&item_idx=eq.${itemIdx}`, null);
-  if (starred) return sbRequest("POST", "stars", { user_name: userName, lever_id: leverId, section_key: sectionKey, item_idx: itemIdx, starred: true });
-  return null;
-}
-
-async function fetchStars(leverId) {
-  return sbRequest("GET", `stars?lever_id=eq.${encodeURIComponent(leverId)}&select=*`, null);
-}
+function enc(s) { return encodeURIComponent(s); }
 
 // ── Data ───────────────────────────────────────────────────────────────────────
 function placeholderSections(title) {
   return [
-    { id: "overview", label: "Overview", icon: "🗺️", content: { type: "placeholder" } },
-    { id: "fromto", label: "From → To", icon: "🔄", content: { type: "placeholder" } },
-    { id: "impact", label: "Impact", icon: "📊", content: { type: "placeholder" } },
-    { id: "system", label: "System & Process Requirements", icon: "⚙️", content: { type: "placeholder" } },
-    { id: "geo", label: "Geographic Scope", icon: "🌍", content: { type: "placeholder" } },
-    { id: "interdep", label: "Interdependencies", icon: "🔗", content: { type: "placeholder" } },
-    { id: "sourcing", label: "Sourcing Strategy", icon: "🛒", content: { type: "placeholder" } },
-    { id: "phasing", label: "Implementation Phasing", icon: "🗓️", content: { type: "placeholder" } },
-    { id: "owner", label: "Owner & Next Steps", icon: "👤", content: { type: "placeholder" } },
+    { id:"overview", label:"Overview", icon:"🗺️", content:{type:"placeholder"} },
+    { id:"fromto", label:"From → To", icon:"🔄", content:{type:"placeholder"} },
+    { id:"impact", label:"Impact", icon:"📊", content:{type:"placeholder"} },
+    { id:"system", label:"System & Process Requirements", icon:"⚙️", content:{type:"placeholder"} },
+    { id:"geo", label:"Geographic Scope", icon:"🌍", content:{type:"placeholder"} },
+    { id:"interdep", label:"Interdependencies", icon:"🔗", content:{type:"placeholder"} },
+    { id:"sourcing", label:"Sourcing Strategy", icon:"🛒", content:{type:"placeholder"} },
+    { id:"phasing", label:"Implementation Phasing", icon:"🗓️", content:{type:"placeholder"} },
+    { id:"owner", label:"Owner & Next Steps", icon:"👤", content:{type:"placeholder"} },
   ];
 }
 
 const LEVERS = [
   {
-    id: "kms", number: 7, title: "Centralized Knowledge Base (KMS)", icon: "📚",
-    valueProvided: "Moderate value", valueColor: "#F59E0B",
-    sections: [
-      { id: "overview", label: "Overview", icon: "🗺️", content: { type: "bullets", items: ["Global, governed KMS consolidating SOPs and other knowledge assets into a governed, searchable global system"] } },
-      { id: "fromto", label: "From → To", icon: "🔄", content: { type: "fromto",
-        current: ["Fragmented, siloed, and often lost knowledge across teams — tribal know-how, no content lifecycle or governance", "Agents spend 5+ min per case searching across SharePoint, OneNote, & Outlook — no content governance"],
-        future: ["Single source of truth surfaced in real time within agent workflows across all support channels", "AI surfaces contextually relevant SOP/Playbook articles to CSR in single-pane-of-glass during call — AI search trained on governed, versioned content"]
+    id:"kms", number:7, title:"Centralized Knowledge Base (KMS)", icon:"📚",
+    valueProvided:"Moderate value", valueColor:"#F59E0B",
+    sections:[
+      { id:"overview", label:"Overview", icon:"🗺️", content:{ type:"bullets", items:["Global, governed KMS consolidating SOPs and other knowledge assets into a governed, searchable global system"] } },
+      { id:"fromto", label:"From → To", icon:"🔄", content:{ type:"fromto",
+        current:["Fragmented, siloed, and often lost knowledge across teams — tribal know-how, no content lifecycle or governance","Agents spend 5+ min per case searching across SharePoint, OneNote, & Outlook — no content governance"],
+        future:["Single source of truth surfaced in real time within agent workflows across all support channels","AI surfaces contextually relevant SOP/Playbook articles to CSR in single-pane-of-glass during call — AI search trained on governed, versioned content"]
       }},
-      { id: "impact", label: "Impact", icon: "📊", content: { type: "impact", level: "Moderate", bullets: ["Low to moderate standalone impact on agent efficiency by reducing fragmentation of knowledge repositories, shortening agent ramp-up, and limiting internal engagement (i.e., drain on other JJMT resources)", "Critical enabler for high-impact AI levers (e.g., AI agentic assistance)"] } },
-      { id: "system", label: "System & Process Requirements", icon: "⚙️", content: { type: "bullets", items: ["Consolidate SOP ownership into a global governance model (content owners, review cadence, retirement rules)", "Standardize article structure tied to processes (decision trees, exception playbooks, 'what good looks like')", "Deploy a searchable global KMS with tagging by journey / product / market"] } },
-      { id: "geo", label: "Geographic Scope", icon: "🌍", content: { type: "geo", items: [{ scope: "Global", detail: "Centralized, JJMT-owned core asset regardless of global services sourcing decision" }, { scope: "Local", detail: "By country JJMT owned" }] } },
-      { id: "interdep", label: "Interdependencies", icon: "🔗", content: { type: "interdep", items: [{ system: "Butterfly", level: "Low", detail: "Mostly process/content governance — ERP only matters for embedded 'how-to' aligned to future processes" }, { system: "TransCend", level: "Low", detail: "Limited impact as long as KMS can be built in modular fashion & embedded in the new CRM UI later" }, { system: "Other Systems", level: "Moderate", detail: "Requires integration with existing repositories (SharePoint/Confluence), search, permissions, and CRM/Genesys embedding" }] } },
-      { id: "sourcing", label: "Sourcing Strategy", icon: "🛒", content: { type: "bullets", header: "Buy", items: ["Source external platform given maturity of commercial KM solutions (Guru, Bloomfire, Confluence)", "Limited-effort integration required with future application-layer builds (incl. data feed to 'single-pane-of-glass')"] } },
-      { id: "phasing", label: "Implementation Phasing", icon: "🗓️", content: { type: "phasing", phases: [{ label: "Quick Win", items: ["Consolidates top 50 SOPs and FAQ articles from existing sources (e.g., TruVault) into tagged / searchable KB", "Deploys MSFT Copilot as interim front-end for consolidated repository"] }, { label: "Steady State", items: ["Full scope of relevant agent knowledge assets globally (SOPs, FAQs)", "Dynamic content lifecycle", "AI-assisted content gap detection", "Multilingual KB with regional layers maintained locally"] }] } },
-      { id: "owner", label: "Owner & Next Steps", icon: "👤", content: { type: "owner", owners: [{ role: "JJMT Owner", name: "MedTech Supply Chain — Digital Strategy & Innovation" }, { role: "External Support", name: "BCG" }], nextSteps: ["[JJMT owner] Complete detailed solution design & feasibility assessment for full KMS", "[JJMT owner] In parallel, complete detailed solution design & feasibility assessment for MVP / quick win"] } },
+      { id:"impact", label:"Impact", icon:"📊", content:{ type:"impact", level:"Moderate", bullets:["Low to moderate standalone impact on agent efficiency by reducing fragmentation of knowledge repositories, shortening agent ramp-up, and limiting internal engagement (i.e., drain on other JJMT resources)","Critical enabler for high-impact AI levers (e.g., AI agentic assistance)"] } },
+      { id:"system", label:"System & Process Requirements", icon:"⚙️", content:{ type:"bullets", items:["Consolidate SOP ownership into a global governance model (content owners, review cadence, retirement rules)","Standardize article structure tied to processes (decision trees, exception playbooks, 'what good looks like')","Deploy a searchable global KMS with tagging by journey / product / market"] } },
+      { id:"geo", label:"Geographic Scope", icon:"🌍", content:{ type:"geo", items:[{scope:"Global",detail:"Centralized, JJMT-owned core asset regardless of global services sourcing decision"},{scope:"Local",detail:"By country JJMT owned"}] } },
+      { id:"interdep", label:"Interdependencies", icon:"🔗", content:{ type:"interdep", items:[{system:"Butterfly",level:"Low",detail:"Mostly process/content governance — ERP only matters for embedded 'how-to' aligned to future processes"},{system:"TransCend",level:"Low",detail:"Limited impact as long as KMS can be built in modular fashion & embedded in the new CRM UI later"},{system:"Other Systems",level:"Moderate",detail:"Requires integration with existing repositories (SharePoint/Confluence), search, permissions, and CRM/Genesys embedding"}] } },
+      { id:"sourcing", label:"Sourcing Strategy", icon:"🛒", content:{ type:"bullets", header:"Buy", items:["Source external platform given maturity of commercial KM solutions (Guru, Bloomfire, Confluence)","Limited-effort integration required with future application-layer builds (incl. data feed to 'single-pane-of-glass')"] } },
+      { id:"phasing", label:"Implementation Phasing", icon:"🗓️", content:{ type:"phasing", phases:[{label:"Quick Win",items:["Consolidates top 50 SOPs and FAQ articles from existing sources (e.g., TruVault) into tagged / searchable KB","Deploys MSFT Copilot as interim front-end for consolidated repository"]},{label:"Steady State",items:["Full scope of relevant agent knowledge assets globally (SOPs, FAQs)","Dynamic content lifecycle","AI-assisted content gap detection","Multilingual KB with regional layers maintained locally"]}] } },
+      { id:"owner", label:"Owner & Next Steps", icon:"👤", content:{ type:"owner", owners:[{role:"JJMT Owner",name:"MedTech Supply Chain — Digital Strategy & Innovation"},{role:"External Support",name:"BCG"}], nextSteps:["[JJMT owner] Complete detailed solution design & feasibility assessment for full KMS","[JJMT owner] In parallel, complete detailed solution design & feasibility assessment for MVP / quick win"] } },
     ]
   },
-  { id: "ai-agent", number: 1, title: "AI Agent Handling", icon: "🤖", valueProvided: "High value", valueColor: "#10B981", sections: placeholderSections("AI Agent Handling") },
-  { id: "routing", number: 2, title: "Dynamic Routing & Capacity", icon: "⚡", valueProvided: "High value", valueColor: "#10B981", sections: placeholderSections("Dynamic Routing & Capacity") },
-  { id: "proactive", number: 3, title: "Proactive Comms", icon: "📣", valueProvided: "High value", valueColor: "#10B981", sections: placeholderSections("Proactive Comms") },
-  { id: "desktop", number: 4, title: "Unified Desktop w/ AI Assistant", icon: "🖥️", valueProvided: "High value", valueColor: "#10B981", sections: placeholderSections("Unified Desktop w/ AI Assistant") },
-  { id: "oti", number: 5, title: "OTI Fixes", icon: "🔧", valueProvided: "Moderate value", valueColor: "#F59E0B", sections: placeholderSections("OTI Fixes") },
-  { id: "kpi", number: 6, title: "KPI-Oriented Perf. Mgmt.", icon: "📈", valueProvided: "Moderate value", valueColor: "#F59E0B", sections: placeholderSections("KPI-Oriented Perf. Mgmt.") },
-  { id: "selfdef", number: 8, title: "Improved Cust. Self-Deflection", icon: "🙋", valueProvided: "Moderate value", valueColor: "#F59E0B", sections: placeholderSections("Improved Cust. Self-Deflection") },
-  { id: "process", number: 9, title: "Process Optimization", icon: "⚙️", valueProvided: "Incremental value", valueColor: "#6B7280", sections: placeholderSections("Process Optimization") },
-  { id: "skillset", number: 10, title: "Skillset of Future", icon: "🎓", valueProvided: "Incremental value", valueColor: "#6B7280", sections: placeholderSections("Skillset of Future") },
-  { id: "datalake", number: 11, title: "Unified Data Lake", icon: "🗄️", valueProvided: "Enabler", valueColor: "#8B5CF6", sections: placeholderSections("Unified Data Lake") },
-  { id: "sysint", number: 12, title: "System Integration", icon: "🔌", valueProvided: "Enabler", valueColor: "#8B5CF6", sections: placeholderSections("System Integration") },
+  { id:"ai-agent", number:1, title:"AI Agent Handling", icon:"🤖", valueProvided:"High value", valueColor:"#10B981", sections:placeholderSections("AI Agent Handling") },
+  { id:"routing", number:2, title:"Dynamic Routing & Capacity", icon:"⚡", valueProvided:"High value", valueColor:"#10B981", sections:placeholderSections("Dynamic Routing & Capacity") },
+  { id:"proactive", number:3, title:"Proactive Comms", icon:"📣", valueProvided:"High value", valueColor:"#10B981", sections:placeholderSections("Proactive Comms") },
+  { id:"desktop", number:4, title:"Unified Desktop w/ AI Assistant", icon:"🖥️", valueProvided:"High value", valueColor:"#10B981", sections:placeholderSections("Unified Desktop w/ AI Assistant") },
+  { id:"oti", number:5, title:"OTI Fixes", icon:"🔧", valueProvided:"Moderate value", valueColor:"#F59E0B", sections:placeholderSections("OTI Fixes") },
+  { id:"kpi", number:6, title:"KPI-Oriented Perf. Mgmt.", icon:"📈", valueProvided:"Moderate value", valueColor:"#F59E0B", sections:placeholderSections("KPI-Oriented Perf. Mgmt.") },
+  { id:"selfdef", number:8, title:"Improved Cust. Self-Deflection", icon:"🙋", valueProvided:"Moderate value", valueColor:"#F59E0B", sections:placeholderSections("Improved Cust. Self-Deflection") },
+  { id:"process", number:9, title:"Process Optimization", icon:"⚙️", valueProvided:"Incremental value", valueColor:"#6B7280", sections:placeholderSections("Process Optimization") },
+  { id:"skillset", number:10, title:"Skillset of Future", icon:"🎓", valueProvided:"Incremental value", valueColor:"#6B7280", sections:placeholderSections("Skillset of Future") },
+  { id:"datalake", number:11, title:"Unified Data Lake", icon:"🗄️", valueProvided:"Enabler", valueColor:"#8B5CF6", sections:placeholderSections("Unified Data Lake") },
+  { id:"sysint", number:12, title:"System Integration", icon:"🔌", valueProvided:"Enabler", valueColor:"#8B5CF6", sections:placeholderSections("System Integration") },
 ];
 
 // ── State ──────────────────────────────────────────────────────────────────────
 let currentUser = "";
 let currentLever = null;
 let currentSectionIdx = 0;
-let allVotes = [];   // rows from supabase
-let allStars = [];   // rows from supabase
+let allVotes = [];
 let pollInterval = null;
+// pending text inputs: { bulletKey: { reaction, text } }
+let pendingText = {};
 
 // ── Login ──────────────────────────────────────────────────────────────────────
 const nameInput = document.getElementById("name-input");
 const loginBtn = document.getElementById("login-btn");
-
-nameInput.addEventListener("input", () => {
-  loginBtn.disabled = !nameInput.value.trim();
-});
-nameInput.addEventListener("keydown", e => {
-  if (e.key === "Enter" && nameInput.value.trim()) enterWorkshop();
-});
+nameInput.addEventListener("input", () => { loginBtn.disabled = !nameInput.value.trim(); });
+nameInput.addEventListener("keydown", e => { if (e.key === "Enter" && nameInput.value.trim()) enterWorkshop(); });
 loginBtn.addEventListener("click", enterWorkshop);
 
 function enterWorkshop() {
@@ -438,25 +420,24 @@ function renderLeverList() {
   document.getElementById("top-bar-title").textContent = "CS Optimization — 12 Levers";
   document.getElementById("btn-summary").style.display = "none";
   document.getElementById("btn-back").style.display = "none";
-  clearInterval(pollInterval);
-  currentLever = null;
+  clearInterval(pollInterval); currentLever = null;
 
   const grid = document.getElementById("lever-grid");
   grid.innerHTML = "";
-  [...LEVERS].sort((a, b) => a.number - b.number).forEach(lever => {
+  [...LEVERS].sort((a,b) => a.number - b.number).forEach(lever => {
     const card = document.createElement("div");
     card.className = "lever-card";
-    card.innerHTML = `
-      <div class="lever-card-inner">
-        <div class="lever-icon">${lever.icon}</div>
-        <div style="flex:1">
-          <div class="lever-number">LEVER ${lever.number}</div>
-          <div class="lever-name">${lever.title}</div>
-          <div class="lever-meta">
-            <span class="value-badge" style="background:${lever.valueColor}20;color:${lever.valueColor}">${lever.valueProvided}</span>
-          </div>
+    const voteCount = allVotes.filter(v => v.lever_id === lever.id).length;
+    card.innerHTML = `<div class="lever-card-inner">
+      <div class="lever-icon">${lever.icon}</div>
+      <div style="flex:1">
+        <div class="lever-number">LEVER ${lever.number}</div>
+        <div class="lever-name">${lever.title}</div>
+        <div class="lever-meta">
+          <span class="value-badge" style="background:${lever.valueColor}20;color:${lever.valueColor}">${lever.valueProvided}</span>
+          ${voteCount > 0 ? `<span style="font-size:11px;color:#64748b">💬 ${voteCount}</span>` : ""}
         </div>
-      </div>`;
+      </div></div>`;
     card.addEventListener("click", () => openLever(lever));
     grid.appendChild(card);
   });
@@ -466,8 +447,7 @@ document.getElementById("btn-back").addEventListener("click", renderLeverList);
 
 // ── Open lever ─────────────────────────────────────────────────────────────────
 async function openLever(lever) {
-  currentLever = lever;
-  currentSectionIdx = 0;
+  currentLever = lever; currentSectionIdx = 0; pendingText = {};
   document.getElementById("lever-list").style.display = "none";
   document.getElementById("lever-detail").style.display = "flex";
   document.getElementById("lever-detail").style.flexDirection = "column";
@@ -475,22 +455,16 @@ async function openLever(lever) {
   document.getElementById("top-bar-title").textContent = lever.title;
   document.getElementById("btn-summary").style.display = "inline-flex";
   document.getElementById("btn-back").style.display = "inline-flex";
-
   await refreshVotes();
-  renderSidebar();
-  renderSection();
-
+  renderSidebar(); renderSection();
   clearInterval(pollInterval);
-  pollInterval = setInterval(refreshVotes, 8000);
+  pollInterval = setInterval(async () => { await refreshVotes(); renderSection(); renderSidebar(); }, 10000);
 }
 
 async function refreshVotes() {
   if (!currentLever) return;
-  const [votes, stars] = await Promise.all([fetchVotes(currentLever.id), fetchStars(currentLever.id)]);
-  allVotes = votes || [];
-  allStars = stars || [];
-  renderReactionBar();
-  renderSidebar();
+  const v = await fetchVotes(currentLever.id);
+  allVotes = v || [];
 }
 
 // ── Sidebar ────────────────────────────────────────────────────────────────────
@@ -499,11 +473,12 @@ function renderSidebar() {
   const sidebar = document.getElementById("sidebar");
   sidebar.innerHTML = "";
   currentLever.sections.forEach((sec, idx) => {
-    const hasReactions = allVotes.some(v => v.section_key === sec.id && v.reaction !== "Flag");
+    const hasReaction = allVotes.some(v => v.section_key === sec.id);
+    const active = idx === currentSectionIdx;
     const item = document.createElement("div");
-    item.className = "sidebar-item" + (idx === currentSectionIdx ? " active" : "");
-    item.innerHTML = `<span style="font-size:15px">${sec.icon}</span><span style="flex:1;line-height:1.3">${sec.label}</span>${hasReactions ? '<span class="sidebar-dot"></span>' : ""}`;
-    item.addEventListener("click", () => { currentSectionIdx = idx; renderSidebar(); renderSection(); });
+    item.className = "sidebar-item" + (active ? " active" : "");
+    item.innerHTML = `<span style="font-size:15px">${sec.icon}</span><span style="flex:1;line-height:1.3">${sec.label}</span>${hasReaction ? '<span class="sidebar-dot"></span>' : ""}`;
+    item.addEventListener("click", () => { currentSectionIdx = idx; pendingText = {}; renderSidebar(); renderSection(); });
     sidebar.appendChild(item);
   });
 }
@@ -513,175 +488,248 @@ function renderSection() {
   if (!currentLever) return;
   const sec = currentLever.sections[currentSectionIdx];
   const total = currentLever.sections.length;
-
   document.getElementById("section-icon").textContent = sec.icon;
-  document.getElementById("section-counter").textContent = (currentSectionIdx + 1) + " OF " + total;
+  document.getElementById("section-counter").textContent = (currentSectionIdx+1) + " OF " + total;
   document.getElementById("section-title-text").textContent = sec.label;
-  document.getElementById("page-indicator").textContent = (currentSectionIdx + 1) + " / " + total;
+  document.getElementById("page-indicator").textContent = (currentSectionIdx+1) + " / " + total;
   document.getElementById("btn-prev").disabled = currentSectionIdx === 0;
-  document.getElementById("btn-next").textContent = currentSectionIdx < total - 1 ? "Next →" : "Back to Levers →";
+  document.getElementById("btn-next").textContent = currentSectionIdx < total-1 ? "Next →" : "Back to Levers →";
 
   const area = document.getElementById("content-area");
   area.innerHTML = buildSectionHTML(sec);
-
-  // attach star listeners
-  area.querySelectorAll(".star-btn").forEach(btn => {
-    btn.addEventListener("click", () => toggleStar(btn.dataset.key, parseInt(btn.dataset.idx)));
-  });
-
-  renderReactionBar();
+  attachBulletListeners(area, sec);
 }
 
+// ── HTML builders ──────────────────────────────────────────────────────────────
 function buildSectionHTML(sec) {
   const c = sec.content;
-  if (c.type === "placeholder") return `<div class="placeholder-box"><div class="placeholder-icon">🚧</div><div class="placeholder-title">Content coming soon</div><div style="font-size:13px">This lever's detail will be added before the workshop</div></div>`;
+  if (c.type === "placeholder") return `<div class="placeholder-box"><div style="font-size:40px;margin-bottom:12px">🚧</div><div style="font-weight:700;font-size:16px;margin-bottom:4px">Content coming soon</div><div style="font-size:13px">This lever's detail will be added before the workshop</div></div>`;
 
   if (c.type === "bullets") {
     let html = c.header ? `<div class="section-subheader" style="color:#1B3A8C">${c.header}</div>` : "";
-    c.items.forEach((item, i) => { html += bulletHTML(sec.id, i, item); });
+    c.items.forEach((item, i) => { html += bulletCardHTML(sec.id, i, item); });
     return html;
   }
-
   if (c.type === "fromto") {
     let html = `<div class="section-subheader" style="color:#DC2626">Current State ❌</div><hr class="section-divider">`;
-    c.current.forEach((item, i) => { html += bulletHTML(sec.id + "_cur", i, item); });
-    html += `<div class="section-subheader" style="color:#059669;margin-top:20px">Future State ✅</div><hr class="section-divider">`;
-    c.future.forEach((item, i) => { html += bulletHTML(sec.id + "_fut", i, item); });
+    c.current.forEach((item, i) => { html += bulletCardHTML(sec.id+"_cur", i, item); });
+    html += `<div class="section-subheader" style="color:#059669;margin-top:8px">Future State ✅</div><hr class="section-divider">`;
+    c.future.forEach((item, i) => { html += bulletCardHTML(sec.id+"_fut", i, item); });
     return html;
   }
-
   if (c.type === "impact") {
     let html = `<div class="impact-badge">${c.level}</div>`;
-    c.bullets.forEach((item, i) => { html += bulletHTML(sec.id, i, item); });
+    c.bullets.forEach((item, i) => { html += bulletCardHTML(sec.id, i, item); });
     return html;
   }
-
   if (c.type === "geo") {
-    return c.items.map(item => `<div class="geo-card"><div class="geo-scope">${item.scope}</div><div class="geo-detail">${item.detail}</div></div>`).join("");
+    return c.items.map(item => `<div class="info-card"><div class="geo-scope">${item.scope}</div><div class="geo-detail">${item.detail}</div></div>`).join("");
   }
-
   if (c.type === "interdep") {
     return c.items.map(item => {
-      const col = item.level === "Low" ? "#10B981" : item.level === "High" ? "#EF4444" : "#F59E0B";
-      return `<div class="interdep-card"><div class="interdep-header"><span class="interdep-system">${item.system}</span><span class="dep-badge" style="background:${col}20;color:${col}">${item.level}</span></div><div class="interdep-detail">${item.detail}</div></div>`;
+      const col = item.level==="Low"?"#10B981":item.level==="High"?"#EF4444":"#F59E0B";
+      return `<div class="info-card"><div class="interdep-header"><span class="interdep-system">${item.system}</span><span class="dep-badge" style="background:${col}20;color:${col}">${item.level}</span></div><div class="interdep-detail">${item.detail}</div></div>`;
     }).join("");
   }
-
   if (c.type === "phasing") {
     return c.phases.map((phase, pi) => {
-      let html = `<div class="phase-header">${pi === 0 ? "⚡" : "🏗️"} ${phase.label}</div>`;
-      phase.items.forEach((item, i) => { html += bulletHTML(sec.id + "_" + pi, i, item); });
+      let html = `<div class="phase-header">${pi===0?"⚡":"🏗️"} ${phase.label}</div>`;
+      phase.items.forEach((item, i) => { html += bulletCardHTML(sec.id+"_"+pi, i, item); });
       return `<div style="margin-bottom:24px">${html}</div>`;
     }).join("");
   }
-
   if (c.type === "owner") {
-    let html = `<div class="section-label">OWNERS</div>`;
-    c.owners.forEach(o => { html += `<div class="owner-card"><span class="owner-role">${o.role}</span><span class="owner-name">${o.name}</span></div>`; });
-    html += `<div class="section-label" style="margin-top:20px">NEXT STEPS</div>`;
-    c.nextSteps.forEach((step, i) => { html += bulletHTML(sec.id, i, step); });
+    let html = `<div class="section-label-sm">OWNERS</div>`;
+    c.owners.forEach(o => { html += `<div class="info-card"><div class="owner-row"><span class="owner-role">${o.role}</span><span class="owner-name">${o.name}</span></div></div>`; });
+    html += `<div class="section-label-sm" style="margin-top:20px">NEXT STEPS</div>`;
+    c.nextSteps.forEach((step, i) => { html += bulletCardHTML(sec.id, i, step); });
     return html;
   }
   return "";
 }
 
-function bulletHTML(subKey, idx, text) {
-  const starKey = subKey + "__" + idx;
-  const isStarred = allStars.some(s => s.section_key === subKey && s.item_idx === idx && s.starred);
-  return `<div class="bullet-item">
-    <button class="star-btn ${isStarred ? "starred" : ""}" data-key="${subKey}" data-idx="${idx}">${isStarred ? "★" : "☆"}</button>
-    <span class="bullet-text">${text}</span>
+function bulletCardHTML(subKey, idx, text) {
+  const bulletKey = currentLever.id + "__" + subKey + "__" + idx;
+  const myVote = allVotes.find(v => v.user_name === currentUser && v.bullet_key === bulletKey);
+  const myReaction = myVote ? myVote.reaction : null;
+  const pending = pendingText[bulletKey];
+
+  // count all reactions on this bullet
+  const counts = { Agree:0, Question:0, Concern:0, Agenda:0 };
+  allVotes.filter(v => v.bullet_key === bulletKey).forEach(v => { if (counts[v.reaction]!==undefined) counts[v.reaction]++; });
+
+  // notes from others (and own submitted notes)
+  const notes = allVotes.filter(v => v.bullet_key === bulletKey && v.note && v.note.trim() && (v.reaction==="Question"||v.reaction==="Concern"||v.reaction==="Agenda"));
+
+  const borderClass = myReaction ? "has-" + myReaction.toLowerCase() : "";
+
+  const reactionBtns = [
+    ["Agree","👍","agree","#10B981",false],
+    ["Question","❓","question","#DC2626",true],
+    ["Concern","⚠️","concern","#D97706",true],
+    ["Agenda","🚩","agenda","#7C3AED",true],
+  ].map(([r, emoji, cls, col, needsText]) => {
+    const active = myReaction === r;
+    const count = counts[r];
+    return `<button class="bullet-react-btn ${active?"active-"+cls:""}" data-key="${bulletKey}" data-reaction="${r}" data-needs-text="${needsText}">
+      ${emoji} ${r==="Agenda"?"Add to Agenda":r}
+      ${count > 0 ? `<span class="react-pill" style="background:${active?col:"#e2e8f0"};color:${active?"#fff":"#64748b"}">${count}</span>` : ""}
+    </button>`;
+  }).join("");
+
+  // text input area (show if pending or if active with text-needed reaction)
+  let textArea = "";
+  if (pending || (myReaction && ["Question","Concern","Agenda"].includes(myReaction) && !myVote?.note)) {
+    const reaction = pending ? pending.reaction : myReaction;
+    const currentText = pending ? pending.text : "";
+    const limit = reaction === "Agenda" ? 100 : 150;
+    const placeholder = reaction==="Question" ? "What's your question?" : reaction==="Concern" ? "What's your concern?" : "Why should we discuss this?";
+    const col = reaction==="Question"?"#DC2626":reaction==="Concern"?"#D97706":"#7C3AED";
+    textArea = `<div class="bullet-text-input-wrap">
+      <textarea class="bullet-text-input" data-key="${bulletKey}" data-reaction="${reaction}" data-limit="${limit}" rows="2" placeholder="${placeholder}" maxlength="${limit}">${currentText}</textarea>
+      <div class="text-input-footer">
+        <span class="char-count" id="cc-${bulletKey}">${currentText.length}/${limit}</span>
+        <button class="submit-note-btn" data-key="${bulletKey}" data-reaction="${reaction}" ${currentText.trim().length===0?"disabled":""}>Submit</button>
+      </div>
+    </div>`;
+  }
+
+  // render submitted notes
+  let notesHTML = "";
+  if (notes.length > 0) {
+    const chips = notes.map(n => {
+      const emoji = n.reaction==="Question"?"❓":n.reaction==="Concern"?"⚠️":"🚩";
+      const isOwn = n.user_name === currentUser;
+      return `<div class="note-chip">
+        <span class="note-chip-emoji">${emoji}</span>
+        <span class="note-chip-text"><span class="note-chip-author">${n.user_name}:</span> ${escHtml(n.note)}</span>
+        ${isOwn ? `<button class="note-chip-delete" data-key="${bulletKey}" data-del="true" title="Remove">×</button>` : ""}
+      </div>`;
+    }).join("");
+    notesHTML = `<div class="notes-display">${chips}</div>`;
+  }
+
+  return `<div class="bullet-card ${borderClass}" id="bc-${bulletKey}">
+    <div class="bullet-text">${text}</div>
+    <div class="bullet-reactions">${reactionBtns}</div>
+    ${textArea}
+    ${notesHTML}
   </div>`;
 }
 
-// ── Reactions ──────────────────────────────────────────────────────────────────
-function renderReactionBar() {
-  if (!currentLever) return;
-  const sec = currentLever.sections[currentSectionIdx];
-  const sectionVotes = allVotes.filter(v => v.section_key === sec.id);
-  const myVote = sectionVotes.find(v => v.user_name === currentUser && v.reaction !== "Flag");
-  const myFlag = sectionVotes.find(v => v.user_name === currentUser && v.reaction === "Flag");
+function escHtml(s) { return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
-  ["Agree", "Question", "Concern"].forEach(r => {
-    const btn = document.getElementById("btn-" + r.toLowerCase());
-    const count = sectionVotes.filter(v => v.reaction === r).length;
-    const countEl = document.getElementById("count-" + r.toLowerCase());
-    btn.className = "react-btn" + (myVote?.reaction === r ? " active-" + r.toLowerCase() : "");
-    if (count > 0) {
-      countEl.style.display = "inline";
-      countEl.textContent = count;
-      countEl.style.background = myVote?.reaction === r ? colorFor(r) : "#e2e8f0";
-      countEl.style.color = myVote?.reaction === r ? "#fff" : "#64748b";
-    } else {
-      countEl.style.display = "none";
-    }
+// ── Event listeners on content area ───────────────────────────────────────────
+function attachBulletListeners(area) {
+  // reaction button clicks
+  area.querySelectorAll(".bullet-react-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const key = btn.dataset.key;
+      const reaction = btn.dataset.reaction;
+      const needsText = btn.dataset.needsText === "true";
+      handleReactionClick(key, reaction, needsText);
+    });
   });
 
-  const flagCount = sectionVotes.filter(v => v.reaction === "Flag").length;
-  const flagBtn = document.getElementById("btn-flag");
-  const flagCountEl = document.getElementById("count-flag");
-  flagBtn.className = "flag-btn" + (myFlag ? " flagged" : "");
-  if (flagCount > 0) {
-    flagCountEl.style.display = "inline";
-    flagCountEl.textContent = flagCount;
-    flagCountEl.style.background = myFlag ? "#EF4444" : "#e2e8f0";
-    flagCountEl.style.color = myFlag ? "#fff" : "#64748b";
-  } else {
-    flagCountEl.style.display = "none";
+  // textarea input
+  area.querySelectorAll(".bullet-text-input").forEach(ta => {
+    ta.addEventListener("input", () => {
+      const key = ta.dataset.key;
+      const reaction = ta.dataset.reaction;
+      const limit = parseInt(ta.dataset.limit);
+      const val = ta.value;
+      if (!pendingText[key]) pendingText[key] = { reaction, text: "" };
+      pendingText[key].text = val;
+      const cc = document.getElementById("cc-" + key);
+      if (cc) {
+        cc.textContent = val.length + "/" + limit;
+        cc.className = "char-count" + (val.length >= limit ? " at-limit" : val.length >= limit*0.8 ? " near-limit" : "");
+      }
+      const submitBtn = ta.parentElement.querySelector(".submit-note-btn");
+      if (submitBtn) submitBtn.disabled = val.trim().length === 0;
+    });
+  });
+
+  // submit button
+  area.querySelectorAll(".submit-note-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const key = btn.dataset.key;
+      const reaction = btn.dataset.reaction;
+      const pending = pendingText[key];
+      if (pending && pending.text.trim()) {
+        submitNote(key, reaction, pending.text.trim());
+      }
+    });
+  });
+
+  // delete own note
+  area.querySelectorAll(".note-chip-delete").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const key = btn.dataset.key;
+      deleteOwnVote(key);
+    });
+  });
+}
+
+async function handleReactionClick(bulletKey, reaction, needsText) {
+  const myVote = allVotes.find(v => v.user_name === currentUser && v.bullet_key === bulletKey);
+
+  // toggling off own reaction
+  if (myVote && myVote.reaction === reaction) {
+    await deleteVote(currentUser, currentLever.id, bulletKey);
+    allVotes = allVotes.filter(v => !(v.user_name === currentUser && v.bullet_key === bulletKey));
+    delete pendingText[bulletKey];
+    showSaved(); renderSection(); renderSidebar(); return;
   }
-}
 
-function colorFor(r) {
-  return { Agree: "#10B981", Question: "#DC2626", Concern: "#F59E0B" }[r] || "#64748b";
-}
+  // switching to a different reaction — remove old first
+  if (myVote) {
+    await deleteVote(currentUser, currentLever.id, bulletKey);
+    allVotes = allVotes.filter(v => !(v.user_name === currentUser && v.bullet_key === bulletKey));
+  }
 
-async function castVote(reaction) {
-  if (!currentLever) return;
-  const sec = currentLever.sections[currentSectionIdx];
-  const existing = allVotes.find(v => v.user_name === currentUser && v.section_key === sec.id && v.reaction === reaction);
-
-  if (existing) {
-    await deleteVote(currentUser, currentLever.id, sec.id);
-    allVotes = allVotes.filter(v => !(v.user_name === currentUser && v.section_key === sec.id && v.reaction === reaction));
-  } else {
-    // remove prior non-flag vote if casting a non-flag
-    if (reaction !== "Flag") {
-      await deleteVote(currentUser, currentLever.id, sec.id);
-      allVotes = allVotes.filter(v => !(v.user_name === currentUser && v.section_key === sec.id && v.reaction !== "Flag"));
-    }
-    const row = await upsertVote(currentUser, currentLever.id, sec.id, reaction);
+  if (!needsText) {
+    // Agree — save immediately, no text needed
+    const parts = bulletKey.split("__");
+    const row = await upsertVote({ user_name: currentUser, lever_id: currentLever.id, section_key: parts[1], bullet_key: bulletKey, reaction, note: null });
     if (row) allVotes.push(Array.isArray(row) ? row[0] : row);
+    delete pendingText[bulletKey];
+  } else {
+    // Question / Concern / Agenda — show text box first
+    pendingText[bulletKey] = { reaction, text: "" };
   }
-
-  showSaved();
-  renderReactionBar();
-  renderSidebar();
+  showSaved(); renderSection(); renderSidebar();
 }
 
-async function toggleStar(subKey, idx) {
-  if (!currentLever) return;
-  const existing = allStars.find(s => s.user_name === currentUser && s.section_key === subKey && s.item_idx === idx);
-  const newVal = existing ? !existing.starred : true;
-  await upsertStar(currentUser, currentLever.id, subKey, idx, newVal);
-  if (existing) existing.starred = newVal;
-  else allStars.push({ user_name: currentUser, lever_id: currentLever.id, section_key: subKey, item_idx: idx, starred: newVal });
-  showSaved();
-  renderSection();
+async function submitNote(bulletKey, reaction, note) {
+  const parts = bulletKey.split("__");
+  // remove any existing vote for this bullet by this user
+  await deleteVote(currentUser, currentLever.id, bulletKey);
+  allVotes = allVotes.filter(v => !(v.user_name === currentUser && v.bullet_key === bulletKey));
+  const row = await upsertVote({ user_name: currentUser, lever_id: currentLever.id, section_key: parts[1], bullet_key: bulletKey, reaction, note });
+  if (row) allVotes.push(Array.isArray(row) ? row[0] : row);
+  delete pendingText[bulletKey];
+  showSaved(); renderSection(); renderSidebar();
+}
+
+async function deleteOwnVote(bulletKey) {
+  await deleteVote(currentUser, currentLever.id, bulletKey);
+  allVotes = allVotes.filter(v => !(v.user_name === currentUser && v.bullet_key === bulletKey));
+  delete pendingText[bulletKey];
+  showSaved(); renderSection(); renderSidebar();
 }
 
 function showSaved() {
   const el = document.getElementById("saved-indicator");
-  el.classList.add("show");
-  setTimeout(() => el.classList.remove("show"), 1800);
+  el.classList.add("show"); setTimeout(() => el.classList.remove("show"), 1800);
 }
 
 // ── Navigation ─────────────────────────────────────────────────────────────────
 function navigate(dir) {
   const total = currentLever.sections.length;
-  if (dir === 1 && currentSectionIdx >= total - 1) { renderLeverList(); return; }
-  currentSectionIdx = Math.max(0, Math.min(total - 1, currentSectionIdx + dir));
-  renderSidebar();
-  renderSection();
+  if (dir===1 && currentSectionIdx >= total-1) { renderLeverList(); return; }
+  currentSectionIdx = Math.max(0, Math.min(total-1, currentSectionIdx+dir));
+  pendingText = {}; renderSidebar(); renderSection();
 }
 
 // ── Summary ────────────────────────────────────────────────────────────────────
@@ -693,54 +741,63 @@ async function showSummaryScreen() {
   document.getElementById("summary-screen").style.display = "block";
   document.getElementById("summary-lever-title").textContent = currentLever.title;
 
-  const counts = { Agree: 0, Question: 0, Concern: 0 };
+  const counts = { Agree:0, Question:0, Concern:0, Agenda:0 };
   const byUser = {};
-  const flagged = [];
+  const questions = [], concerns = [], agendaItems = [];
 
   allVotes.forEach(v => {
-    if (v.reaction === "Flag") {
-      const sec = currentLever.sections.find(s => s.id === v.section_key);
-      if (sec && !flagged.find(f => f.section === sec.label && f.user === v.user_name)) {
-        flagged.push({ section: sec.label, user: v.user_name });
-      }
-    } else if (counts[v.reaction] !== undefined) {
+    if (counts[v.reaction] !== undefined) {
       counts[v.reaction]++;
-      if (!byUser[v.user_name]) byUser[v.user_name] = { Agree: 0, Question: 0, Concern: 0 };
+      if (!byUser[v.user_name]) byUser[v.user_name] = { Agree:0, Question:0, Concern:0, Agenda:0 };
       byUser[v.user_name][v.reaction]++;
+    }
+    // find section label from bullet_key
+    const parts = (v.bullet_key || "").split("__");
+    const subKey = parts[1] || v.section_key;
+    const sec = currentLever.sections.find(s => subKey === s.id || subKey.startsWith(s.id));
+    const secLabel = sec ? sec.label : subKey;
+    if (v.note && v.note.trim()) {
+      const item = { section: secLabel, user: v.user_name, note: v.note };
+      if (v.reaction === "Question") questions.push(item);
+      else if (v.reaction === "Concern") concerns.push(item);
+      else if (v.reaction === "Agenda") agendaItems.push(item);
     }
   });
 
   document.getElementById("sum-agree").textContent = counts.Agree;
   document.getElementById("sum-question").textContent = counts.Question;
   document.getElementById("sum-concern").textContent = counts.Concern;
+  document.getElementById("sum-agenda").textContent = counts.Agenda;
 
+  // by participant
   const pCard = document.getElementById("summary-participants-card");
-  const pDiv = document.getElementById("summary-participants");
   if (Object.keys(byUser).length > 0) {
     pCard.style.display = "block";
-    pDiv.innerHTML = Object.entries(byUser).map(([user, r]) => `
+    document.getElementById("summary-participants").innerHTML = Object.entries(byUser).map(([user, r]) => `
       <div class="participant-row">
         <div class="avatar">${user[0].toUpperCase()}</div>
         <span class="participant-name">${user}</span>
-        ${r.Agree > 0 ? `<span class="p-badge" style="background:#d1fae5;color:#059669">👍 ${r.Agree}</span>` : ""}
-        ${r.Question > 0 ? `<span class="p-badge" style="background:#fee2e2;color:#dc2626">❓ ${r.Question}</span>` : ""}
-        ${r.Concern > 0 ? `<span class="p-badge" style="background:#fef3c7;color:#d97706">⚠️ ${r.Concern}</span>` : ""}
+        ${r.Agree>0?`<span class="p-badge" style="background:#d1fae5;color:#059669">👍 ${r.Agree}</span>`:""}
+        ${r.Question>0?`<span class="p-badge" style="background:#fee2e2;color:#dc2626">❓ ${r.Question}</span>`:""}
+        ${r.Concern>0?`<span class="p-badge" style="background:#fef3c7;color:#d97706">⚠️ ${r.Concern}</span>`:""}
+        ${r.Agenda>0?`<span class="p-badge" style="background:#f5f3ff;color:#7c3aed">🚩 ${r.Agenda}</span>`:""}
       </div>`).join("");
   } else { pCard.style.display = "none"; }
 
-  document.getElementById("sum-flag-label").textContent = "🚩 FLAGGED FOR DISCUSSION (" + flagged.length + ")";
-  document.getElementById("sum-flagged").innerHTML = flagged.length === 0
-    ? '<span class="empty-state">No sections flagged yet.</span>'
-    : flagged.map(f => `<div class="flagged-row"><span style="color:#EF4444">🚩</span><span style="font-weight:600;color:#1e293b">${f.section}</span><span style="color:#64748b">— flagged by ${f.user}</span></div>`).join("");
+  const renderNotes = (items, emptyMsg) => items.length === 0
+    ? `<span class="empty-state">${emptyMsg}</span>`
+    : items.map(item => `<div class="sum-note-row">
+        <div class="sum-note-section">${item.section.toUpperCase()}</div>
+        <div class="sum-note-text">${escHtml(item.note)}</div>
+        <div class="sum-note-author">— ${item.user}</div>
+      </div>`).join("");
 
-  const starredItems = allStars.filter(s => s.starred);
-  document.getElementById("sum-star-label").textContent = "★ STARRED / HIGHLIGHTED POINTS (" + starredItems.length + ")";
-  document.getElementById("sum-starred").innerHTML = starredItems.length === 0
-    ? '<span class="empty-state">No items starred yet. Click ☆ on any bullet to star it.</span>'
-    : starredItems.map(s => {
-      const sec = currentLever.sections.find(sec => sec.id === s.section_key || s.section_key.startsWith(sec.id));
-      return `<div class="starred-row">⭐ ${sec ? sec.label : s.section_key} — item ${s.item_idx + 1} (starred by ${s.user_name})</div>`;
-    }).join("");
+  document.getElementById("sum-q-label").textContent = `❓ QUESTIONS (${questions.length})`;
+  document.getElementById("sum-questions").innerHTML = renderNotes(questions, "No questions submitted yet.");
+  document.getElementById("sum-c-label").textContent = `⚠️ CONCERNS (${concerns.length})`;
+  document.getElementById("sum-concerns").innerHTML = renderNotes(concerns, "No concerns submitted yet.");
+  document.getElementById("sum-a-label").textContent = `🚩 ADD TO AGENDA (${agendaItems.length})`;
+  document.getElementById("sum-agenda-items").innerHTML = renderNotes(agendaItems, "No agenda items added yet.");
 }
 
 function showLeverDetail() {
