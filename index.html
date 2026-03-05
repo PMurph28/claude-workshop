@@ -398,18 +398,18 @@ const LEVERS = [
     id:"kms", number:7, title:"Centralized Knowledge Base (KMS)", icon:"📚",
     valueProvided:"Moderate value", valueColor:"#F59E0B",
     sections:[
-      { id:"overview", label:"Overview", icon:"🗺️", content:{ type:"bullets", items:["Global, governed KMS consolidating SOPs and other knowledge assets into a governed, searchable global system"] } },
+      { id:"overview", label:"Overview", icon:"🗺️", content:{ type:"bullets", title:"📚 Knowledge Management System", items:[{label:"Lever Outline",text:"Globally governed Knowledge Management System, consolidating SOPs and other knowledge assets into a governed, searchable global system"}], starFirst:true } },
       { id:"fromto", label:"From → To", icon:"🔄", content:{ type:"fromto",
         current:["Fragmented, siloed, and often lost knowledge across teams — tribal know-how, no content lifecycle or governance","Agents spend 5+ min per case searching across SharePoint, OneNote, & Outlook — no content governance"],
         future:["Single source of truth surfaced in real time within agent workflows across all support channels","AI surfaces contextually relevant SOP/Playbook articles to CSR in single-pane-of-glass during call — AI search trained on governed, versioned content"]
       }},
-      { id:"impact", label:"Impact", icon:"📊", content:{ type:"impact", level:"Moderate", bullets:[{label:"Knowledge lookup:",text:"10–20% reduction in knowledge lookup time per interaction on complex case types (e.g., returns, disputes, order exceptions) by consolidating fragmented repositories; with variability across regions and process types"},{label:"Ramp up time:",text:"20–35% reduction in new agent time-to-proficiency by replacing tribal knowledge and peer shadowing with a structured, governed content layer"},{label:"Critical enabler:",text:"Key enabler for highest value AI levers (Levers 1 & 4) — both degrade materially without governed, versioned knowledge assets as the underlying content layer"}] } },
-      { id:"system", label:"System & Process Requirements", icon:"⚙️", content:{ type:"bullets", items:["Consolidate SOP ownership into a global governance model (content owners, review cadence, retirement rules)","Standardize article structure tied to processes (decision trees, exception playbooks, 'what good looks like')","Deploy a searchable global KMS with tagging by journey / product / market"] } },
+      { id:"impact", label:"Impact", icon:"📊", content:{ type:"impact", level:"Moderate", bullets:[{label:"Knowledge Lookup",text:"10–20% reduction in knowledge lookup time per interaction on complex case types (e.g., returns, disputes, order exceptions) by consolidating fragmented repositories; with variability across regions and process types"},{label:"Ramp Up Time",text:"20–35% reduction in new agent time-to-proficiency by replacing tribal knowledge and peer shadowing with a structured, governed content layer"},{label:"Critical Enabler",text:"Key enabler for highest value AI levers (Levers 1 & 4) — both degrade materially without governed, versioned knowledge assets as the underlying content layer"}] } },
+      { id:"system", label:"System & Process Requirements", icon:"⚙️", content:{ type:"splitreqs", sections:[{header:"System Requirements",items:[{label:"Content Standardization",text:"Standardize article structure tied to processes (decision trees, exception playbooks, 'what good looks like')"},{label:"Content Tagging",text:"Integrate semantic tagging of content by journey / product / market"}]},{header:"Process Requirements",items:[{label:"Governance Model",text:"Consolidate SOP ownership into a global governance model (content owners, review cadence, retirement rules)"}]}] } },
       { id:"geo", label:"Geographic Scope", icon:"🌍", content:{ type:"geo", items:[{scope:"Global",detail:"Centralized, JJMT-owned core asset regardless of global services sourcing decision"},{scope:"Local",detail:"By country JJMT owned"}] } },
       { id:"interdep", label:"Interdependencies", icon:"🔗", content:{ type:"interdep", items:[{system:"Butterfly",level:"Low",detail:"Mostly process/content governance — ERP only matters for embedded 'how-to' aligned to future processes"},{system:"TransCend",level:"Low",detail:"Limited impact as long as KMS can be built in modular fashion & embedded in the new CRM UI later"},{system:"Other Systems",level:"Moderate",detail:"Requires integration with existing repositories (SharePoint/Confluence), search, permissions, and CRM/Genesys embedding"}] } },
-      { id:"sourcing", label:"Sourcing Strategy", icon:"🛒", content:{ type:"bullets", header:"Buy", items:["Source external platform given maturity of commercial KM solutions (Guru, Bloomfire, Confluence)","Limited-effort integration required with future application-layer builds (incl. data feed to 'single-pane-of-glass')"] } },
-      { id:"phasing", label:"Implementation Phasing", icon:"🗓️", content:{ type:"phasing", phases:[{label:"Quick Win",items:["Consolidates top 50 SOPs and FAQ articles from existing sources (e.g., TruVault) into tagged / searchable KB","Deploys MSFT Copilot as interim front-end for consolidated repository"]},{label:"Steady State",items:["Full scope of relevant agent knowledge assets globally (SOPs, FAQs)","Dynamic content lifecycle","AI-assisted content gap detection","Multilingual KB with regional layers maintained locally"]}] } },
-      { id:"owner", label:"Owner & Next Steps", icon:"👤", content:{ type:"owner", owners:[{role:"JJMT Owner",name:"MedTech Supply Chain — Digital Strategy & Innovation"},{role:"External Support",name:"BCG"}], nextSteps:["[JJMT owner] Complete detailed solution design & feasibility assessment for full KMS","[JJMT owner] In parallel, complete detailed solution design & feasibility assessment for MVP / quick win"] } },
+      { id:"sourcing", label:"Sourcing Strategy", icon:"🛒", content:{ type:"bullets", header:"Buy", items:[{label:"Rapid Deployment",text:"Source external platform given maturity of commercial KM solutions (Guru, Bloomfire, Confluence)"},{label:"Low-Lift Mods",text:"Limited-effort integration required with future application-layer builds (incl. data feed to 'single-pane-of-glass')"}] } },
+      { id:"phasing", label:"Implementation Phasing", icon:"🗓️", content:{ type:"phasing", phases:[{label:"Quick Win Plays",items:[{label:"Article Consolidation",text:"Consolidates top 50 SOPs and FAQ articles from existing sources (e.g., TruVault) into tagged / searchable KB"},{label:"Interim Front-End",text:"Deploys MSFT Copilot as interim front-end for consolidated repository"}]},{label:"Steady State Feature Set",feature:true,items:[{label:"Global Knowledge Coverage",text:"Full scope of relevant agent knowledge assets globally (SOPs, FAQs)"},{label:"Content Lifecycle",text:"Dynamic content lifecycle management"},{label:"Gap Intelligence",text:"AI-assisted content gap detection"},{label:"Regional Localization",text:"Multilingual KB with regional layers maintained locally"}]}] } },
+      { id:"owner", label:"Owner & Next Steps", icon:"👤", content:{ type:"owner", owners:[{role:"JJMT Owner",name:"MedTech Supply Chain — Digital Strategy & Innovation"},{role:"External Support",name:"BCG"}], nextSteps:[{label:"Full KMS Design",text:"Complete detailed solution design & feasibility assessment for full KMS"},{label:"Quick Win Design",text:"In parallel, complete detailed solution design & feasibility assessment for MVP / quick win"}] } },
     ]
   },
   { id:"ai-agent", number:1, title:"AI Agent Handling", icon:"🤖", valueProvided:"High value", valueColor:"#10B981", sections:placeholderSections("AI Agent Handling") },
@@ -558,8 +558,14 @@ function buildSectionHTML(sec) {
   if (c.type === "placeholder") return `<div class="placeholder-box"><div style="font-size:40px;margin-bottom:12px">🚧</div><div style="font-weight:700;font-size:16px;margin-bottom:4px">Content coming soon</div><div style="font-size:13px">This lever's detail will be added before the workshop</div></div>`;
 
   if (c.type === "bullets") {
-    let html = c.header ? `<div class="section-subheader" style="color:#1B3A8C">${c.header}</div>` : "";
-    c.items.forEach((item, i) => { html += bulletCardHTML(sec.id, i, item); });
+    let html = c.title ? `<div style="font-size:28px;font-weight:800;color:#1B3A8C;margin-bottom:20px;display:flex;align-items:center;gap:12px">${c.title}</div>` : "";
+    html += c.header ? `<div class="section-subheader" style="color:#1B3A8C">${c.header}</div>` : "";
+    c.items.forEach((item, i) => {
+      const text = typeof item === "object"
+        ? `<span style="font-weight:700;color:#1B3A8C">${item.label}</span><br><span style="font-weight:400">${item.text}</span>`
+        : item;
+      html += bulletCardHTML(sec.id, i, text, c.starFirst && i === 0);
+    });
     return html;
   }
   if (c.type === "fromto") {
@@ -582,7 +588,7 @@ function buildSectionHTML(sec) {
     let html = `<div class="impact-badge">${c.level}</div>`;
     c.bullets.forEach((item, i) => {
       const text = typeof item === "object"
-        ? `<span style="font-weight:700;color:#1e293b">${item.label}</span> ${item.text}`
+        ? `<span style="font-weight:700;color:#1B3A8C">${item.label}</span><br><span style="font-weight:400">${item.text}</span>`
         : item;
       html += bulletCardHTML(sec.id, i, text);
     });
@@ -608,9 +614,30 @@ function buildSectionHTML(sec) {
   if (c.type === "phasing") {
     return c.phases.map((phase, pi) => {
       let html = `<div class="phase-header">${pi===0?"⚡":"🏗️"} ${phase.label}</div>`;
-      phase.items.forEach((item, i) => { html += bulletCardHTML(sec.id+"_"+pi, i, item); });
+      phase.items.forEach((item, i) => {
+        const resolvedItem = typeof item === "object"
+          ? `<span style="font-weight:700;color:#1B3A8C">${item.label}</span><br><span style="font-weight:400">${item.text}</span>`
+          : item;
+        const text = phase.feature
+          ? `<span style="display:inline-flex;align-items:center;background:#1B3A8C;color:#fff;border-radius:8px;padding:2px 10px;font-size:12px;font-weight:700;margin-right:8px;margin-bottom:4px;vertical-align:middle">Feature ${i+1}</span><span style="vertical-align:middle">${resolvedItem}</span>`
+          : resolvedItem;
+        html += bulletCardHTML(sec.id+"_"+pi, i, text, false, phase.feature);
+      });
       return `<div style="margin-bottom:24px">${html}</div>`;
     }).join("");
+  }
+  if (c.type === "splitreqs") {
+    let html = "";
+    c.sections.forEach((sect, si) => {
+      html += `<div class="section-subheader" style="color:#1B3A8C;${si > 0 ? 'margin-top:24px' : ''}">${sect.header}</div><hr class="section-divider">`;
+      sect.items.forEach((item, i) => {
+        const text = typeof item === "object"
+          ? `<span style="font-weight:700;color:#1B3A8C">${item.label}</span><br><span style="font-weight:400">${item.text}</span>`
+          : item;
+        html += bulletCardHTML(sec.id+"_"+si, i, text);
+      });
+    });
+    return html;
   }
   if (c.type === "owner") {
     let html = `<div class="section-label-sm">OWNERS</div>`;
@@ -619,13 +646,18 @@ function buildSectionHTML(sec) {
       html += bulletCardHTML(sec.id+"_own", i, label);
     });
     html += `<div class="section-label-sm" style="margin-top:20px">NEXT STEPS</div>`;
-    c.nextSteps.forEach((step, i) => { html += bulletCardHTML(sec.id, i, step); });
+    c.nextSteps.forEach((step, i) => {
+      const text = typeof step === "object"
+        ? `<span style="font-weight:700;color:#1B3A8C">${step.label}</span><br><span style="font-weight:400">${step.text}</span>`
+        : step;
+      html += bulletCardHTML(sec.id, i, text);
+    });
     return html;
   }
   return "";
 }
 
-function bulletCardHTML(subKey, idx, text) {
+function bulletCardHTML(subKey, idx, text, useStar, hideNum) {
   const bulletKey = currentLever.id + "__" + subKey + "__" + idx;
   const myVote = allVotes.find(v => v.user_name === currentUser && v.bullet_key === bulletKey);
   const myReaction = myVote ? myVote.reaction : null;
@@ -687,7 +719,7 @@ function bulletCardHTML(subKey, idx, text) {
 
   return `<div class="bullet-card ${borderClass}" id="bc-${bulletKey}">
     <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:20px">
-      <span style="flex-shrink:0;width:28px;height:28px;border-radius:50%;background:#1B3A8C;color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px">${idx+1}</span>
+      ${!hideNum ? `<span style="flex-shrink:0;width:28px;height:28px;border-radius:50%;background:#1B3A8C;color:#fff;font-size:${useStar?"16px":"13px"};font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px">${useStar?"★":idx+1}</span>` : ""}
       <div class="bullet-text" style="margin-bottom:0">${text}</div>
     </div>
     <div class="bullet-reactions">${reactionBtns}</div>
