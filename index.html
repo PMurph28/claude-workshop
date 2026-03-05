@@ -234,6 +234,46 @@
   .section-label-sm { font-weight: 700; color: #475569; font-size: 18px; letter-spacing: 0.5px; margin-bottom: 14px; margin-top: 4px; }
   .placeholder-box { padding: 60px 20px; text-align: center; color: #94a3b8; }
 
+  /* ── Rapid Review Mode ── */
+  .rapid-bar {
+    background: linear-gradient(90deg, #0f2460 0%, #1B3A8C 100%);
+    padding: 10px 28px; display: none; align-items: center;
+    justify-content: space-between; flex-shrink: 0; gap: 16px;
+    border-bottom: 2px solid #F59E0B;
+  }
+  .rapid-bar.active { display: flex; }
+  .rapid-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #F59E0B; color: #1a1a1a; border-radius: 20px;
+    padding: 4px 12px; font-size: 12px; font-weight: 800; letter-spacing: 0.5px;
+  }
+  .rapid-progress-wrap { flex: 1; max-width: 400px; }
+  .rapid-progress-label { font-size: 11px; color: #93c5fd; font-weight: 600; margin-bottom: 4px; }
+  .rapid-progress-track { background: rgba(255,255,255,0.15); border-radius: 10px; height: 6px; overflow: hidden; }
+  .rapid-progress-fill { background: #F59E0B; border-radius: 10px; height: 6px; transition: width 0.4s ease; }
+  .rapid-timer { font-size: 22px; font-weight: 800; color: #fff; font-variant-numeric: tabular-nums; min-width: 70px; text-align: right; }
+  .rapid-timer.warning { color: #FCA5A5; }
+  .btn-rapid {
+    background: #F59E0B; color: #1a1a1a; border: none;
+    border-radius: 8px; padding: 7px 16px; font-size: 13px; font-weight: 800;
+    display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-rapid:hover { background: #FBBF24; }
+  .btn-rapid-exit {
+    background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .btn-rapid-exit:hover { background: rgba(255,255,255,0.22); }
+  /* Rapid next button — replaces standard next in rapid mode */
+  .btn-rapid-next {
+    background: #F59E0B; color: #1a1a1a; border: none;
+    border-radius: 10px; padding: 11px 24px; font-size: 15px; font-weight: 800;
+    cursor: pointer; display: flex; align-items: center; gap: 8px;
+    transition: background 0.15s;
+  }
+  .btn-rapid-next:hover { background: #FBBF24; }
+
   /* ── Pagination ── */
   .pagination { background: #fff; border-top: 2px solid #e2e8f0; padding: 18px 32px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; gap: 12px; box-shadow: 0 -2px 12px rgba(0,0,0,0.06); }
   .btn-prev { background: none; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 11px 24px; font-size: 15px; color: #475569; font-weight: 500; }
@@ -295,6 +335,7 @@
     </div>
     <div class="top-bar-actions">
       <span class="saved-indicator" id="saved-indicator">✓ Saved</span>
+      <button class="btn-rapid" id="btn-rapid-start" onclick="startRapidMode()" style="display:none">⚡ Rapid Review</button>
       <button class="btn-dashboard" id="btn-dashboard" onclick="showDashboard()" style="display:none">📊 Facilitator Dashboard</button>
       <button class="btn-ghost" id="btn-back">← All Levers</button>
     </div>
@@ -309,6 +350,18 @@
 
   <!-- Lever detail -->
   <div id="lever-detail">
+    <!-- Rapid review progress bar -->
+    <div class="rapid-bar" id="rapid-bar">
+      <span class="rapid-badge">⚡ RAPID REVIEW</span>
+      <div class="rapid-progress-wrap">
+        <div class="rapid-progress-label" id="rapid-progress-label">Lever 1 of 12 — Overview</div>
+        <div class="rapid-progress-track">
+          <div class="rapid-progress-fill" id="rapid-progress-fill" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="rapid-timer" id="rapid-timer">0:00</div>
+      <button class="btn-rapid-exit" onclick="exitRapidMode()">✕ Exit</button>
+    </div>
     <div class="lever-body">
       <div class="sidebar" id="sidebar" style="display:flex;flex-direction:column;">
         <div id="sidebar-items" style="flex:1;overflow-y:auto;"></div>
@@ -331,7 +384,7 @@
           <button class="btn-prev" id="btn-prev" onclick="navigate(-1)">← Previous</button>
           <span class="page-indicator" id="page-indicator"></span>
           <div style="display:flex;align-items:center;gap:12px">
-            <button class="btn-done-reviewing" onclick="renderLeverList()">✓ Done Reviewing this Lever</button>
+            <button class="btn-done-reviewing" id="btn-done-reviewing" onclick="doneReviewing()">✓ Done Reviewing this Lever</button>
             <button class="btn-next" id="btn-next" onclick="navigate(1)">Next →</button>
           </div>
         </div>
@@ -558,8 +611,10 @@ function renderLeverList() {
   // summary button removed
   document.getElementById("btn-back").style.display = "none";
   document.getElementById("btn-dashboard").style.display = "none";
+  document.getElementById("btn-rapid-start").style.display = "none";
   clearInterval(pollInterval); currentLever = null;
   document.getElementById("btn-dashboard").style.display = "inline-flex";
+  document.getElementById("btn-rapid-start").style.display = "inline-flex";
 
   const grid = document.getElementById("lever-grid");
   grid.innerHTML = "";
@@ -939,9 +994,13 @@ function showSaved() {
 // ── Navigation ─────────────────────────────────────────────────────────────────
 function navigate(dir) {
   const total = currentLever.sections.length;
-  if (dir===1 && currentSectionIdx >= total-1) { renderLeverList(); return; }
+  if (dir===1 && currentSectionIdx >= total-1) {
+    if (rapidMode) { rapidNextLever(); return; }
+    renderLeverList(); return;
+  }
   currentSectionIdx = Math.max(0, Math.min(total-1, currentSectionIdx+dir));
   pendingText = {}; renderSidebar(); renderSection();
+  if (rapidMode) updateRapidBar();
 }
 
 // ── Summary ────────────────────────────────────────────────────────────────────
@@ -1010,6 +1069,114 @@ async function showSummaryScreen() {
   document.getElementById("sum-concerns").innerHTML = renderNotes(concerns, "No concerns submitted yet.");
   document.getElementById("sum-a-label").textContent = `🚩 ADD TO AGENDA (${agendaItems.length})`;
   document.getElementById("sum-agenda-items").innerHTML = renderNotes(agendaItems, "No agenda items added yet.");
+}
+
+// ── Rapid Review Mode ────────────────────────────────────────────────────────
+let rapidMode = false;
+let rapidLeverIdx = 0;
+let rapidStartTime = null;
+let rapidTimerInterval = null;
+const RAPID_ORDER = [...LEVERS].sort((a,b) => a.number - b.number);
+
+function startRapidMode() {
+  rapidMode = true;
+  rapidLeverIdx = 0;
+  rapidStartTime = Date.now();
+  // Start timer
+  clearInterval(rapidTimerInterval);
+  rapidTimerInterval = setInterval(updateRapidTimer, 1000);
+  // Open first lever
+  openLever(RAPID_ORDER[rapidLeverIdx]);
+  document.getElementById("rapid-bar").classList.add("active");
+  updateRapidBar();
+  // Swap next button style
+  swapNextBtn(true);
+}
+
+function exitRapidMode() {
+  rapidMode = false;
+  clearInterval(rapidTimerInterval);
+  document.getElementById("rapid-bar").classList.remove("active");
+  swapNextBtn(false);
+  renderLeverList();
+}
+
+function rapidNextLever() {
+  rapidLeverIdx++;
+  if (rapidLeverIdx >= RAPID_ORDER.length) {
+    // All done!
+    rapidMode = false;
+    clearInterval(rapidTimerInterval);
+    document.getElementById("rapid-bar").classList.remove("active");
+    swapNextBtn(false);
+    showRapidComplete();
+    return;
+  }
+  openLever(RAPID_ORDER[rapidLeverIdx]);
+  document.getElementById("rapid-bar").classList.add("active");
+  updateRapidBar();
+}
+
+function doneReviewing() {
+  if (rapidMode) { rapidNextLever(); }
+  else { renderLeverList(); }
+}
+
+function updateRapidBar() {
+  if (!currentLever) return;
+  const leverNum = rapidLeverIdx + 1;
+  const totalLevers = RAPID_ORDER.length;
+  const secLabel = currentLever.sections[currentSectionIdx]?.label || "";
+  const totalSections = currentLever.sections.length;
+  // Progress = levers completed + fraction of current lever done
+  const pct = ((rapidLeverIdx + (currentSectionIdx / totalSections)) / totalLevers) * 100;
+  document.getElementById("rapid-progress-fill").style.width = pct.toFixed(1) + "%";
+  document.getElementById("rapid-progress-label").textContent =
+    `Lever ${leverNum} of ${totalLevers} — ${currentLever.title} › ${secLabel}`;
+}
+
+function updateRapidTimer() {
+  if (!rapidStartTime) return;
+  const elapsed = Math.floor((Date.now() - rapidStartTime) / 1000);
+  const mins = Math.floor(elapsed / 60);
+  const secs = elapsed % 60;
+  const timerEl = document.getElementById("rapid-timer");
+  timerEl.textContent = `${mins}:${secs.toString().padStart(2,"0")}`;
+}
+
+function swapNextBtn(isRapid) {
+  const btn = document.getElementById("btn-next");
+  if (!btn) return;
+  if (isRapid) {
+    btn.className = "btn-rapid-next";
+    btn.textContent = "Next Section →";
+  } else {
+    btn.className = "btn-next";
+    btn.textContent = "Next →";
+  }
+}
+
+function showRapidComplete() {
+  // Show a completion overlay
+  const overlay = document.createElement("div");
+  overlay.id = "rapid-complete-overlay";
+  overlay.style.cssText = "position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(27,58,140,0.92);z-index:999;display:flex;align-items:center;justify-content:center;font-family:Segoe UI,sans-serif;";
+  const elapsed = Math.floor((Date.now() - rapidStartTime) / 1000);
+  const mins = Math.floor(elapsed / 60);
+  const secs = elapsed % 60;
+  overlay.innerHTML = `
+    <div style="background:#fff;border-radius:24px;padding:52px 56px;text-align:center;max-width:460px;box-shadow:0 32px 80px rgba(0,0,0,0.3);">
+      <div style="font-size:52px;margin-bottom:16px">🎉</div>
+      <div style="font-size:28px;font-weight:800;color:#1B3A8C;margin-bottom:8px">Rapid Review Complete!</div>
+      <div style="font-size:15px;color:#64748b;margin-bottom:8px">You reviewed all 12 levers</div>
+      <div style="font-size:36px;font-weight:800;color:#F59E0B;margin:20px 0">${mins}:${secs.toString().padStart(2,"0")}</div>
+      <div style="font-size:13px;color:#94a3b8;margin-bottom:32px">Total time</div>
+      <button onclick="document.getElementById('rapid-complete-overlay').remove();renderLeverList();"
+        style="background:#1B3A8C;color:#fff;border:none;border-radius:12px;padding:14px 36px;font-size:16px;font-weight:700;cursor:pointer;">
+        Back to All Levers
+      </button>
+    </div>`;
+  document.body.appendChild(overlay);
 }
 
 // ── Dashboard ──────────────────────────────────────────────────────────────────
