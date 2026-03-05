@@ -29,7 +29,7 @@
   .section-unread-dot { width: 8px; height: 8px; border-radius: 50%; background: #fff; flex-shrink: 0; opacity: 0.7; }
 
   /* ── Dashboard ── */
-  #dashboard-screen { display: none; min-height: 100vh; background: #f1f5f9; font-family: "Segoe UI", system-ui, sans-serif; }
+  #dashboard-screen { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #f1f5f9; font-family: "Segoe UI", system-ui, sans-serif; overflow-y: auto; z-index: 100; }
   .dashboard-body { max-width: 1200px; margin: 0 auto; padding: 32px 28px; }
   .dashboard-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
   .dashboard-col-header {
@@ -1031,8 +1031,11 @@ async function loadDashboard() {
   document.getElementById("dash-content").style.display = "none";
 
   // Fetch all votes with notes across all levers
-  const rows = await sbReq("GET", "votes?note=not.is.null&note=neq.&select=*&order=created_at.desc", null);
-  const votes = (rows || []).filter(v => v.note && v.note.trim() && ["Question","Concern","Agenda"].includes(v.reaction));
+  // Fetch all votes that have a note, across all users and levers
+  const rows = await sbReq("GET", "votes?select=*&note=not.is.null&order=created_at.desc", null);
+  console.log("Dashboard raw rows:", rows);
+  const votes = (rows || []).filter(v => v.note && v.note.trim().length > 0 && ["Question","Concern","Agenda"].includes(v.reaction));
+  console.log("Dashboard filtered votes:", votes);
 
   document.getElementById("dash-loading").style.display = "none";
   document.getElementById("dash-content").style.display = "block";
