@@ -303,6 +303,67 @@
   }
   .freetext-standalone:focus { border-color:#1B3A8C; background:#fff; }
 
+  /* ── AI Summary ── */
+  .ai-summary-section {
+    background: #fff; border-radius: 14px; border: 1px solid #e2e8f0;
+    padding: 28px 32px; margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .ai-summary-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .ai-summary-title {
+    font-size: 18px; font-weight: 800; color: #1e293b;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .btn-generate-ai {
+    background: linear-gradient(135deg, #6366f1 0%, #8B5CF6 100%);
+    color: #fff; border: none; border-radius: 10px;
+    padding: 10px 20px; font-size: 13px; font-weight: 700;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+    transition: opacity 0.2s; font-family: inherit;
+  }
+  .btn-generate-ai:hover { opacity: 0.88; }
+  .btn-generate-ai:disabled { opacity: 0.5; cursor: not-allowed; }
+  .ai-output {
+    display: none; margin-top: 16px;
+    border-top: 1px solid #f1f5f9; padding-top: 20px;
+  }
+  .ai-output.visible { display: block; }
+  .ai-thinking {
+    display: none; align-items: center; gap: 10px;
+    color: #8B5CF6; font-size: 14px; font-weight: 600; padding: 12px 0;
+  }
+  .ai-thinking.visible { display: flex; }
+  .ai-spinner {
+    width: 18px; height: 18px; border: 2.5px solid #e2e8f0;
+    border-top-color: #8B5CF6; border-radius: 50%;
+    animation: spin 0.7s linear infinite; flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .ai-lever-block { margin-bottom: 20px; }
+  .ai-lever-title {
+    font-size: 14px; font-weight: 700; color: #1B3A8C;
+    margin-bottom: 8px; display: flex; align-items: center; gap: 8px;
+  }
+  .ai-bullet {
+    display: flex; align-items: flex-start; gap: 8px;
+    font-size: 14px; color: #334155; line-height: 1.6; margin-bottom: 6px;
+    padding-left: 8px;
+  }
+  .ai-bullet::before { content: "•"; color: #8B5CF6; font-weight: 700; flex-shrink: 0; }
+  .ai-overall-block {
+    background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+    border-radius: 12px; padding: 20px 24px; margin-bottom: 24px;
+    border: 1px solid #ddd6fe;
+  }
+  .ai-overall-title {
+    font-size: 15px; font-weight: 800; color: #5B21B6; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .ai-error { color: #DC2626; font-size: 14px; padding: 12px 0; }
+
   /* ── Rapid Review Mode ── */
   .rapid-bar {
     background: linear-gradient(90deg, #0f2460 0%, #1B3A8C 100%);
@@ -477,9 +538,24 @@
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px">
       <div>
         <div style="font-size:22px;font-weight:800;color:#1e293b;margin-bottom:4px">Workshop Submissions</div>
-        <div style="font-size:14px;color:#64748b">All questions, concerns and agenda items submitted across all levers</div>
+        <div style="font-size:14px;color:#64748b">All disagreements and additional input submitted across all levers</div>
       </div>
-      <button onclick="loadDashboard()" style="background:#1B3A8C;color:#fff;border:none;border-radius:10px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;">↻ Refresh</button>
+      <button onclick="loadDashboard()" style="background:#1B3A8C;color:#fff;border:none;border-radius:10px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:inherit;">↻ Refresh</button>
+    </div>
+
+    <!-- AI Summary Panel -->
+    <div class="ai-summary-section">
+      <div class="ai-summary-header">
+        <div class="ai-summary-title">✨ AI Synthesis</div>
+        <button class="btn-generate-ai" id="btn-ai-summary" onclick="generateAISummary()">
+          ✨ Generate Summary
+        </button>
+      </div>
+      <div class="ai-thinking" id="ai-thinking">
+        <div class="ai-spinner"></div>
+        Analysing workshop submissions...
+      </div>
+      <div class="ai-output" id="ai-output"></div>
     </div>
     <div id="dash-loading" class="dash-loading">Loading submissions...</div>
     <div id="dash-content" style="display:none">
@@ -1409,6 +1485,148 @@ function dashCard(v) {
       </span>
     </div>
   </div>`;
+}
+
+// ── AI Summary ────────────────────────────────────────────────────────────────
+const OPENAI_KEY = "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";
+
+async function generateAISummary() {
+  const btn = document.getElementById("btn-ai-summary");
+  const thinking = document.getElementById("ai-thinking");
+  const output = document.getElementById("ai-output");
+
+  // Gather all data from Supabase
+  const rows = await sbReq("GET", "votes?select=*&note=not.is.null&order=created_at.desc", null);
+  const votes = (rows || []).filter(v => v.note && v.note.trim().length > 0 && ["Disagree","Freetext"].includes(v.reaction));
+
+  if (votes.length === 0) {
+    output.innerHTML = '<div class="ai-error">No submissions yet to summarise.</div>';
+    output.classList.add("visible");
+    return;
+  }
+
+  // Build structured input for the prompt
+  const byLever = {};
+  votes.forEach(v => {
+    const lever = LEVERS.find(l => l.id === v.lever_id);
+    const leverTitle = lever ? lever.title : v.lever_id;
+    const parts = (v.bullet_key || "").split("__");
+    const subKey = parts[1] || v.section_key || "";
+    const sec = lever ? lever.sections.find(s => subKey === s.id || subKey.startsWith(s.id)) : null;
+    const secLabel = sec ? sec.label : subKey;
+    const [, disagreeLabel] = getReactionLabels(subKey);
+
+    if (!byLever[leverTitle]) byLever[leverTitle] = [];
+    byLever[leverTitle].push({
+      section: secLabel,
+      type: v.reaction === "Disagree" ? `Disagreement (re: "${disagreeLabel}")` : "Additional input",
+      note: v.note,
+      user: v.user_name
+    });
+  });
+
+  const submissionsText = Object.entries(byLever).map(([lever, items]) =>
+    `LEVER: ${lever}
+` + items.map(i =>
+      `  [${i.type}] ${i.section} — ${i.user}: "${i.note}"`
+    ).join("
+")
+  ).join("
+
+");
+
+  const prompt = `You are summarising feedback from a workshop at Johnson & Johnson MedTech on customer service optimisation initiatives. Below are all participant submissions (disagreements and additional input) from the session.
+
+Please provide:
+1. AN OVERALL SUMMARY — 4-6 bullet points capturing the key themes, tensions, and areas of alignment/misalignment across all levers
+2. PER-LEVER BREAKDOWN — for each lever that received feedback, 2-4 concise bullet points summarising the specific concerns or inputs raised
+
+Be direct, specific, and actionable. Reference specific levers and sections where relevant. Do not pad with filler.
+
+SUBMISSIONS:
+${submissionsText}
+
+Respond in this exact format:
+OVERALL SUMMARY
+• [bullet]
+• [bullet]
+...
+
+PER-LEVER BREAKDOWN
+LEVER: [lever name]
+• [bullet]
+...`;
+
+  btn.disabled = true;
+  btn.innerHTML = "⏳ Generating...";
+  thinking.classList.add("visible");
+  output.classList.remove("visible");
+  output.innerHTML = "";
+
+  try {
+    const res = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + OPENAI_KEY
+      },
+      body: JSON.stringify({
+        model: "gpt-4o",
+        max_tokens: 1500,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error?.message || "API error");
+
+    const text = data.choices[0].message.content;
+    output.innerHTML = renderAISummary(text);
+    output.classList.add("visible");
+  } catch (err) {
+    output.innerHTML = `<div class="ai-error">⚠️ Error: ${err.message}</div>`;
+    output.classList.add("visible");
+  } finally {
+    thinking.classList.remove("visible");
+    btn.disabled = false;
+    btn.innerHTML = "✨ Regenerate";
+  }
+}
+
+function renderAISummary(text) {
+  const lines = text.split("
+").map(l => l.trim()).filter(Boolean);
+  let html = "";
+  let inOverall = false;
+  let inPerLever = false;
+  let currentLever = "";
+
+  for (const line of lines) {
+    if (line === "OVERALL SUMMARY") {
+      inOverall = true; inPerLever = false;
+      html += `<div class="ai-overall-block"><div class="ai-overall-title">🌐 Overall Summary</div>`;
+      continue;
+    }
+    if (line === "PER-LEVER BREAKDOWN") {
+      if (inOverall) html += `</div>`;
+      if (currentLever) html += `</div>`;
+      inOverall = false; inPerLever = true; currentLever = "";
+      continue;
+    }
+    if (inPerLever && line.startsWith("LEVER:")) {
+      if (currentLever) html += `</div>`;
+      currentLever = line.replace("LEVER:", "").trim();
+      html += `<div class="ai-lever-block"><div class="ai-lever-title">📋 ${currentLever}</div>`;
+      continue;
+    }
+    if (line.startsWith("•") || line.startsWith("-")) {
+      const txt = line.replace(/^[•\-]\s*/, "");
+      html += `<div class="ai-bullet">${txt}</div>`;
+    }
+  }
+  if (inOverall) html += `</div>`;
+  if (currentLever) html += `</div>`;
+  return html;
 }
 
 function showLeverDetail() {
