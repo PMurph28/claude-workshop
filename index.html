@@ -689,7 +689,7 @@ function placeholderSections(title) {
     { id:"geo", label:"Geographic Scope", icon:"🌍", content:{type:"placeholder"} },
     { id:"interdep", label:"Interdependencies", icon:"🔗", content:{type:"placeholder"} },
     { id:"sourcing", label:"Sourcing Strategy", icon:"🛒", content:{type:"placeholder"} },
-    { id:"phasing", label:"Implementation Phasing", icon:"🗓️", content:{type:"placeholder"} },
+    { id:"phasing", label:"Solutioning Phasing", icon:"🗓️", content:{type:"placeholder"} },
     { id:"owner", label:"Owner & Next Steps", icon:"👤", content:{type:"placeholder"} },
   ];
 }
@@ -709,8 +709,8 @@ const LEVERS = [
       { id:"geo", label:"Geographic Scope", icon:"🌍", content:{ type:"geo", items:[{scope:"Global",detail:"Centralized, JJMT-owned core asset regardless of global services sourcing decision"},{scope:"Local",detail:"JJMT region specific KMS servicing & support lead assigned"}] } },
       { id:"interdep", label:"Interdependencies", icon:"🔗", content:{ type:"interdep", items:[{system:"Butterfly",level:"Low",detail:"Mostly process/content governance — ERP only matters for embedded 'how-to' aligned to future processes"},{system:"TranSCend",level:"Low",detail:"Limited impact as long as KMS can be built in modular fashion & embedded in the new CRM UI later"},{system:"Other Systems",level:"Moderate",detail:"Requires integration with existing repositories (SharePoint/Confluence), search, permissions, and CRM/Genesys embedding"}] } },
       { id:"sourcing", label:"Sourcing Strategy", icon:"🛒", content:{ type:"bullets", header:"Buy", items:[{label:"Rapid Deployment",text:"Source external platform given maturity of commercial KM solutions (Guru, Bloomfire, Confluence)"},{label:"Low-Lift Mods",text:"Limited-effort integration required with future application-layer builds (incl. data feed to 'single-pane-of-glass')"}] } },
-      { id:"phasing", label:"Implementation Phasing", icon:"🗓️", content:{ type:"phasing", phases:[{label:"Quick Win Plays",items:[{label:"Article Consolidation",text:"Consolidates top 50 SOPs and FAQ articles from existing sources (e.g., TruVault) into tagged / searchable KB"},{label:"Interim Front-End",text:"Deploys MSFT Copilot as interim front-end for consolidated repository"}]},{label:"Steady State Feature Set",feature:true,items:[{label:"Global Knowledge Coverage",text:"Full scope of relevant agent knowledge assets globally (SOPs, FAQs)"},{label:"Content Lifecycle",text:"Dynamic content lifecycle management"},{label:"Gap Intelligence",text:"AI-assisted content gap detection"},{label:"Regional Localization",text:"Multilingual KB with regional layers maintained locally"}]}] } },
-      { id:"owner", label:"Owner & Next Steps", icon:"👤", content:{ type:"owner", owners:[{role:"JJMT Owner",name:"MedTech Supply Chain — Digital Strategy & Innovation"},{role:"External Support",name:"BCG"}], nextSteps:[{label:"Full KMS Design",text:"[JJMT Owner Pending] Complete detailed solution design & feasibility assessment for full KMS"},{label:"Quick Win Design",text:"[JJMT Owner Pending] In parallel, complete detailed solution design & feasibility assessment for MVP / quick win"}] } },
+      { id:"phasing", label:"Solutioning Phasing", icon:"🗓️", content:{ type:"phasing", phases:[{label:"Quick Win Plays",items:[{label:"Article Consolidation",text:"Consolidates top 50 SOPs and FAQ articles from existing sources (e.g., TruVault) into tagged / searchable KB"},{label:"Interim Front-End",text:"Deploys MSFT Copilot as interim front-end for consolidated repository"}]},{label:"Steady State Feature Set",feature:true,items:[{label:"Global Knowledge Coverage",text:"Full scope of relevant agent knowledge assets globally (SOPs, FAQs)"},{label:"Content Lifecycle",text:"Dynamic content lifecycle management"},{label:"Gap Intelligence",text:"AI-assisted content gap detection"},{label:"Regional Localization",text:"Multilingual KB with regional layers maintained locally"}]}] } },
+      { id:"owner", label:"Owner & Next Steps", icon:"👤", content:{ type:"owner", owners:[{role:"JJMT Owner",name:"MedTech Supply Chain — Digital Strategy & Innovation"},{role:"External Support",name:"BCG"}], nextSteps:[{label:"Full KMS Design",text:"Complete detailed solution design & feasibility assessment for full KMS"},{label:"Quick Win Design",text:"In parallel, complete detailed solution design & feasibility assessment for MVP / quick win"}] } },
     ]
   },
   { id:"ai-agent", number:1, title:"AI Agent Handling", icon:"🤖", valueProvided:"High value", valueColor:"#10B981", sections:placeholderSections("AI Agent Handling") },
@@ -993,7 +993,11 @@ function buildSectionHTML(sec) {
     html += `<div class="section-label-sm" style="margin-top:20px">NEXT STEPS</div>`;
     c.nextSteps.forEach((step, i) => {
       const text = typeof step === "object"
-        ? `<span style="font-weight:700;color:#1B3A8C">${step.label}</span><br><span style="font-weight:400">${step.text.replace("[JJMT Owner Pending]", '<span style="display:inline-flex;align-items:center;background:#FEE2E2;color:#991B1B;border:1px solid #FCA5A5;border-radius:6px;padding:1px 8px;font-size:11px;font-weight:700;margin-right:6px">[JJMT Owner Pending]</span>')}</span>`
+        ? `<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px">
+            <span style="font-weight:700;color:#1B3A8C">${step.label}</span>
+            <span style="display:inline-flex;align-items:center;background:#EFF6FF;color:#1B3A8C;border:1px solid #BFDBFE;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;white-space:nowrap">👤 Owner: Digital Strategy & Innovation team</span>
+          </div>
+          <span style="font-weight:400;color:#334155">${step.text}</span>`
         : step;
       html += bulletCardHTML(sec.id, i, text);
     });
