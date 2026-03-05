@@ -403,7 +403,7 @@ const LEVERS = [
         current:["Fragmented, siloed, and often lost knowledge across teams — tribal know-how, no content lifecycle or governance","Agents spend 5+ min per case searching across SharePoint, OneNote, & Outlook — no content governance"],
         future:["Single source of truth surfaced in real time within agent workflows across all support channels","AI surfaces contextually relevant SOP/Playbook articles to CSR in single-pane-of-glass during call — AI search trained on governed, versioned content"]
       }},
-      { id:"impact", label:"Impact", icon:"📊", content:{ type:"impact", level:"Moderate", bullets:["Estimated 10–20% reduction in knowledge lookup time per interaction on complex case types (e.g., returns, disputes, order exceptions) by consolidating fragmented repositories; with variability across regions and process types","Estimated 20–35% reduction in new agent time-to-proficiency by replacing tribal knowledge and peer shadowing with a structured, governed content layer","Critical enabler for highest-value AI levers (Levers 1 and 4); AI accuracy and CSR productivity in both degrade materially without governed, versioned knowledge assets as the underlying content layer"] } },
+      { id:"impact", label:"Impact", icon:"📊", content:{ type:"impact", level:"Moderate", bullets:[{label:"Knowledge lookup:",text:"10–20% reduction in knowledge lookup time per interaction on complex case types (e.g., returns, disputes, order exceptions) by consolidating fragmented repositories; with variability across regions and process types"},{label:"Ramp up time:",text:"20–35% reduction in new agent time-to-proficiency by replacing tribal knowledge and peer shadowing with a structured, governed content layer"},{label:"Critical enabler:",text:"Key enabler for highest value AI levers (Levers 1 & 4) — both degrade materially without governed, versioned knowledge assets as the underlying content layer"}] } },
       { id:"system", label:"System & Process Requirements", icon:"⚙️", content:{ type:"bullets", items:["Consolidate SOP ownership into a global governance model (content owners, review cadence, retirement rules)","Standardize article structure tied to processes (decision trees, exception playbooks, 'what good looks like')","Deploy a searchable global KMS with tagging by journey / product / market"] } },
       { id:"geo", label:"Geographic Scope", icon:"🌍", content:{ type:"geo", items:[{scope:"Global",detail:"Centralized, JJMT-owned core asset regardless of global services sourcing decision"},{scope:"Local",detail:"By country JJMT owned"}] } },
       { id:"interdep", label:"Interdependencies", icon:"🔗", content:{ type:"interdep", items:[{system:"Butterfly",level:"Low",detail:"Mostly process/content governance — ERP only matters for embedded 'how-to' aligned to future processes"},{system:"TransCend",level:"Low",detail:"Limited impact as long as KMS can be built in modular fashion & embedded in the new CRM UI later"},{system:"Other Systems",level:"Moderate",detail:"Requires integration with existing repositories (SharePoint/Confluence), search, permissions, and CRM/Genesys embedding"}] } },
@@ -580,7 +580,12 @@ function buildSectionHTML(sec) {
   }
   if (c.type === "impact") {
     let html = `<div class="impact-badge">${c.level}</div>`;
-    c.bullets.forEach((item, i) => { html += bulletCardHTML(sec.id, i, item); });
+    c.bullets.forEach((item, i) => {
+      const text = typeof item === "object"
+        ? `<span style="font-weight:700;color:#1e293b">${item.label}</span> ${item.text}`
+        : item;
+      html += bulletCardHTML(sec.id, i, text);
+    });
     return html;
   }
   if (c.type === "geo") {
