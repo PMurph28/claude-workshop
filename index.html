@@ -28,6 +28,16 @@
   .lever-card.is-reviewed { border-color: #86EFAC; }
   .section-unread-dot { width: 8px; height: 8px; border-radius: 50%; background: #fff; flex-shrink: 0; opacity: 0.7; }
 
+  @keyframes btnPulse {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.06); }
+    70%  { transform: scale(0.97); }
+    100% { transform: scale(1); }
+  }
+  .bullet-react-btn.just-activated {
+    animation: btnPulse 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
   /* ── Dashboard ── */
   #dashboard-screen { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #f1f5f9; font-family: "Segoe UI", system-ui, sans-serif; overflow-y: auto; z-index: 100; }
   .dashboard-body { max-width: 1200px; margin: 0 auto; padding: 32px 28px; }
@@ -156,6 +166,8 @@
   }
   .bullet-card:hover { box-shadow: 0 4px 16px rgba(27,58,140,0.08); }
   .bullet-card.has-agree { border-left: 4px solid #10B981; }
+  .bullet-card.has-agree-ctx { border-left: 4px solid #10B981; }
+  .bullet-card.has-disagree { border-left: 4px solid #DC2626; }
   .bullet-card.has-question { border-left: 4px solid #DC2626; }
   .bullet-card.has-concern { border-left: 4px solid #F59E0B; }
   .bullet-card.has-agenda { border-left: 4px solid #8B5CF6; }
@@ -168,13 +180,15 @@
   /* reaction row on each bullet */
   .bullet-reactions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .bullet-react-btn {
-    display: flex; align-items: center; gap: 5px;
+    display: flex; align-items: center; gap: 6px;
     background: #f8fafc; border: 1.5px solid #e2e8f0;
-    border-radius: 20px; padding: 6px 14px;
-    font-size: 12px; font-weight: 500; color: #64748b;
-    transition: all 0.15s; white-space: nowrap;
+    border-radius: 20px; padding: 8px 18px;
+    font-size: 13px; font-weight: 500; color: #64748b;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); white-space: nowrap;
+    cursor: pointer; position: relative; overflow: hidden;
   }
-  .bullet-react-btn:hover { border-color: #94a3b8; background: #f1f5f9; }
+  .bullet-react-btn:not(.active-agree-ctx):not(.active-disagree):hover { border-color: #94a3b8; background: #f1f5f9; transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .bullet-react-btn:active { transform: scale(0.97); }
   .bullet-react-btn.active-agree  { background: #f0fdf4; border-color: #10B981; color: #10B981; font-weight: 700; }
   .bullet-react-btn.active-question { background: #fef2f2; border-color: #DC2626; color: #DC2626; font-weight: 700; }
   .bullet-react-btn.active-concern  { background: #fffbeb; border-color: #F59E0B; color: #D97706; font-weight: 700; }
@@ -233,6 +247,61 @@
   .owner-name { font-size: 14px; color: #334155; }
   .section-label-sm { font-weight: 700; color: #475569; font-size: 18px; letter-spacing: 0.5px; margin-bottom: 14px; margin-top: 4px; }
   .placeholder-box { padding: 60px 20px; text-align: center; color: #94a3b8; }
+
+  /* ── 2-Button Reaction System ── */
+  .bullet-react-btn.active-agree-ctx,
+  .bullet-react-btn.active-agree-ctx:hover {
+    background: #DCFCE7 !important;
+    border-color: #16A34A !important;
+    color: #166534 !important;
+    font-weight: 700;
+    box-shadow: 0 0 0 3px rgba(22,163,74,0.15), 0 2px 8px rgba(22,163,74,0.2) !important;
+    transform: translateY(-1px);
+  }
+  .bullet-react-btn.active-disagree,
+  .bullet-react-btn.active-disagree:hover {
+    background: #FEE2E2 !important;
+    border-color: #DC2626 !important;
+    color: #991B1B !important;
+    font-weight: 700;
+    box-shadow: 0 0 0 3px rgba(220,38,38,0.15), 0 2px 8px rgba(220,38,38,0.2) !important;
+    transform: translateY(-1px);
+  }
+  /* Hover states for inactive versions of each */
+  .bullet-react-btn:not(.active-agree-ctx):not(.active-disagree):hover[data-reaction="Agree"] {
+    background: #f0fdf4; border-color: #86EFAC; color: #166534;
+  }
+  .bullet-react-btn:not(.active-agree-ctx):not(.active-disagree):hover[data-reaction="Disagree"] {
+    background: #fef2f2; border-color: #FCA5A5; color: #991B1B;
+  }
+  .bullet-card.has-agree-ctx   { border-left:4px solid #10B981; }
+  .bullet-card.has-disagree    { border-left:4px solid #DC2626; }
+  .focus-badge {
+    display:inline-flex; align-items:center; gap:6px;
+    background:#FEF3C7; color:#92400E; border:1.5px solid #F59E0B;
+    border-radius:8px; padding:5px 14px; font-size:13px; font-weight:700;
+    margin-bottom:20px;
+  }
+  .bcg-badge {
+    display:inline-flex; align-items:center;
+    background:#DCFCE7; color:#166534; border-radius:6px;
+    padding:2px 9px; font-size:11px; font-weight:700; margin-left:8px;
+    vertical-align:middle;
+  }
+  .freetext-block {
+    background:#fff; border:1.5px solid #e2e8f0; border-radius:14px;
+    padding:20px 22px; margin-bottom:16px;
+  }
+  .freetext-block-title {
+    font-size:15px; font-weight:700; color:#1B3A8C; margin-bottom:12px;
+  }
+  .freetext-standalone {
+    width:100%; border:1.5px solid #e2e8f0; border-radius:10px;
+    padding:10px 14px; font-size:14px; resize:vertical; outline:none;
+    line-height:1.5; color:#334155; background:#f8fafc; min-height:80px;
+    transition:border-color 0.2s;
+  }
+  .freetext-standalone:focus { border-color:#1B3A8C; background:#fff; }
 
   /* ── Rapid Review Mode ── */
   .rapid-bar {
@@ -584,6 +653,30 @@ let allVotes = [];
 let pollInterval = null;
 // pending text inputs: { bulletKey: { reaction, text } }
 let pendingText = {};
+
+// Per-section contextual reaction labels: { sectionId: [agreeLabel, disagreeLabel] }
+const SECTION_REACTIONS = {
+  "overview":    ["Agree with this lever framing",          "Do not agree with lever framing"],
+  "fromto_cur":  ["Accurately describes current state",     "Does not accurately describe current state in my region"],
+  "fromto_fut":  ["Agree with this vision for future state","Do not agree on this future state vision"],
+  "impact":      ["Agree with this impact",                 "Do not agree with this impact"],
+  "system_0":    ["Agree with this requirement",            "Do not agree with this requirement"],
+  "system_1":    ["Agree with this requirement",            "Do not agree with this requirement"],
+  "geo":         ["Agree with this scope",                  "Do not agree with this scope"],
+  "interdep":    ["Agree with this dependency",             "Do not agree with this dependency"],
+  "sourcing":    ["Agree with this sourcing approach",      "Do not agree with this sourcing approach"],
+  "phasing_0":   ["Agree with this quick win play",         "Do not agree with this quick win play"],
+  "phasing_1":   ["Agree with this feature",                "Do not agree with this feature"],
+  "owner_own":   ["Agree with this ownership assignment",   "Do not agree with this ownership assignment"],
+  "owner":       ["Agree with this next step",              "Do not agree with this next step"],
+};
+function getReactionLabels(subKey) {
+  // Match subKey to known section keys (use startsWith for flexibility)
+  for (const [k, labels] of Object.entries(SECTION_REACTIONS)) {
+    if (subKey === k || subKey.startsWith(k)) return labels;
+  }
+  return ["Agree", "Do not agree"];
+}
 // tracks which levers and sections the user has visited: { leverId: Set(sectionIdx) }
 let visitedLevers = new Set();
 let visitedSections = {};
@@ -753,8 +846,7 @@ function buildSectionHTML(sec) {
   if (c.type === "geo") {
     let html = "";
     c.items.forEach((item, i) => {
-      const text = item.scope + ": " + item.detail;
-      html += bulletCardHTML(sec.id, i, `<span style="font-weight:700;color:#1B3A8C">${item.scope}</span><br><span style="font-weight:400">${item.detail}</span>`);
+      html += bulletCardHTML(sec.id, i, `<span style="font-weight:700;color:#1B3A8C">${item.scope}</span><span class="bcg-badge">BCG Perspective</span><br><span style="font-weight:400">${item.detail}</span>`);
     });
     return html;
   }
@@ -768,8 +860,9 @@ function buildSectionHTML(sec) {
     return html;
   }
   if (c.type === "phasing") {
-    return c.phases.map((phase, pi) => {
-      let html = `<div class="phase-header">${pi===0?"⚡":"🏗️"} ${phase.label}</div>`;
+    const focusBadge = `<div class="focus-badge">🎯 Focus for Live Discussion</div>`;
+    return focusBadge + c.phases.map((phase, pi) => {
+      let html = `<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px"><div class="phase-header" style="margin-bottom:0">${pi===0?"⚡":"🏗️"} ${phase.label}</div></div>`;
       phase.items.forEach((item, i) => {
         const resolvedItem = typeof item === "object"
           ? `<span style="font-weight:700;color:#1B3A8C">${item.label}</span><br><span style="font-weight:400">${item.text}</span>`
@@ -785,18 +878,25 @@ function buildSectionHTML(sec) {
   if (c.type === "splitreqs") {
     let html = "";
     c.sections.forEach((sect, si) => {
-      html += `<div class="section-subheader" style="color:#1B3A8C;${si > 0 ? 'margin-top:24px' : ''}">${sect.header}</div><hr class="section-divider">`;
+      html += `<div class="section-subheader" style="color:#1B3A8C;${si > 0 ? 'margin-top:28px' : ''}">${sect.header}</div><hr class="section-divider">`;
       sect.items.forEach((item, i) => {
         const text = typeof item === "object"
           ? `<span style="font-weight:700;color:#1B3A8C">${item.label}</span><br><span style="font-weight:400">${item.text}</span>`
           : item;
         html += bulletCardHTML(sec.id+"_"+si, i, text);
       });
+      // Add free-text block after each sub-section
+      const ftTitle = si === 0 ? "Additional important system enablers" : "Additional important process enablers";
+      const ftKey = `${currentLever.id}__freetext_${si}`;
+      html += `<div class="freetext-block">
+        <div class="freetext-block-title">💬 ${ftTitle}</div>
+        <textarea class="freetext-standalone" id="ft-${ftKey}" placeholder="Share any additional ${si===0?'system':'process'} requirements or enablers you believe are important..." onblur="saveFreetext('${ftKey}', this.value)"></textarea>
+      </div>`;
     });
     return html;
   }
   if (c.type === "owner") {
-    let html = `<div class="section-label-sm">OWNERS</div>`;
+    let html = `<div class="focus-badge">🎯 Focus for Live Discussion</div><div class="section-label-sm" style="margin-top:16px">OWNERS</div>`;
     c.owners.forEach((o, i) => {
       const label = `<span style="font-weight:700;color:#1B3A8C">${o.role}</span><br><span style="font-weight:400">${o.name}</span>`;
       html += bulletCardHTML(sec.id+"_own", i, label);
@@ -819,58 +919,45 @@ function bulletCardHTML(subKey, idx, text, useStar, hideNum) {
   const myReaction = myVote ? myVote.reaction : null;
   const pending = pendingText[bulletKey];
 
-  // only show current user's own reaction state — no aggregate counts
-  const counts = { Agree:0, Question:0, Concern:0, Agenda:0 };
+  const [agreeLabel, disagreeLabel] = getReactionLabels(subKey);
+  const borderClass = myReaction === "Agree" ? "has-agree-ctx" : myReaction === "Disagree" ? "has-disagree" : "";
 
-  // notes from others (and own submitted notes)
-  const notes = allVotes.filter(v => v.bullet_key === bulletKey && v.note && v.note.trim() && (v.reaction==="Question"||v.reaction==="Concern"||v.reaction==="Agenda"));
+  // ── Agree button ──
+  const agreeActive = myReaction === "Agree";
+  const agreeBtn = `<button class="bullet-react-btn ${agreeActive?"active-agree-ctx":""}" data-key="${bulletKey}" data-reaction="Agree" data-needs-text="false">
+    ✓ ${agreeLabel}
+  </button>`;
 
-  const borderClass = myReaction ? "has-" + myReaction.toLowerCase() : "";
+  // ── Disagree button ──
+  const disagreeActive = myReaction === "Disagree";
+  const disagreeBtn = `<button class="bullet-react-btn ${disagreeActive?"active-disagree":""}" data-key="${bulletKey}" data-reaction="Disagree" data-needs-text="true">
+    ✗ ${disagreeLabel}
+  </button>`;
 
-  const reactionBtns = [
-    ["Agree","👍","agree","#10B981",false],
-    ["Question","❓","question","#DC2626",true],
-    ["Concern","⚠️","concern","#D97706",true],
-    ["Agenda","🚩","agenda","#7C3AED",true],
-  ].map(([r, emoji, cls, col, needsText]) => {
-    const active = myReaction === r;
-    const count = counts[r];
-    return `<button class="bullet-react-btn ${active?"active-"+cls:""}" data-key="${bulletKey}" data-reaction="${r}" data-needs-text="${needsText}">
-      ${emoji} ${r==="Agenda"?"Add to Agenda":r}
+  const reactionBtns = agreeBtn + disagreeBtn;
 
-    </button>`;
-  }).join("");
-
-  // text input area (show if pending or if active with text-needed reaction)
+  // ── Text input (shown when disagree is pending or active without note) ──
   let textArea = "";
-  if (pending || (myReaction && ["Question","Concern","Agenda"].includes(myReaction) && !myVote?.note)) {
-    const reaction = pending ? pending.reaction : myReaction;
+  if (pending || (myReaction === "Disagree" && !myVote?.note)) {
     const currentText = pending ? pending.text : "";
-    const limit = reaction === "Agenda" ? 100 : 150;
-    const placeholder = reaction==="Question" ? "What's your question?" : reaction==="Concern" ? "What's your concern?" : "Why should we discuss this?";
-    const col = reaction==="Question"?"#DC2626":reaction==="Concern"?"#D97706":"#7C3AED";
+    const limit = 200;
     textArea = `<div class="bullet-text-input-wrap">
-      <textarea class="bullet-text-input" data-key="${bulletKey}" data-reaction="${reaction}" data-limit="${limit}" rows="2" placeholder="${placeholder}" maxlength="${limit}">${currentText}</textarea>
+      <textarea class="bullet-text-input" data-key="${bulletKey}" data-reaction="Disagree" data-limit="${limit}" rows="2" placeholder="Please describe your perspective..." maxlength="${limit}">${currentText}</textarea>
       <div class="text-input-footer">
         <span class="char-count" id="cc-${bulletKey}">${currentText.length}/${limit}</span>
-        <button class="submit-note-btn" data-key="${bulletKey}" data-reaction="${reaction}" ${currentText.trim().length===0?"disabled":""}>Submit</button>
+        <button class="submit-note-btn" data-key="${bulletKey}" data-reaction="Disagree" ${currentText.trim().length===0?"disabled":""}>Submit</button>
       </div>
     </div>`;
   }
 
-  // render submitted notes
+  // ── Submitted note chip ──
   let notesHTML = "";
-  if (notes.length > 0) {
-    const chips = notes.map(n => {
-      const emoji = n.reaction==="Question"?"❓":n.reaction==="Concern"?"⚠️":"🚩";
-      const isOwn = n.user_name === currentUser;
-      return `<div class="note-chip">
-        <span class="note-chip-emoji">${emoji}</span>
-        <span class="note-chip-text"><span class="note-chip-author">${n.user_name}:</span> ${escHtml(n.note)}</span>
-        ${isOwn ? `<button class="note-chip-delete" data-key="${bulletKey}" data-del="true" title="Remove">×</button>` : ""}
-      </div>`;
-    }).join("");
-    notesHTML = `<div class="notes-display">${chips}</div>`;
+  if (myVote?.note && myVote.note.trim()) {
+    notesHTML = `<div class="notes-display"><div class="note-chip">
+      <span class="note-chip-emoji">✗</span>
+      <span class="note-chip-text"><span class="note-chip-author">${myVote.user_name}:</span> ${escHtml(myVote.note)}</span>
+      <button class="note-chip-delete" data-key="${bulletKey}" data-del="true" title="Remove">×</button>
+    </div></div>`;
   }
 
   return `<div class="bullet-card ${borderClass}" id="bc-${bulletKey}">
@@ -884,6 +971,15 @@ function bulletCardHTML(subKey, idx, text, useStar, hideNum) {
   </div>`;
 }
 
+async function saveFreetext(ftKey, value) {
+  if (!value || !value.trim()) return;
+  const parts = ftKey.split("__");
+  const leverId = parts[0];
+  const sectionKey = parts[1];
+  await upsertVote({ user_name: currentUser, lever_id: leverId, section_key: sectionKey, bullet_key: ftKey, reaction: "Freetext", note: value.trim() });
+  showSaved();
+}
+
 function escHtml(s) { return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
 // ── Event listeners on content area ───────────────────────────────────────────
@@ -894,6 +990,11 @@ function attachBulletListeners(area) {
       const key = btn.dataset.key;
       const reaction = btn.dataset.reaction;
       const needsText = btn.dataset.needsText === "true";
+      // Pulse animation on click
+      btn.classList.remove("just-activated");
+      void btn.offsetWidth; // force reflow to restart animation
+      btn.classList.add("just-activated");
+      btn.addEventListener("animationend", () => btn.classList.remove("just-activated"), { once: true });
       handleReactionClick(key, reaction, needsText);
     });
   });
@@ -949,31 +1050,29 @@ async function handleReactionClick(bulletKey, reaction, needsText) {
     showSaved(); renderSection(); renderSidebar(); return;
   }
 
-  // switching to a different reaction — remove old first
+  // switching — remove old first
   if (myVote) {
     await deleteVote(currentUser, currentLever.id, bulletKey);
     allVotes = allVotes.filter(v => !(v.user_name === currentUser && v.bullet_key === bulletKey));
   }
 
-  if (!needsText) {
-    // Agree — save immediately, no text needed
+  if (reaction === "Agree") {
     const parts = bulletKey.split("__");
-    const row = await upsertVote({ user_name: currentUser, lever_id: currentLever.id, section_key: parts[1], bullet_key: bulletKey, reaction, note: null });
+    const row = await upsertVote({ user_name: currentUser, lever_id: currentLever.id, section_key: parts[1], bullet_key: bulletKey, reaction: "Agree", note: null });
     if (row) allVotes.push(Array.isArray(row) ? row[0] : row);
     delete pendingText[bulletKey];
   } else {
-    // Question / Concern / Agenda — show text box first
-    pendingText[bulletKey] = { reaction, text: "" };
+    // Disagree — show text box
+    pendingText[bulletKey] = { reaction: "Disagree", text: "" };
   }
   showSaved(); renderSection(); renderSidebar();
 }
 
 async function submitNote(bulletKey, reaction, note) {
   const parts = bulletKey.split("__");
-  // remove any existing vote for this bullet by this user
   await deleteVote(currentUser, currentLever.id, bulletKey);
   allVotes = allVotes.filter(v => !(v.user_name === currentUser && v.bullet_key === bulletKey));
-  const row = await upsertVote({ user_name: currentUser, lever_id: currentLever.id, section_key: parts[1], bullet_key: bulletKey, reaction, note });
+  const row = await upsertVote({ user_name: currentUser, lever_id: currentLever.id, section_key: parts[1], bullet_key: bulletKey, reaction: "Disagree", note });
   if (row) allVotes.push(Array.isArray(row) ? row[0] : row);
   delete pendingText[bulletKey];
   showSaved(); renderSection(); renderSidebar();
