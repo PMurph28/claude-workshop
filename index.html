@@ -1488,7 +1488,7 @@ function dashCard(v) {
 }
 
 // ── AI Summary ────────────────────────────────────────────────────────────────
-const OPENAI_KEY = "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";
+// AI runs via Supabase Edge Function — no client-side key needed
 
 async function generateAISummary() {
   const btn = document.getElementById("btn-ai-summary");
@@ -1526,14 +1526,10 @@ async function generateAISummary() {
   });
 
   const submissionsText = Object.entries(byLever).map(([lever, items]) =>
-    `LEVER: ${lever}
-` + items.map(i =>
-      `  [${i.type}] ${i.section} — ${i.user}: "${i.note}"`
-    ).join("
-")
-  ).join("
-
-");
+    "LEVER: " + lever + "\n" + items.map(i =>
+      "  [" + i.type + "] " + i.section + " \u2014 " + i.user + ": \"" + i.note + "\""
+    ).join("\n")
+  ).join("\n\n");
 
   const prompt = `You are summarising feedback from a workshop at Johnson & Johnson MedTech on customer service optimisation initiatives. Below are all participant submissions (disagreements and additional input) from the session.
 
@@ -1564,21 +1560,17 @@ LEVER: [lever name]
   output.innerHTML = "";
 
   try {
-    const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    const res = await fetch(SUPABASE_URL + "/functions/v1/ai-summary", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer " + OPENAI_KEY
+        "Authorization": "Bearer " + SUPABASE_KEY
       },
-      body: JSON.stringify({
-        model: "gpt-4o",
-        max_tokens: 1500,
-        messages: [{ role: "user", content: prompt }]
-      })
+      body: JSON.stringify({ prompt })
     });
 
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error?.message || "API error");
+    if (!res.ok) throw new Error(data.error?.message || "Edge function error");
 
     const text = data.choices[0].message.content;
     output.innerHTML = renderAISummary(text);
@@ -1594,8 +1586,7 @@ LEVER: [lever name]
 }
 
 function renderAISummary(text) {
-  const lines = text.split("
-").map(l => l.trim()).filter(Boolean);
+  const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
   let html = "";
   let inOverall = false;
   let inPerLever = false;
