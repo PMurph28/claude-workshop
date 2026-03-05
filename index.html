@@ -486,12 +486,12 @@
       <div class="dashboard-cols">
         <!-- Left col: Questions + Concerns -->
         <div>
-          <div class="dashboard-col-header">❓⚠️ QUESTIONS & CONCERNS <span id="dash-qc-count" style="background:#e2e8f0;color:#475569;border-radius:10px;padding:1px 8px;font-size:11px"></span></div>
+          <div class="dashboard-col-header">✗ DISAGREEMENTS <span id="dash-qc-count" style="background:#e2e8f0;color:#475569;border-radius:10px;padding:1px 8px;font-size:11px"></span></div>
           <div id="dash-qc-list"></div>
         </div>
         <!-- Right col: Agenda -->
         <div>
-          <div class="dashboard-col-header">🚩 ADD TO AGENDA <span id="dash-agenda-count" style="background:#e2e8f0;color:#475569;border-radius:10px;padding:1px 8px;font-size:11px"></span></div>
+          <div class="dashboard-col-header">💬 ADDITIONAL INPUT <span id="dash-agenda-count" style="background:#e2e8f0;color:#475569;border-radius:10px;padding:1px 8px;font-size:11px"></span></div>
           <div id="dash-agenda-list"></div>
         </div>
       </div>
@@ -708,6 +708,7 @@ function renderLeverList() {
   clearInterval(pollInterval); currentLever = null;
   document.getElementById("btn-dashboard").style.display = "inline-flex";
   document.getElementById("btn-rapid-start").style.display = "inline-flex";
+  updateRapidStartBtn();
 
   const grid = document.getElementById("lever-grid");
   grid.innerHTML = "";
@@ -1175,24 +1176,76 @@ let rapidMode = false;
 let rapidLeverIdx = 0;
 let rapidStartTime = null;
 let rapidTimerInterval = null;
+let rapidElapsedBeforePause = 0;  // tracks time accumulated before pausing
 const RAPID_ORDER = [...LEVERS].sort((a,b) => a.number - b.number);
 
-function startRapidMode() {
+// Find the furthest unvisited lever+section to resume from
+function getRapidResumePoint() {
+  for (let li = 0; li < RAPID_ORDER.length; li++) {
+    const lever = RAPID_ORDER[li];
+    const visited = visitedSections[lever.id];
+    if (!visited) return { leverIdx: li, sectionIdx: 0 };
+    const totalSections = lever.sections.length;
+    for (let si = 0; si < totalSections; si++) {
+      if (!visited.has(si)) return { leverIdx: li, sectionIdx: si };
+    }
+  }
+  return null; // all done
+}
+
+function hasRapidProgress() {
+  return RAPID_ORDER.some(lever => visitedLevers.has(lever.id));
+}
+
+function startRapidMode(resume) {
+  const resumePoint = resume ? getRapidResumePoint() : null;
+
+  // If resuming and all done, show complete screen
+  if (resume && !resumePoint) { showRapidComplete(); return; }
+
   rapidMode = true;
-  rapidLeverIdx = 0;
-  rapidStartTime = Date.now();
-  // Start timer
+  rapidLeverIdx = resumePoint ? resumePoint.sectionIdx === 0 ? resumePoint.leverIdx : resumePoint.leverIdx : 0;
+
+  // Timer: if resuming, carry over elapsed time
+  if (!resume) {
+    rapidElapsedBeforePause = 0;
+    rapidStartTime = Date.now();
+  } else {
+    rapidStartTime = Date.now(); // timer restarts from where we left off via elapsed offset
+  }
+
   clearInterval(rapidTimerInterval);
   rapidTimerInterval = setInterval(updateRapidTimer, 1000);
-  // Open first lever
+
+  // Open lever at resume point
   openLever(RAPID_ORDER[rapidLeverIdx]);
+  if (resumePoint && resumePoint.sectionIdx > 0) {
+    currentSectionIdx = resumePoint.sectionIdx;
+    renderSidebar(); renderSection();
+  }
   document.getElementById("rapid-bar").classList.add("active");
   updateRapidBar();
-  // Swap next button style
   swapNextBtn(true);
+  updateRapidStartBtn();
+}
+
+function updateRapidStartBtn() {
+  const btn = document.getElementById("btn-rapid-start");
+  if (!btn) return;
+  if (hasRapidProgress()) {
+    btn.innerHTML = "⚡ Resume Review";
+    btn.onclick = () => startRapidMode(true);
+  } else {
+    btn.innerHTML = "⚡ Rapid Review";
+    btn.onclick = () => startRapidMode(false);
+  }
 }
 
 function exitRapidMode() {
+  // Save elapsed time so resume can show accurate total
+  if (rapidStartTime) {
+    rapidElapsedBeforePause += Math.floor((Date.now() - rapidStartTime) / 1000);
+  }
   rapidMode = false;
   clearInterval(rapidTimerInterval);
   document.getElementById("rapid-bar").classList.remove("active");
@@ -1236,7 +1289,7 @@ function updateRapidBar() {
 
 function updateRapidTimer() {
   if (!rapidStartTime) return;
-  const elapsed = Math.floor((Date.now() - rapidStartTime) / 1000);
+  const elapsed = rapidElapsedBeforePause + Math.floor((Date.now() - rapidStartTime) / 1000);
   const mins = Math.floor(elapsed / 60);
   const secs = elapsed % 60;
   const timerEl = document.getElementById("rapid-timer");
@@ -1296,50 +1349,56 @@ async function loadDashboard() {
   document.getElementById("dash-loading").style.display = "flex";
   document.getElementById("dash-content").style.display = "none";
 
-  // Fetch all votes with notes across all levers
-  // Fetch all votes that have a note, across all users and levers
+  // Fetch all votes with notes across all levers and users
   const rows = await sbReq("GET", "votes?select=*&note=not.is.null&order=created_at.desc", null);
-  console.log("Dashboard raw rows:", rows);
-  const votes = (rows || []).filter(v => v.note && v.note.trim().length > 0 && ["Question","Concern","Agenda"].includes(v.reaction));
-  console.log("Dashboard filtered votes:", votes);
+  const votes = (rows || []).filter(v => v.note && v.note.trim().length > 0 && ["Disagree","Freetext"].includes(v.reaction));
 
   document.getElementById("dash-loading").style.display = "none";
   document.getElementById("dash-content").style.display = "block";
 
-  const qc = votes.filter(v => v.reaction === "Question" || v.reaction === "Concern");
-  const agenda = votes.filter(v => v.reaction === "Agenda");
+  const disagreements = votes.filter(v => v.reaction === "Disagree");
+  const freetexts = votes.filter(v => v.reaction === "Freetext");
 
-  document.getElementById("dash-qc-count").textContent = qc.length;
-  document.getElementById("dash-agenda-count").textContent = agenda.length;
+  document.getElementById("dash-qc-count").textContent = disagreements.length;
+  document.getElementById("dash-agenda-count").textContent = freetexts.length;
 
-  document.getElementById("dash-qc-list").innerHTML = qc.length === 0
-    ? '<div class="dash-empty">No questions or concerns submitted yet.</div>'
-    : qc.map(v => dashCard(v)).join("");
+  document.getElementById("dash-qc-list").innerHTML = disagreements.length === 0
+    ? '<div class="dash-empty">No disagreements submitted yet.</div>'
+    : disagreements.map(v => dashCard(v)).join("");
 
-  document.getElementById("dash-agenda-list").innerHTML = agenda.length === 0
-    ? '<div class="dash-empty">No agenda items added yet.</div>'
-    : agenda.map(v => dashCard(v)).join("");
+  document.getElementById("dash-agenda-list").innerHTML = freetexts.length === 0
+    ? '<div class="dash-empty">No additional input submitted yet.</div>'
+    : freetexts.map(v => dashCard(v)).join("");
 }
 
 function dashCard(v) {
-  // Find lever title
   const lever = LEVERS.find(l => l.id === v.lever_id);
   const leverTitle = lever ? lever.title : v.lever_id;
 
-  // Find section label from bullet_key
+  // Find section label
   const parts = (v.bullet_key || "").split("__");
   const subKey = parts[1] || v.section_key || "";
   const sec = lever ? lever.sections.find(s => subKey === s.id || subKey.startsWith(s.id)) : null;
   const secLabel = sec ? sec.label : subKey;
 
-  // Extract bullet text from bullet_key context (best effort plain text)
-  const bulletSnippet = v.bullet_key ? v.bullet_key.split("__").slice(1).join(" › ") : "";
+  // Get contextual label used for this bullet
+  const [agreeLabel, disagreeLabel] = getReactionLabels(subKey);
+  const isDisagree = v.reaction === "Disagree";
+  const isFreetext = v.reaction === "Freetext";
 
-  const typeClass = v.reaction === "Question" ? "question" : v.reaction === "Concern" ? "concern" : "agenda";
-  const typeEmoji = v.reaction === "Question" ? "❓" : v.reaction === "Concern" ? "⚠️" : "🚩";
+  const typeClass = isDisagree ? "question" : "concern";
+  const typeBadge = isDisagree
+    ? `<span class="dash-card-type question">✗ Do Not Agree</span>`
+    : `<span class="dash-card-type concern">💬 Additional Input</span>`;
+
+  // Show what they were reacting to (the disagree label context)
+  const contextLine = isDisagree
+    ? `<div style="font-size:11px;color:#94a3b8;font-style:italic;margin-bottom:8px">Re: "${disagreeLabel}"</div>`
+    : "";
 
   return `<div class="dash-card">
-    <div class="dash-card-type ${typeClass}">${typeEmoji} ${v.reaction}</div>
+    ${typeBadge}
+    ${contextLine}
     <div class="dash-card-comment">${escHtml(v.note)}</div>
     <div class="dash-card-meta">
       <span class="dash-card-lever">${leverTitle}</span>
