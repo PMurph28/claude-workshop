@@ -565,10 +565,15 @@
           <div class="dashboard-col-header">✗ DISAGREEMENTS <span id="dash-qc-count" style="background:#e2e8f0;color:#475569;border-radius:10px;padding:1px 8px;font-size:11px"></span></div>
           <div id="dash-qc-list"></div>
         </div>
-        <!-- Right col: Agenda -->
+        <!-- Right col: AI Discussion Topics -->
         <div>
-          <div class="dashboard-col-header">💬 ADDITIONAL INPUT <span id="dash-agenda-count" style="background:#e2e8f0;color:#475569;border-radius:10px;padding:1px 8px;font-size:11px"></span></div>
-          <div id="dash-agenda-list"></div>
+          <div class="dashboard-col-header">🗣️ AI-GENERATED DISCUSSION TOPICS
+            <button onclick="generateDiscussionTopics()" id="btn-disc-topics" style="margin-left:10px;background:#8B5CF6;color:#fff;border:none;border-radius:8px;padding:3px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">✨ Generate</button>
+          </div>
+          <div id="disc-topics-loading" style="display:none;color:#8B5CF6;font-size:13px;padding:12px 0;display:none;align-items:center;gap:8px;">
+            <div class="ai-spinner" style="border-top-color:#8B5CF6"></div> Generating discussion topics...
+          </div>
+          <div id="disc-topics-list"><div class="dash-empty">Click ✨ Generate to create AI-suggested discussion topics from all submissions.</div></div>
         </div>
       </div>
     </div>
@@ -1433,18 +1438,11 @@ async function loadDashboard() {
   document.getElementById("dash-content").style.display = "block";
 
   const disagreements = votes.filter(v => v.reaction === "Disagree");
-  const freetexts = votes.filter(v => v.reaction === "Freetext");
-
   document.getElementById("dash-qc-count").textContent = disagreements.length;
-  document.getElementById("dash-agenda-count").textContent = freetexts.length;
 
   document.getElementById("dash-qc-list").innerHTML = disagreements.length === 0
     ? '<div class="dash-empty">No disagreements submitted yet.</div>'
     : disagreements.map(v => dashCard(v)).join("");
-
-  document.getElementById("dash-agenda-list").innerHTML = freetexts.length === 0
-    ? '<div class="dash-empty">No additional input submitted yet.</div>'
-    : freetexts.map(v => dashCard(v)).join("");
 }
 
 function dashCard(v) {
@@ -1618,6 +1616,105 @@ function renderAISummary(text) {
   if (inOverall) html += `</div>`;
   if (currentLever) html += `</div>`;
   return html;
+}
+
+async function generateDiscussionTopics() {
+  const btn = document.getElementById("btn-disc-topics");
+  const loading = document.getElementById("disc-topics-loading");
+  const list = document.getElementById("disc-topics-list");
+
+  btn.disabled = true;
+  btn.textContent = "⏳";
+  loading.style.display = "flex";
+  list.style.opacity = "0.4";
+
+  // Gather all votes with notes (both disagree and freetext)
+  const rows = await sbReq("GET", "votes?select=*&note=not.is.null&order=created_at.desc", null);
+  const votes = (rows || []).filter(v => v.note && v.note.trim().length > 0 && ["Disagree","Freetext"].includes(v.reaction));
+
+  if (votes.length === 0) {
+    loading.style.display = "none";
+    list.style.opacity = "1";
+    list.innerHTML = '<div class="dash-empty">No submissions yet to generate topics from.</div>';
+    btn.disabled = false; btn.textContent = "✨ Generate";
+    return;
+  }
+
+  // Build input grouped by lever
+  const byLever = {};
+  votes.forEach(v => {
+    const lever = LEVERS.find(l => l.id === v.lever_id);
+    const leverTitle = lever ? lever.title : v.lever_id;
+    const parts = (v.bullet_key || "").split("__");
+    const subKey = parts[1] || v.section_key || "";
+    const sec = lever ? lever.sections.find(s => subKey === s.id || subKey.startsWith(s.id)) : null;
+    const secLabel = sec ? sec.label : subKey;
+    if (!byLever[leverTitle]) byLever[leverTitle] = [];
+    byLever[leverTitle].push({ section: secLabel, note: v.note, type: v.reaction });
+  });
+
+  const submissionsText = Object.entries(byLever).map(([lever, items]) =>
+    "LEVER: " + lever + "\n" + items.map(i =>
+      "  [" + i.section + "] " + i.note
+    ).join("\n")
+  ).join("\n\n");
+
+  const prompt = `You are helping a workshop facilitator at Johnson & Johnson MedTech prepare for a live discussion session on customer service optimisation initiatives.
+
+Based on the participant feedback below, generate a prioritised list of specific discussion topics for the live session. Each topic should:
+- Be a specific, actionable question or area of debate (not a vague theme)
+- Reference the specific lever and section it relates to
+- Be framed to drive productive group discussion
+
+Format your response EXACTLY like this — no other text:
+TOPIC: [lever name] — [specific discussion question or debate point]
+TOPIC: [lever name] — [specific discussion question or debate point]
+...
+
+Generate between 5-10 topics, prioritised by importance and controversy. Be specific and direct.
+
+PARTICIPANT FEEDBACK:
+${submissionsText}`;
+
+  try {
+    const res = await fetch(SUPABASE_URL + "/functions/v1/ai-summary", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + SUPABASE_KEY },
+      body: JSON.stringify({ prompt })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error?.message || "Edge function error");
+    const text = data.choices[0].message.content;
+    list.innerHTML = renderDiscussionTopics(text);
+    list.style.opacity = "1";
+  } catch (err) {
+    list.innerHTML = `<div class="ai-error">⚠️ Error: ${err.message}</div>`;
+    list.style.opacity = "1";
+  } finally {
+    loading.style.display = "none";
+    btn.disabled = false;
+    btn.textContent = "✨ Regenerate";
+  }
+}
+
+function renderDiscussionTopics(text) {
+  const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
+  const topics = lines.filter(l => l.startsWith("TOPIC:")).map(l => l.replace("TOPIC:", "").trim());
+
+  if (topics.length === 0) return '<div class="dash-empty">No topics could be generated from the current submissions.</div>';
+
+  return topics.map((topic, i) => {
+    const dashIdx = topic.indexOf(" — ");
+    const lever = dashIdx > -1 ? topic.slice(0, dashIdx) : "";
+    const question = dashIdx > -1 ? topic.slice(dashIdx + 3) : topic;
+    return `<div class="dash-card" style="border-left:4px solid #8B5CF6">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <span style="flex-shrink:0;width:24px;height:24px;border-radius:50%;background:#8B5CF6;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center">${i+1}</span>
+        ${lever ? `<span class="dash-card-lever" style="background:#f5f3ff;color:#7c3aed">${lever}</span>` : ""}
+      </div>
+      <div class="dash-card-comment" style="font-size:14px">${question}</div>
+    </div>`;
+  }).join("");
 }
 
 function showLeverDetail() {
