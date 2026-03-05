@@ -28,6 +28,66 @@
   .lever-card.is-reviewed { border-color: #86EFAC; }
   .section-unread-dot { width: 8px; height: 8px; border-radius: 50%; background: #fff; flex-shrink: 0; opacity: 0.7; }
 
+  /* ── Dashboard ── */
+  #dashboard-screen { display: none; min-height: 100vh; background: #f1f5f9; font-family: "Segoe UI", system-ui, sans-serif; }
+  .dashboard-body { max-width: 1200px; margin: 0 auto; padding: 32px 28px; }
+  .dashboard-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+  .dashboard-col-header {
+    font-size: 13px; font-weight: 700; letter-spacing: 1px; color: #94a3b8;
+    margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+  }
+  .dash-card {
+    background: #fff; border-radius: 14px; border: 1px solid #e2e8f0;
+    padding: 20px 22px; margin-bottom: 14px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    transition: box-shadow 0.15s;
+  }
+  .dash-card:hover { box-shadow: 0 4px 16px rgba(27,58,140,0.09); }
+  .dash-card-type {
+    display: inline-flex; align-items: center; gap: 5px;
+    border-radius: 20px; padding: 3px 10px; font-size: 11px; font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .dash-card-type.question { background: #fee2e2; color: #dc2626; }
+  .dash-card-type.concern  { background: #fef3c7; color: #d97706; }
+  .dash-card-type.agenda   { background: #f5f3ff; color: #7c3aed; }
+  .dash-card-comment {
+    font-size: 15px; font-weight: 500; color: #1e293b; line-height: 1.6;
+    margin-bottom: 12px;
+  }
+  .dash-card-meta {
+    font-size: 12px; color: #94a3b8; display: flex; align-items: center;
+    gap: 6px; flex-wrap: wrap; border-top: 1px solid #f1f5f9; padding-top: 10px;
+  }
+  .dash-card-lever {
+    background: #f1f5f9; color: #475569; border-radius: 6px;
+    padding: 2px 8px; font-size: 11px; font-weight: 600;
+  }
+  .dash-card-section { color: #94a3b8; font-size: 11px; }
+  .dash-card-bullet {
+    font-size: 11px; color: #94a3b8; font-style: italic; line-height: 1.4;
+    margin-bottom: 10px; padding-left: 10px; border-left: 2px solid #e2e8f0;
+  }
+  .dash-card-author {
+    margin-left: auto; font-size: 12px; font-weight: 600; color: #1B3A8C;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .dash-avatar {
+    width: 22px; height: 22px; border-radius: 50%; background: #1B3A8C;
+    color: #fff; font-size: 10px; font-weight: 700;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .dash-empty { color: #94a3b8; font-size: 14px; text-align: center; padding: 32px 0; }
+  .dash-loading { color: #94a3b8; font-size: 14px; text-align: center; padding: 32px 0; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .btn-dashboard {
+    background: rgba(255,255,255,0.12); color: #fff;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn-dashboard:hover { background: rgba(255,255,255,0.22); }
+  .btn-dashboard.active { background: #fff; color: #1B3A8C; }
+
   /* ── Login ── */
   #login-screen {
     min-height: 100vh;
@@ -235,7 +295,8 @@
     </div>
     <div class="top-bar-actions">
       <span class="saved-indicator" id="saved-indicator">✓ Saved</span>
-<button class="btn-ghost" id="btn-back">← All Levers</button>
+      <button class="btn-dashboard" id="btn-dashboard" onclick="showDashboard()" style="display:none">📊 Facilitator Dashboard</button>
+      <button class="btn-ghost" id="btn-back">← All Levers</button>
     </div>
   </div>
 
@@ -273,6 +334,43 @@
             <button class="btn-done-reviewing" onclick="renderLeverList()">✓ Done Reviewing this Lever</button>
             <button class="btn-next" id="btn-next" onclick="navigate(1)">Next →</button>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard-screen">
+  <div class="top-bar">
+    <div>
+      <div class="top-bar-eyebrow">JJMT MEDTECH — TECHNOLOGY INITIATIVE</div>
+      <div class="top-bar-title">Facilitator Dashboard</div>
+    </div>
+    <div class="top-bar-actions">
+      <button class="btn-ghost" onclick="hideDashboard()">← Back to Levers</button>
+    </div>
+  </div>
+  <div class="dashboard-body">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px">
+      <div>
+        <div style="font-size:22px;font-weight:800;color:#1e293b;margin-bottom:4px">Workshop Submissions</div>
+        <div style="font-size:14px;color:#64748b">All questions, concerns and agenda items submitted across all levers</div>
+      </div>
+      <button onclick="loadDashboard()" style="background:#1B3A8C;color:#fff;border:none;border-radius:10px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;">↻ Refresh</button>
+    </div>
+    <div id="dash-loading" class="dash-loading">Loading submissions...</div>
+    <div id="dash-content" style="display:none">
+      <div class="dashboard-cols">
+        <!-- Left col: Questions + Concerns -->
+        <div>
+          <div class="dashboard-col-header">❓⚠️ QUESTIONS & CONCERNS <span id="dash-qc-count" style="background:#e2e8f0;color:#475569;border-radius:10px;padding:1px 8px;font-size:11px"></span></div>
+          <div id="dash-qc-list"></div>
+        </div>
+        <!-- Right col: Agenda -->
+        <div>
+          <div class="dashboard-col-header">🚩 ADD TO AGENDA <span id="dash-agenda-count" style="background:#e2e8f0;color:#475569;border-radius:10px;padding:1px 8px;font-size:11px"></span></div>
+          <div id="dash-agenda-list"></div>
         </div>
       </div>
     </div>
@@ -459,7 +557,9 @@ function renderLeverList() {
   document.getElementById("top-bar-title").textContent = "CS Optimization — 12 Levers";
   // summary button removed
   document.getElementById("btn-back").style.display = "none";
+  document.getElementById("btn-dashboard").style.display = "none";
   clearInterval(pollInterval); currentLever = null;
+  document.getElementById("btn-dashboard").style.display = "inline-flex";
 
   const grid = document.getElementById("lever-grid");
   grid.innerHTML = "";
@@ -504,6 +604,7 @@ async function openLever(lever) {
   document.getElementById("top-bar-title").textContent = lever.title;
   // summary button removed
   document.getElementById("btn-back").style.display = "inline-flex";
+  document.getElementById("btn-dashboard").style.display = "none";
   renderSidebar(); renderSection();
   clearInterval(pollInterval);
   refreshVotes().then(() => { renderSidebar(); renderSection(); });
@@ -909,6 +1010,77 @@ async function showSummaryScreen() {
   document.getElementById("sum-concerns").innerHTML = renderNotes(concerns, "No concerns submitted yet.");
   document.getElementById("sum-a-label").textContent = `🚩 ADD TO AGENDA (${agendaItems.length})`;
   document.getElementById("sum-agenda-items").innerHTML = renderNotes(agendaItems, "No agenda items added yet.");
+}
+
+// ── Dashboard ──────────────────────────────────────────────────────────────────
+async function showDashboard() {
+  document.getElementById("lever-list").style.display = "none";
+  document.getElementById("dashboard-screen").style.display = "block";
+  document.getElementById("btn-dashboard").style.display = "none";
+  document.getElementById("btn-back").style.display = "none";
+  await loadDashboard();
+}
+
+function hideDashboard() {
+  document.getElementById("dashboard-screen").style.display = "none";
+  renderLeverList();
+}
+
+async function loadDashboard() {
+  document.getElementById("dash-loading").style.display = "flex";
+  document.getElementById("dash-content").style.display = "none";
+
+  // Fetch all votes with notes across all levers
+  const rows = await sbReq("GET", "votes?note=not.is.null&note=neq.&select=*&order=created_at.desc", null);
+  const votes = (rows || []).filter(v => v.note && v.note.trim() && ["Question","Concern","Agenda"].includes(v.reaction));
+
+  document.getElementById("dash-loading").style.display = "none";
+  document.getElementById("dash-content").style.display = "block";
+
+  const qc = votes.filter(v => v.reaction === "Question" || v.reaction === "Concern");
+  const agenda = votes.filter(v => v.reaction === "Agenda");
+
+  document.getElementById("dash-qc-count").textContent = qc.length;
+  document.getElementById("dash-agenda-count").textContent = agenda.length;
+
+  document.getElementById("dash-qc-list").innerHTML = qc.length === 0
+    ? '<div class="dash-empty">No questions or concerns submitted yet.</div>'
+    : qc.map(v => dashCard(v)).join("");
+
+  document.getElementById("dash-agenda-list").innerHTML = agenda.length === 0
+    ? '<div class="dash-empty">No agenda items added yet.</div>'
+    : agenda.map(v => dashCard(v)).join("");
+}
+
+function dashCard(v) {
+  // Find lever title
+  const lever = LEVERS.find(l => l.id === v.lever_id);
+  const leverTitle = lever ? lever.title : v.lever_id;
+
+  // Find section label from bullet_key
+  const parts = (v.bullet_key || "").split("__");
+  const subKey = parts[1] || v.section_key || "";
+  const sec = lever ? lever.sections.find(s => subKey === s.id || subKey.startsWith(s.id)) : null;
+  const secLabel = sec ? sec.label : subKey;
+
+  // Extract bullet text from bullet_key context (best effort plain text)
+  const bulletSnippet = v.bullet_key ? v.bullet_key.split("__").slice(1).join(" › ") : "";
+
+  const typeClass = v.reaction === "Question" ? "question" : v.reaction === "Concern" ? "concern" : "agenda";
+  const typeEmoji = v.reaction === "Question" ? "❓" : v.reaction === "Concern" ? "⚠️" : "🚩";
+
+  return `<div class="dash-card">
+    <div class="dash-card-type ${typeClass}">${typeEmoji} ${v.reaction}</div>
+    <div class="dash-card-comment">${escHtml(v.note)}</div>
+    <div class="dash-card-meta">
+      <span class="dash-card-lever">${leverTitle}</span>
+      <span class="dash-card-section">› ${secLabel}</span>
+      <span class="dash-card-author">
+        <span class="dash-avatar">${(v.user_name||"?")[0].toUpperCase()}</span>
+        ${v.user_name}
+      </span>
+    </div>
+  </div>`;
 }
 
 function showLeverDetail() {
