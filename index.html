@@ -1233,7 +1233,7 @@ function updateRapidStartBtn() {
   const btn = document.getElementById("btn-rapid-start");
   if (!btn) return;
   if (hasRapidProgress()) {
-    btn.innerHTML = "⚡ Resume Review";
+    btn.innerHTML = `<span style="font-size:15px;line-height:1">▶</span> Resume Rapid Review`;
     btn.onclick = () => startRapidMode(true);
   } else {
     btn.innerHTML = "⚡ Rapid Review";
