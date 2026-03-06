@@ -256,6 +256,76 @@
   .section-label-sm { font-weight: 700; color: #475569; font-size: 18px; letter-spacing: 0.5px; margin-bottom: 14px; margin-top: 4px; }
   .placeholder-box { padding: 60px 20px; text-align: center; color: #94a3b8; }
 
+  /* ── Hype Screen ── */
+  #hype-screen {
+    display: flex; position: fixed; inset: 0; z-index: 1000;
+    background: linear-gradient(135deg, #0a1628 0%, #132d70 50%, #1B3A8C 100%);
+    align-items: center; justify-content: center;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    overflow: hidden;
+  }
+  .hype-particles { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .hype-particle {
+    position: absolute; border-radius: 50%; opacity: 0;
+    animation: hypeFloat linear infinite;
+  }
+  @keyframes hypeFloat {
+    0%   { transform: translateY(110vh) scale(0); opacity: 0; }
+    10%  { opacity: 0.6; }
+    90%  { opacity: 0.3; }
+    100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+  }
+  .hype-card {
+    text-align: center; z-index: 1; padding: 0 32px; max-width: 560px;
+    animation: hypeCardIn 0.8s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  }
+  @keyframes hypeCardIn {
+    0%   { opacity: 0; transform: scale(0.8) translateY(30px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .hype-logo { font-size: 56px; margin-bottom: 16px; animation: hypeLogoPulse 2s ease-in-out infinite; }
+  @keyframes hypeLogoPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+  .hype-eyebrow { font-size: 12px; font-weight: 800; letter-spacing: 3px; color: #60a5fa; margin-bottom: 12px; }
+  .hype-title { font-size: 36px; font-weight: 900; color: #fff; line-height: 1.2; margin-bottom: 8px; }
+  .hype-sub { font-size: 16px; color: #93c5fd; margin-bottom: 40px; }
+  .hype-btn {
+    background: #F59E0B; color: #1a1a1a; border: none;
+    border-radius: 14px; padding: 16px 44px; font-size: 17px; font-weight: 800;
+    cursor: pointer; font-family: inherit;
+    box-shadow: 0 8px 32px rgba(245,158,11,0.4);
+    transition: transform 0.15s, box-shadow 0.15s;
+    animation: hypeButtonPulse 2s ease-in-out infinite 1s;
+  }
+  .hype-btn:hover { transform: scale(1.05); box-shadow: 0 12px 40px rgba(245,158,11,0.5); }
+  @keyframes hypeButtonPulse { 0%,100%{box-shadow:0 8px 32px rgba(245,158,11,0.4)} 50%{box-shadow:0 8px 48px rgba(245,158,11,0.7)} }
+  .hype-count { font-size: 14px; color: #60a5fa; margin-top: 20px; font-weight: 600; }
+
+  /* ── Peer comparison nudge ── */
+  .peer-nudge {
+    display: none; align-items: center; gap: 8px;
+    background: #F0FDF4; border: 1px solid #86EFAC;
+    border-radius: 10px; padding: 7px 12px;
+    font-size: 12px; color: #166534; font-weight: 600;
+    margin-top: 8px; animation: nudgeFadeIn 0.4s ease forwards;
+  }
+  .peer-nudge.show { display: flex; }
+  @keyframes nudgeFadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ── Word cloud ── */
+  #wordcloud-overlay {
+    display: none; position: fixed; inset: 0; z-index: 900;
+    background: rgba(10,22,40,0.92);
+    align-items: center; justify-content: center;
+    font-family: "Segoe UI", system-ui, sans-serif;
+  }
+  #wordcloud-overlay.show { display: flex; }
+  .wordcloud-panel {
+    background: #fff; border-radius: 24px; padding: 36px 40px;
+    max-width: 820px; width: 92%; max-height: 90vh; overflow-y: auto;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.4);
+  }
+  #wordcloud-canvas { width: 100%; height: 320px; }
+
   /* ── Stickiness Features ── */
 
   /* Completion badge on lever cards */
@@ -641,7 +711,20 @@
 <body>
 
 <!-- LOGIN -->
-<div id="login-screen">
+<!-- HYPE SCREEN -->
+<div id="hype-screen">
+  <div class="hype-particles" id="hype-particles"></div>
+  <div class="hype-card">
+    <div class="hype-logo">🏥</div>
+    <div class="hype-eyebrow">JJMT MEDTECH — SUPPLY CHAIN</div>
+    <div class="hype-title">CS Optimization<br>Initiative Review</div>
+    <div class="hype-sub">12 Levers · Your input shapes our roadmap</div>
+    <button class="hype-btn" onclick="showLogin()">Let's Go →</button>
+    <div class="hype-count" id="hype-lever-count">12 initiatives to review</div>
+  </div>
+</div>
+
+<div id="login-screen" style="display:none">
   <div class="login-card">
     <div class="login-eyebrow">JJMT MEDTECH — SUPPLY CHAIN</div>
     <div class="login-title">Workshop Initiative Review</div>
@@ -730,6 +813,7 @@
     </div>
     <div class="top-bar-actions">
       <button class="btn-ghost" onclick="loadDashboard()" style="margin-right:4px">↻ Refresh</button>
+      <button class="btn-ghost" onclick="showWordCloud()" style="margin-right:4px">☁️ Word Cloud</button>
       <button class="btn-ghost" onclick="hideDashboard()">← Back to Levers</button>
     </div>
   </div>
@@ -1478,6 +1562,8 @@ async function saveLikert(bulletKey, score, note) {
       setTimeout(() => { if (saved) saved.textContent = ""; }, 2000);
     }
     showSaved();
+    // Show peer comparison nudge after a short delay
+    setTimeout(() => showPeerNudge(bulletKey, score), 1200);
   }
 }
 
@@ -1539,13 +1625,19 @@ function navigate(dir) {
     if (rapidMode) { rapidNextLever(); return; }
     renderLeverList(); return;
   }
-  // Check if current section has no reaction before moving forward
+  // Only show nudge if moving forward AND no Likert scores saved for any bullet in this section
   if (dir === 1) {
     const sec = currentLever.sections[currentSectionIdx];
-    const hasReacted = allVotes.some(v => v.user_name === currentUser && v.section_key === sec.id) ||
-      allVotes.some(v => v.user_name === currentUser && v.bullet_key && v.bullet_key.startsWith(currentLever.id + "__" + sec.id));
+    const prefix = currentLever.id + "__" + sec.id;
+    // Check for any numeric Likert rating (reaction "1"-"5") on any bullet in this section
+    const hasRated = allVotes.some(v =>
+      v.user_name === currentUser &&
+      v.bullet_key &&
+      v.bullet_key.startsWith(prefix) &&
+      !isNaN(parseInt(v.reaction))
+    );
     const nudge = document.getElementById("react-nudge");
-    if (!hasReacted && nudge) {
+    if (!hasRated && nudge) {
       nudge.classList.add("show");
       setTimeout(() => nudge.classList.remove("show"), 3000);
     }
@@ -1759,19 +1851,20 @@ function rapidNextLever() {
 function doneReviewing() {
   showLeverCelebration(currentLever?.title || "Lever");
   playClickSound(880, 0.15, "sine");
-  if (rapidMode) { rapidNextLever(); }
-  else { setTimeout(renderLeverList, 600); }
+  if (rapidMode) { setTimeout(() => rapidNextLever(), 1800); }
+  else { setTimeout(renderLeverList, 1800); }
 }
 
 function showLeverCelebration(title) {
+  launchConfetti();
   const el = document.createElement("div");
   el.className = "lever-celebrate";
-  el.innerHTML = `<span style="font-size:22px">🎯</span> <span>${title} complete!</span>`;
+  el.innerHTML = `<span style="font-size:22px">🎉</span> <span>${title} complete!</span>`;
   document.body.appendChild(el);
   setTimeout(() => {
     el.classList.add("fadeout");
     setTimeout(() => el.remove(), 600);
-  }, 1800);
+  }, 2200);
 }
 
 function updateRapidBar() {
@@ -2222,11 +2315,204 @@ function buildTopicsHTML(byLever, filter) {
   return html;
 }
 
+// ── Hype Screen ───────────────────────────────────────────────────────────────
+(function initHype() {
+  const container = document.getElementById("hype-particles");
+  if (!container) return;
+  const colors = ["#60a5fa","#818cf8","#34d399","#f59e0b","#fb7185","#a78bfa"];
+  for (let i = 0; i < 28; i++) {
+    const p = document.createElement("div");
+    p.className = "hype-particle";
+    const size = 4 + Math.random() * 10;
+    p.style.cssText = [
+      "width:" + size + "px", "height:" + size + "px",
+      "left:" + Math.random() * 100 + "%",
+      "background:" + colors[Math.floor(Math.random() * colors.length)],
+      "animation-duration:" + (5 + Math.random() * 8) + "s",
+      "animation-delay:" + Math.random() * 6 + "s"
+    ].join(";");
+    container.appendChild(p);
+  }
+})();
+
+function showLogin() {
+  const hype = document.getElementById("hype-screen");
+  hype.style.transition = "opacity 0.5s";
+  hype.style.opacity = "0";
+  setTimeout(() => {
+    hype.style.display = "none";
+    const login = document.getElementById("login-screen");
+    login.style.display = "flex";
+    document.getElementById("name-input").focus();
+    playClickSound(660, 0.08, "sine");
+  }, 500);
+}
+
+// ── Confetti burst ─────────────────────────────────────────────────────────────
+function launchConfetti() {
+  // Remove any existing confetti canvas first
+  const existing = document.getElementById("confetti-canvas");
+  if (existing) existing.remove();
+
+  const canvas = document.createElement("canvas");
+  canvas.id = "confetti-canvas";
+  canvas.style.cssText = "position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:99999";
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  document.documentElement.appendChild(canvas); // attach to <html> not body so it survives DOM changes
+  const ctx = canvas.getContext("2d");
+  const pieces = [];
+  const colors = ["#F59E0B","#10B981","#3B82F6","#8B5CF6","#EF4444","#F97316","#06B6D4","#fff","#1B3A8C"];
+
+  // Burst from centre-top
+  for (let i = 0; i < 160; i++) {
+    const angle = (Math.PI * 2 * i) / 160 + (Math.random() - 0.5) * 0.5;
+    const speed = 4 + Math.random() * 10;
+    pieces.push({
+      x: canvas.width / 2 + (Math.random() - 0.5) * 200,
+      y: canvas.height * 0.35,
+      w: 7 + Math.random() * 9, h: 4 + Math.random() * 7,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 6,
+      rotation: Math.random() * 360,
+      rotSpeed: (Math.random() - 0.5) * 10,
+      opacity: 1,
+      shape: Math.random() > 0.5 ? "rect" : "circle"
+    });
+  }
+
+  let frame = 0;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let anyAlive = false;
+    pieces.forEach(p => {
+      if (p.opacity <= 0) return;
+      p.x += p.vx; p.y += p.vy;
+      p.rotation += p.rotSpeed;
+      p.vy += 0.18; // gravity
+      p.vx *= 0.99; // air resistance
+      p.opacity -= 0.012;
+      anyAlive = true;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rotation * Math.PI / 180);
+      ctx.globalAlpha = Math.max(0, p.opacity);
+      ctx.fillStyle = p.color;
+      if (p.shape === "circle") {
+        ctx.beginPath();
+        ctx.arc(0, 0, p.w / 2, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      }
+      ctx.restore();
+    });
+    frame++;
+    if (anyAlive && frame < 250) requestAnimationFrame(draw);
+    else canvas.remove();
+  }
+  requestAnimationFrame(draw);
+}
+
+// ── Peer comparison nudge ──────────────────────────────────────────────────────
+async function showPeerNudge(bulletKey, myScore) {
+  // Fetch all scores for this bullet (all users)
+  const parts = bulletKey.split("__");
+  const leverId = parts[0];
+  const rows = await sbReq("GET", "votes?lever_id=eq." + encodeURIComponent(leverId) + "&bullet_key=eq." + encodeURIComponent(bulletKey) + "&select=reaction,user_name", null);
+  if (!rows || rows.length < 2) return;
+  const others = rows.filter(r => r.user_name !== currentUser && !isNaN(parseInt(r.reaction)));
+  if (others.length === 0) return;
+  const avg = others.reduce((s, r) => s + parseInt(r.reaction), 0) / others.length;
+  const diff = Math.abs(parseInt(myScore) - avg);
+  const card = document.getElementById("bc-" + bulletKey);
+  if (!card) return;
+  // Remove existing nudge if any
+  const existing = card.querySelector(".peer-nudge");
+  if (existing) existing.remove();
+  const nudge = document.createElement("div");
+  nudge.className = "peer-nudge show";
+  let msg = "";
+  if (diff <= 0.8) msg = "👥 " + others.length + " other" + (others.length>1?"s":"") + " rated this similarly";
+  else if (parseInt(myScore) < avg) msg = "🔍 You're more positive than most on this one (" + others.length + " others rated it " + avg.toFixed(1) + "/5)";
+  else msg = "🔍 You're in the minority here — " + others.length + " other" + (others.length>1?"s":"") + " rated this " + avg.toFixed(1) + "/5";
+  nudge.textContent = msg;
+  card.appendChild(nudge);
+  setTimeout(() => nudge.classList.remove("show"), 5000);
+}
+
+// ── Word Cloud ─────────────────────────────────────────────────────────────────
+async function showWordCloud() {
+  document.getElementById("wordcloud-overlay").classList.add("show");
+  const loading = document.getElementById("wordcloud-loading");
+  const canvas = document.getElementById("wordcloud-canvas");
+  loading.style.display = "block";
+  canvas.style.display = "none";
+
+  const rows = await sbReq("GET", "votes?select=note&note=not.is.null", null);
+  const allText = (rows || []).map(r => r.note || "").join(" ");
+  if (!allText.trim()) { loading.textContent = "No comments yet."; return; }
+
+  // Count word frequencies
+  const stopwords = new Set(["the","a","an","and","or","but","in","on","of","to","for","is","are","was","were","it","this","that","with","we","i","be","as","at","by","not","have","has","from","their","they","our","will","its","what","which","who","can","do","if","so","my","your","how","all","more","about","would","should","also","been","when","there","these","those","than","into","only","may","any","need","per","each","no","new"]);
+  const words = allText.toLowerCase().replace(/[^a-z\s]/g, " ").split(/\s+/).filter(w => w.length > 3 && !stopwords.has(w));
+  const freq = {};
+  words.forEach(w => { freq[w] = (freq[w] || 0) + 1; });
+  const sorted = Object.entries(freq).sort((a,b) => b[1]-a[1]).slice(0, 50);
+  if (sorted.length === 0) { loading.textContent = "Not enough text to build a word cloud."; return; }
+
+  loading.style.display = "none";
+  canvas.style.display = "block";
+  canvas.width = canvas.offsetWidth * window.devicePixelRatio;
+  canvas.height = 320 * window.devicePixelRatio;
+  const ctx = canvas.getContext("2d");
+  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+  const W = canvas.offsetWidth, H = 320;
+  ctx.clearRect(0, 0, W, H);
+
+  const maxFreq = sorted[0][1];
+  const colors = ["#1B3A8C","#2A4FA8","#8B5CF6","#10B981","#F59E0B","#EF4444","#0EA5E9"];
+  const placed = [];
+
+  sorted.forEach(([word, count]) => {
+    const size = 14 + Math.round((count / maxFreq) * 42);
+    ctx.font = "bold " + size + "px Segoe UI, sans-serif";
+    const tw = ctx.measureText(word).width;
+    let x, y, attempts = 0, ok = false;
+    while (!ok && attempts < 120) {
+      x = size/2 + Math.random() * (W - tw - size);
+      y = size + Math.random() * (H - size*2);
+      ok = !placed.some(p => Math.abs(p.x-x) < (p.tw+tw)/2+6 && Math.abs(p.y-y) < (p.size+size)*0.8);
+      attempts++;
+    }
+    if (!ok) return;
+    placed.push({x, y, tw, size});
+    ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+    ctx.globalAlpha = 0.7 + (count/maxFreq)*0.3;
+    ctx.fillText(word, x, y);
+  });
+  ctx.globalAlpha = 1;
+}
+
 function showLeverDetail() {
   document.getElementById("summary-screen").style.display = "none";
   document.getElementById("lever-detail").style.display = "flex";
   document.getElementById("lever-detail").style.flexDirection = "column";
 }
 </script>
+
+<!-- WORD CLOUD OVERLAY -->
+<div id="wordcloud-overlay">
+  <div class="wordcloud-panel">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+      <div style="font-size:20px;font-weight:800;color:#1e293b">☁️ Comment Word Cloud</div>
+      <button onclick="document.getElementById('wordcloud-overlay').classList.remove('show')"
+        style="background:none;border:none;font-size:22px;color:#94a3b8;cursor:pointer;">×</button>
+    </div>
+    <canvas id="wordcloud-canvas"></canvas>
+    <div id="wordcloud-loading" style="text-align:center;color:#94a3b8;padding:40px;font-size:14px">Loading comments...</div>
+  </div>
+</div>
 </body>
 </html>
