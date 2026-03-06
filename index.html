@@ -955,7 +955,6 @@ function placeholderSections(title) {
     { id:"impact", label:"Impact", icon:"📊", group:"OVERVIEW", content:{type:"placeholder"} },
     { id:"interdep", label:"Interdependencies", icon:"🔗", group:"OVERVIEW", content:{type:"placeholder"} },
     { id:"phasing", label:"Deliverables & Milestones", icon:"🗓️", group:"ACTION PLAN", content:{type:"placeholder"} },
-    { id:"system", label:"System & Process Requirements", icon:"⚙️", group:"ACTION PLAN", content:{type:"placeholder"} },
     { id:"geo", label:"Geographic Responsibility", icon:"🌍", group:"ACTION PLAN", content:{type:"placeholder"} },
     { id:"owner", label:"Owner & Next Steps", icon:"👤", group:"ACTION PLAN", content:{type:"placeholder"} },
   ];
@@ -1029,16 +1028,6 @@ const LEVERS = [
         }
       },
 
-      { id:"system", label:"System & Process Requirements", icon:"⚙️", group:"ACTION PLAN",
-        content:{ type:"bullets",
-          items:[
-            {label:"Governance Model", text:"Consolidate SOP ownership into a global governance model (content owners, review cadence, retirement rules)"},
-            {label:"Content Standardization", text:"Standardize article structure tied to processes (decision trees, exception playbooks, 'what good looks like')"},
-            {label:"Search & Tagging", text:"Deploy a searchable global KMS with semantic tagging by journey / product / market"}
-          ]
-        }
-      },
-
       { id:"geo", label:"Geographic Responsibility", icon:"🌍", group:"ACTION PLAN",
         content:{ type:"geo",
           items:[
@@ -1093,10 +1082,10 @@ const SECTION_REACTIONS = {
   "interdep":    ["Agree with this dependency assessment",      "Do not agree with this dependency assessment"],
   "phasing_0":   ["Agree with this quick win deliverable",      "Do not agree with this quick win deliverable"],
   "phasing_1":   ["Agree with this steady state feature",       "Do not agree with this steady state feature"],
-  "system":      ["Agree with this requirement",                "Do not agree with this requirement"],
   "geo":         ["Agree with this geographic responsibility",  "Do not agree with this geographic responsibility"],
   "owner_own":   ["Agree with this ownership assignment",       "Do not agree with this ownership assignment"],
   "owner":       ["Agree with this next step",                  "Do not agree with this next step"],
+  "phasing_timeline": ["Agree with this timeline",             "Do not agree with this timeline"],
 };
 function getReactionLabels(subKey) {
   for (const [k, labels] of Object.entries(SECTION_REACTIONS)) {
@@ -1337,7 +1326,7 @@ function buildSectionHTML(sec) {
   if (c.type === "geo") {
     let html = "";
     c.items.forEach((item, i) => {
-      html += bulletCardHTML(sec.id, i, `<span style="font-weight:700;color:#1B3A8C">${item.scope}</span><span class="bcg-badge">BCG Perspective</span><br><span style="font-weight:400">${item.detail}</span>`);
+      html += bulletCardHTML(sec.id, i, `<span style="font-weight:700;color:#1B3A8C">${item.scope}</span><br><span style="font-weight:400">${item.detail}</span>`);
     });
     return html;
   }
@@ -1362,7 +1351,7 @@ function buildSectionHTML(sec) {
         const text = phase.feature
           ? `<span style="display:inline-flex;align-items:center;background:#1B3A8C;color:#fff;border-radius:8px;padding:2px 10px;font-size:12px;font-weight:700;margin-right:8px;margin-bottom:4px;vertical-align:middle">Feature ${i+1}</span><span style="vertical-align:middle">${resolvedItem}</span>`
           : resolvedItem;
-        html += bulletCardHTML(sec.id+"_"+pi, i, text, false, phase.feature);
+        html += bulletCardHTML(sec.id+"_"+pi, i, text, false, phase.feature, true);
       });
       return `<div style="margin-bottom:24px">${html}</div>`;
     }).join("");
@@ -1416,7 +1405,7 @@ function buildSectionHTML(sec) {
   return "";
 }
 
-function bulletCardHTML(subKey, idx, text, useStar, hideNum) {
+function bulletCardHTML(subKey, idx, text, useStar, hideNum, dualSlider) {
   const bulletKey = currentLever.id + "__" + subKey + "__" + idx;
   const myVote = allVotes.find(v => v.user_name === currentUser && v.bullet_key === bulletKey);
   const score = myVote ? parseInt(myVote.reaction) || 0 : 0;
@@ -1430,7 +1419,15 @@ function bulletCardHTML(subKey, idx, text, useStar, hideNum) {
   const labelColor = score > 0 ? getLikertColor(score) : "#94a3b8";
   const labelBg = score > 0 ? getLikertBg(score) : "#f1f5f9";
 
+  // Timeline slider (second slider, only for phasing)
+  const timelineKey = bulletKey + "__timeline";
+  const myTimelineVote = allVotes.find(v => v.user_name === currentUser && v.bullet_key === timelineKey);
+  const timelineScore = myTimelineVote ? parseInt(myTimelineVote.reaction) || 0 : 0;
+  const timelineNote = myTimelineVote?.note || "";
+  const [tlAgree, tlDisagree] = getReactionLabels("phasing_timeline");
+
   const sliderHTML = `<div class="likert-left">
+    <div class="likert-comment-label" style="margin-bottom:6px">DELIVERABLE SCOPE</div>
     <div class="likert-labels">
       <span class="likert-label-agree">${agreeLabel}</span>
       <span class="likert-label-neutral">Neutral</span>
@@ -1445,13 +1442,38 @@ function bulletCardHTML(subKey, idx, text, useStar, hideNum) {
       ${[1,2,3,4,5].map(n => '<span class="likert-tick">' + n + '</span>').join("")}
     </div>
     <div class="likert-saved" id="ls-${bulletKey}"></div>
+    ${dualSlider ? `
+    <div style="margin-top:18px;padding-top:16px;border-top:1px solid #f1f5f9">
+      <div class="likert-comment-label" style="margin-bottom:6px">TIMELINE</div>
+      <div class="likert-labels">
+        <span class="likert-label-agree">${tlAgree}</span>
+        <span class="likert-label-neutral">Neutral</span>
+        <span class="likert-label-disagree">${tlDisagree}</span>
+      </div>
+      <div class="likert-slider-row">
+        <input type="range" class="likert-slider" min="1" max="5"
+          value="${timelineScore || 3}" data-key="${timelineKey}"
+          data-agree="${tlAgree}" data-disagree="${tlDisagree}">
+      </div>
+      <div class="likert-ticks">
+        ${[1,2,3,4,5].map(n => '<span class="likert-tick">' + n + '</span>').join("")}
+      </div>
+      <div class="likert-saved" id="ls-${timelineKey}"></div>
+    </div>` : ""}
   </div>`;
 
   const commentHTML = `<div class="likert-right">
-    <div class="likert-comment-label">COMMENT (OPTIONAL)</div>
+    <div class="likert-comment-label">SCOPE COMMENT (OPTIONAL)</div>
     <textarea class="likert-comment" data-key="${bulletKey}"
-      placeholder="Share context on your rating..."
+      placeholder="Share context on your scope rating..."
       maxlength="250">${escHtml(note)}</textarea>
+    ${dualSlider ? `
+    <div style="margin-top:14px">
+      <div class="likert-comment-label">TIMELINE COMMENT (OPTIONAL)</div>
+      <textarea class="likert-comment" data-key="${timelineKey}"
+        placeholder="Share context on your timeline rating..."
+        maxlength="250">${escHtml(timelineNote)}</textarea>
+    </div>` : ""}
   </div>`;
 
   return `<div class="bullet-card ${borderClass}" id="bc-${bulletKey}">
