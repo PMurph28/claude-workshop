@@ -41,7 +41,7 @@
   /* ── Dashboard ── */
   #dashboard-screen { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #f1f5f9; font-family: "Segoe UI", system-ui, sans-serif; overflow-y: auto; z-index: 100; }
   .dashboard-body { max-width: 1200px; margin: 0 auto; padding: 32px 28px; }
-  .dashboard-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+  .dashboard-cols { display: flex; flex-direction: column; gap: 24px; }
   .dashboard-col-header {
     font-size: 13px; font-weight: 700; letter-spacing: 1px; color: #94a3b8;
     margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
@@ -144,11 +144,19 @@
   #lever-detail { display: none; height: calc(100vh - 52px); flex-direction: column; overflow: hidden; }
   .lever-body { display: flex; height: 100%; overflow: hidden; }
   .sidebar { width: 320px; background: #1a2744; flex-shrink: 0; overflow-y: auto; }
-  .sidebar-item { padding: 18px 24px; cursor: pointer; border-left: 5px solid transparent; color: #94a3b8; font-size: 16px; display: flex; align-items: center; gap: 14px; transition: background 0.1s; line-height: 1.4; }
+  .sidebar-group-header {
+    padding: 14px 24px 6px 24px;
+    font-size: 10px; font-weight: 800; letter-spacing: 2px;
+    color: #4A6FD4; text-transform: uppercase;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    margin-top: 4px;
+  }
+  .sidebar-group-header:first-child { border-top: none; margin-top: 0; }
+  .sidebar-item { padding: 12px 24px 12px 32px; cursor: pointer; border-left: 5px solid transparent; color: #94a3b8; font-size: 15px; display: flex; align-items: center; gap: 14px; transition: background 0.1s; line-height: 1.4; }
   .sidebar-item.active { border-left-color: #60a5fa; background: rgba(96,165,250,0.12); color: #fff; font-weight: 700; font-size: 16px; }
   .sidebar-item:hover:not(.active) { background: rgba(255,255,255,0.05); color: #cbd5e1; }
   .sidebar-dot { width: 6px; height: 6px; border-radius: 50%; background: #60a5fa; flex-shrink: 0; }
-  .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; height: 100%; }
+  .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; height: 100%; position: relative; }
   .section-header { background: #2A4FA8; padding: 14px 28px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
   .section-counter { font-size: 11px; color: #93c5fd; font-weight: 600; }
   .section-title { font-size: 18px; font-weight: 800; color: #fff; }
@@ -248,6 +256,153 @@
   .section-label-sm { font-weight: 700; color: #475569; font-size: 18px; letter-spacing: 0.5px; margin-bottom: 14px; margin-top: 4px; }
   .placeholder-box { padding: 60px 20px; text-align: center; color: #94a3b8; }
 
+  /* ── Stickiness Features ── */
+
+  /* Completion badge on lever cards */
+  .lever-completion-bar { margin-top: 10px; }
+  .lever-completion-track { background: #f1f5f9; border-radius: 10px; height: 5px; overflow: hidden; margin-bottom: 3px; }
+  .lever-completion-fill { background: linear-gradient(90deg, #10B981, #34D399); border-radius: 10px; height: 5px; transition: width 0.4s ease; }
+  .lever-completion-label { font-size: 10px; color: #94a3b8; font-weight: 600; }
+
+  /* Lever completion mini-celebration */
+  @keyframes celebratePop {
+    0%   { transform: scale(0.5) translateY(20px); opacity: 0; }
+    60%  { transform: scale(1.15) translateY(-4px); opacity: 1; }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
+  }
+  @keyframes fadeSlideUp {
+    0%   { opacity: 1; transform: translateY(0); }
+    80%  { opacity: 1; }
+    100% { opacity: 0; transform: translateY(-24px); }
+  }
+  .lever-celebrate {
+    position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+    background: linear-gradient(135deg, #1B3A8C, #2A4FA8);
+    color: #fff; border-radius: 16px; padding: 14px 28px;
+    display: flex; align-items: center; gap: 12px;
+    font-size: 15px; font-weight: 700;
+    box-shadow: 0 8px 32px rgba(27,58,140,0.35);
+    animation: celebratePop 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards;
+    z-index: 500; pointer-events: none; white-space: nowrap;
+  }
+  .lever-celebrate.fadeout { animation: fadeSlideUp 0.6s ease forwards; }
+
+  /* Streak badge in rapid bar */
+  .streak-badge {
+    background: #F59E0B; color: #1a1a1a;
+    border-radius: 20px; padding: 3px 10px;
+    font-size: 11px; font-weight: 800; letter-spacing: 0.5px;
+    display: none; align-items: center; gap: 4px;
+  }
+  .streak-badge.show { display: inline-flex; }
+
+  /* React nudge */
+  .react-nudge {
+    display: none; align-items: center; gap: 8px;
+    background: #FEF3C7; color: #92400E;
+    border: 1px solid #F59E0B; border-radius: 10px;
+    padding: 8px 16px; font-size: 13px; font-weight: 600;
+    position: absolute; bottom: 90px; left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap; z-index: 50;
+    box-shadow: 0 4px 16px rgba(245,158,11,0.25);
+    animation: nudgePulse 1.5s ease-in-out infinite;
+    pointer-events: none;
+  }
+  .react-nudge.show { display: flex; }
+  @keyframes nudgePulse {
+    0%, 100% { box-shadow: 0 4px 16px rgba(245,158,11,0.2); }
+    50% { box-shadow: 0 4px 24px rgba(245,158,11,0.45); }
+  }
+
+  /* ── Rapid Highlight ── */
+  .lever-card.rapid-current {
+    border: 2.5px solid #F59E0B !important;
+    box-shadow: 0 0 0 4px rgba(245,158,11,0.2), 0 8px 24px rgba(245,158,11,0.25) !important;
+    transform: translateY(-2px);
+  }
+  .lever-card.rapid-current::before {
+    content: "▶ UP NEXT";
+    position: absolute;
+    top: -12px; left: 16px;
+    background: #F59E0B; color: #1a1a1a;
+    font-size: 10px; font-weight: 800; letter-spacing: 1px;
+    border-radius: 4px; padding: 2px 8px;
+  }
+  .sidebar-item.rapid-current-section {
+    background: rgba(245,158,11,0.18) !important;
+    border-left-color: #F59E0B !important;
+    color: #fff !important;
+    font-weight: 700 !important;
+  }
+  .sidebar-item.rapid-current-section::after {
+    content: "▶";
+    margin-left: auto;
+    color: #F59E0B;
+    font-size: 12px;
+  }
+
+  /* ── Likert Scale ── */
+  .likert-wrap {
+    display: flex; align-items: flex-start; gap: 20px; margin-top: 4px;
+  }
+  .likert-left { flex: 1.4; min-width: 0; }
+  .likert-right { flex: 1; min-width: 0; }
+  .likert-labels {
+    display: flex; justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .likert-label-agree { font-size: 11px; font-weight: 700; color: #10B981; }
+  .likert-label-neutral { font-size: 11px; font-weight: 700; color: #94a3b8; text-align: center; }
+  .likert-label-disagree { font-size: 11px; font-weight: 700; color: #DC2626; text-align: right; }
+  .likert-slider-row { display: flex; align-items: center; gap: 10px; }
+  .likert-slider {
+    -webkit-appearance: none; appearance: none;
+    flex: 1; height: 6px; border-radius: 6px; outline: none; cursor: pointer;
+    background: linear-gradient(90deg, #10B981 0%, #86EFAC 28%, #e2e8f0 42%, #e2e8f0 58%, #FCA5A5 72%, #DC2626 100%);
+    transition: background 0.2s;
+  }
+  .likert-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: #1B3A8C; cursor: pointer;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 8px rgba(27,58,140,0.35);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .likert-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.18);
+    box-shadow: 0 4px 14px rgba(27,58,140,0.45);
+  }
+  .likert-slider::-moz-range-thumb {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: #1B3A8C; cursor: pointer;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 8px rgba(27,58,140,0.35);
+  }
+  .likert-ticks {
+    display: flex; justify-content: space-between;
+    padding: 0 2px; margin-top: 4px;
+  }
+  .likert-tick { font-size: 10px; color: #cbd5e1; width: 14px; text-align: center; }
+  .likert-comment {
+    width: 100%; border: 1.5px solid #e2e8f0; border-radius: 10px;
+    padding: 10px 12px; font-size: 13px; resize: none; outline: none;
+    line-height: 1.5; color: #334155; background: #f8fafc;
+    font-family: inherit; min-height: 88px;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .likert-comment:focus { border-color: #1B3A8C; background: #fff; }
+  .likert-comment-label {
+    font-size: 11px; font-weight: 700; color: #94a3b8;
+    letter-spacing: 0.5px; margin-bottom: 5px;
+  }
+  .likert-saved { font-size: 11px; color: #10B981; font-weight: 600; margin-top: 4px; height: 14px; transition: opacity 0.3s; }
+  /* colour the card border by score */
+  .bullet-card.score-1, .bullet-card.score-2 { border-left: 4px solid #10B981; }
+  .bullet-card.score-3 { border-left: 4px solid #94a3b8; }
+  .bullet-card.score-4, .bullet-card.score-5 { border-left: 4px solid #DC2626; }
+
   /* ── 2-Button Reaction System ── */
   .bullet-react-btn.active-agree-ctx,
   .bullet-react-btn.active-agree-ctx:hover {
@@ -302,6 +457,47 @@
     transition:border-color 0.2s;
   }
   .freetext-standalone:focus { border-color:#1B3A8C; background:#fff; }
+
+  /* ── Discussion Topic Cards ── */
+  .disc-topic-card {
+    background: #fff; border-radius: 14px; border: 1px solid #e2e8f0;
+    padding: 20px 24px; margin-bottom: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    display: flex; gap: 20px; align-items: flex-start;
+  }
+  .disc-topic-num {
+    flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
+    background: #8B5CF6; color: #fff; font-size: 12px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center; margin-top: 2px;
+  }
+  .disc-topic-body { flex: 1; min-width: 0; }
+  .disc-topic-title {
+    font-size: 15px; font-weight: 700; color: #1e293b;
+    margin-bottom: 10px; line-height: 1.4;
+  }
+  .disc-next-step {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #EFF6FF; color: #1B3A8C;
+    border: 1.5px solid #BFDBFE; border-radius: 8px;
+    padding: 6px 12px; font-size: 12px; font-weight: 700;
+    line-height: 1.4;
+  }
+  .disc-next-step-label {
+    font-size: 10px; font-weight: 800; letter-spacing: 1px;
+    color: #1B3A8C; text-transform: uppercase; margin-right: 4px;
+    flex-shrink: 0;
+  }
+  .lever-filter-row {
+    display: flex; align-items: center; gap: 10px;
+    flex-wrap: wrap; margin-bottom: 16px;
+  }
+  .lever-filter-btn {
+    background: #f1f5f9; color: #475569; border: 1.5px solid #e2e8f0;
+    border-radius: 20px; padding: 5px 14px; font-size: 12px; font-weight: 600;
+    cursor: pointer; font-family: inherit; transition: all 0.15s;
+  }
+  .lever-filter-btn.active { background: #1B3A8C; color: #fff; border-color: #1B3A8C; }
+  .lever-filter-btn:hover:not(.active) { border-color: #94a3b8; }
 
   /* ── AI Summary ── */
   .ai-summary-section {
@@ -483,6 +679,7 @@
     <!-- Rapid review progress bar -->
     <div class="rapid-bar" id="rapid-bar">
       <span class="rapid-badge">⚡ RAPID REVIEW</span>
+      <span class="streak-badge" id="streak-badge">🔥 <span id="streak-count">0</span> lever streak!</span>
       <div class="rapid-progress-wrap">
         <div class="rapid-progress-label" id="rapid-progress-label">Lever 1 of 12 — Overview</div>
         <div class="rapid-progress-track">
@@ -510,6 +707,7 @@
           </div>
         </div>
         <div class="content-area" id="content-area"></div>
+        <div class="react-nudge" id="react-nudge">☝️ Don't forget to react before moving on!</div>
         <div class="pagination">
           <button class="btn-prev" id="btn-prev" onclick="navigate(-1)">← Previous</button>
           <span class="page-indicator" id="page-indicator"></span>
@@ -531,51 +729,37 @@
       <div class="top-bar-title">Facilitator Dashboard</div>
     </div>
     <div class="top-bar-actions">
+      <button class="btn-ghost" onclick="loadDashboard()" style="margin-right:4px">↻ Refresh</button>
       <button class="btn-ghost" onclick="hideDashboard()">← Back to Levers</button>
     </div>
   </div>
   <div class="dashboard-body">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px">
-      <div>
-        <div style="font-size:22px;font-weight:800;color:#1e293b;margin-bottom:4px">Workshop Submissions</div>
-        <div style="font-size:14px;color:#64748b">All disagreements and additional input submitted across all levers</div>
-      </div>
-      <button onclick="loadDashboard()" style="background:#1B3A8C;color:#fff;border:none;border-radius:10px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:inherit;">↻ Refresh</button>
-    </div>
 
-    <!-- AI Summary Panel -->
-    <div class="ai-summary-section">
+    <!-- Section 1: AI Discussion Topics (full width, top) -->
+    <div class="ai-summary-section" style="margin-bottom:24px">
       <div class="ai-summary-header">
-        <div class="ai-summary-title">✨ AI Synthesis</div>
-        <button class="btn-generate-ai" id="btn-ai-summary" onclick="generateAISummary()">
-          ✨ Generate Summary
+        <div class="ai-summary-title">🗣️ AI-Generated Discussion Topics</div>
+        <button class="btn-generate-ai" id="btn-disc-topics" onclick="generateDiscussionTopics()">
+          ✨ Generate
         </button>
       </div>
-      <div class="ai-thinking" id="ai-thinking">
-        <div class="ai-spinner"></div>
-        Analysing workshop submissions...
+      <div style="font-size:13px;color:#94a3b8;margin-bottom:14px">Up to 5 topics per lever, each with a clear next step decision</div>
+      <!-- Lever filter -->
+      <div class="lever-filter-row" id="lever-filter-row" style="display:none"></div>
+      <div class="ai-thinking" id="disc-topics-loading" style="display:none">
+        <div class="ai-spinner" style="border-top-color:#8B5CF6"></div>
+        Generating discussion topics...
       </div>
-      <div class="ai-output" id="ai-output"></div>
+      <div id="disc-topics-list"><div class="dash-empty">Click ✨ Generate to produce lever-specific discussion topics from all participant comments.</div></div>
     </div>
+
+    <!-- Section 2: Comments (full width, below) -->
     <div id="dash-loading" class="dash-loading">Loading submissions...</div>
     <div id="dash-content" style="display:none">
-      <div class="dashboard-cols">
-        <!-- Left col: Questions + Concerns -->
-        <div>
-          <div class="dashboard-col-header">✗ DISAGREEMENTS <span id="dash-qc-count" style="background:#e2e8f0;color:#475569;border-radius:10px;padding:1px 8px;font-size:11px"></span></div>
-          <div id="dash-qc-list"></div>
-        </div>
-        <!-- Right col: AI Discussion Topics -->
-        <div>
-          <div class="dashboard-col-header">🗣️ AI-GENERATED DISCUSSION TOPICS
-            <button onclick="generateDiscussionTopics()" id="btn-disc-topics" style="margin-left:10px;background:#8B5CF6;color:#fff;border:none;border-radius:8px;padding:3px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">✨ Generate</button>
-          </div>
-          <div id="disc-topics-loading" style="display:none;color:#8B5CF6;font-size:13px;padding:12px 0;display:none;align-items:center;gap:8px;">
-            <div class="ai-spinner" style="border-top-color:#8B5CF6"></div> Generating discussion topics...
-          </div>
-          <div id="disc-topics-list"><div class="dash-empty">Click ✨ Generate to create AI-suggested discussion topics from all submissions.</div></div>
-        </div>
+      <div class="dashboard-col-header" style="margin-bottom:16px">
+        💬 COMMENTS <span id="dash-qc-count" style="background:#e2e8f0;color:#475569;border-radius:10px;padding:1px 8px;font-size:11px;margin-left:6px"></span>
       </div>
+      <div id="dash-qc-list"></div>
     </div>
   </div>
 </div>
@@ -682,15 +866,14 @@ function enc(s) { return encodeURIComponent(s); }
 // ── Data ───────────────────────────────────────────────────────────────────────
 function placeholderSections(title) {
   return [
-    { id:"overview", label:"Overview", icon:"🗺️", content:{type:"placeholder"} },
-    { id:"fromto", label:"From → To", icon:"🔄", content:{type:"placeholder"} },
-    { id:"impact", label:"Impact", icon:"📊", content:{type:"placeholder"} },
-    { id:"system", label:"System & Process Requirements", icon:"⚙️", content:{type:"placeholder"} },
-    { id:"geo", label:"Geographic Scope", icon:"🌍", content:{type:"placeholder"} },
-    { id:"interdep", label:"Interdependencies", icon:"🔗", content:{type:"placeholder"} },
-    { id:"sourcing", label:"Sourcing Strategy", icon:"🛒", content:{type:"placeholder"} },
-    { id:"phasing", label:"Solutioning Phasing", icon:"🗓️", content:{type:"placeholder"} },
-    { id:"owner", label:"Owner & Next Steps", icon:"👤", content:{type:"placeholder"} },
+    { id:"overview", label:"Mission Statement", icon:"🗺️", group:"OVERVIEW", content:{type:"placeholder"} },
+    { id:"fromto", label:"From → To", icon:"🔄", group:"OVERVIEW", content:{type:"placeholder"} },
+    { id:"impact", label:"Impact", icon:"📊", group:"OVERVIEW", content:{type:"placeholder"} },
+    { id:"interdep", label:"Interdependencies", icon:"🔗", group:"OVERVIEW", content:{type:"placeholder"} },
+    { id:"phasing", label:"Deliverables & Milestones", icon:"🗓️", group:"ACTION PLAN", content:{type:"placeholder"} },
+    { id:"system", label:"System & Process Requirements", icon:"⚙️", group:"ACTION PLAN", content:{type:"placeholder"} },
+    { id:"geo", label:"Geographic Responsibility", icon:"🌍", group:"ACTION PLAN", content:{type:"placeholder"} },
+    { id:"owner", label:"Owner & Next Steps", icon:"👤", group:"ACTION PLAN", content:{type:"placeholder"} },
   ];
 }
 
@@ -699,18 +882,100 @@ const LEVERS = [
     id:"kms", number:7, title:"Centralized Knowledge Base (KMS)", icon:"📚",
     valueProvided:"Moderate value", valueColor:"#F59E0B",
     sections:[
-      { id:"overview", label:"Overview", icon:"🗺️", content:{ type:"bullets", title:"📚 Knowledge Management System", items:[{label:"Lever Outline",text:"Globally governed Knowledge Management System, consolidating SOPs and other knowledge assets into a governed, searchable global system"}], starFirst:true } },
-      { id:"fromto", label:"From → To", icon:"🔄", content:{ type:"fromto",
-        current:["Fragmented, siloed, and often lost knowledge across teams — tribal know-how, no content lifecycle or governance","Agents spend 5+ min per case searching across SharePoint, OneNote, & Outlook — no content governance"],
-        future:["Single source of truth surfaced in real time within agent workflows across all support channels","AI surfaces contextually relevant SOP/Playbook articles to CSR in single-pane-of-glass during call — AI search trained on governed, versioned content"]
-      }},
-      { id:"impact", label:"Impact", icon:"📊", content:{ type:"impact", level:"Moderate", bullets:[{label:"Knowledge Lookup",text:"10–20% reduction in knowledge lookup time per interaction on complex case types (e.g., returns, disputes, order exceptions) by consolidating fragmented repositories; with variability across regions and process types"},{label:"Ramp Up Time",text:"20–35% reduction in new agent time-to-proficiency by replacing tribal knowledge and peer shadowing with a structured, governed content layer"},{label:"Critical Enabler",text:"Key enabler for highest value AI levers (Levers 1 & 4) — both degrade materially without governed, versioned knowledge assets as the underlying content layer"}] } },
-      { id:"system", label:"System & Process Requirements", icon:"⚙️", content:{ type:"splitreqs", sections:[{header:"System Requirements",items:[{label:"Content Standardization",text:"Standardize article structure tied to processes (decision trees, exception playbooks, 'what good looks like')"},{label:"Content Tagging",text:"Integrate semantic tagging of content by journey / product / market"}]},{header:"Process Requirements",items:[{label:"Governance Model",text:"Consolidate SOP ownership into a global governance model (content owners, review cadence, retirement rules)"}]}] } },
-      { id:"geo", label:"Geographic Scope", icon:"🌍", content:{ type:"geo", items:[{scope:"Global",detail:"Centralized, JJMT-owned core asset regardless of global services sourcing decision"},{scope:"Local",detail:"JJMT region specific KMS servicing & support lead assigned"}] } },
-      { id:"interdep", label:"Interdependencies", icon:"🔗", content:{ type:"interdep", items:[{system:"Butterfly",level:"Low",detail:"Mostly process/content governance — ERP only matters for embedded 'how-to' aligned to future processes"},{system:"TranSCend",level:"Low",detail:"Limited impact as long as KMS can be built in modular fashion & embedded in the new CRM UI later"},{system:"Other Systems",level:"Moderate",detail:"Requires integration with existing repositories (SharePoint/Confluence), search, permissions, and CRM/Genesys embedding"}] } },
-      { id:"sourcing", label:"Sourcing Strategy", icon:"🛒", content:{ type:"bullets", header:"Buy", items:[{label:"Rapid Deployment",text:"Source external platform given maturity of commercial KM solutions (Guru, Bloomfire, Confluence)"},{label:"Low-Lift Mods",text:"Limited-effort integration required with future application-layer builds (incl. data feed to 'single-pane-of-glass')"}] } },
-      { id:"phasing", label:"Solutioning Phasing", icon:"🗓️", content:{ type:"phasing", phases:[{label:"Quick Win Plays",items:[{label:"Article Consolidation",text:"Consolidates top 50 SOPs and FAQ articles from existing sources (e.g., TruVault) into tagged / searchable KB"},{label:"Interim Front-End",text:"Deploys MSFT Copilot as interim front-end for consolidated repository"}]},{label:"Steady State Feature Set",feature:true,items:[{label:"Global Knowledge Coverage",text:"Full scope of relevant agent knowledge assets globally (SOPs, FAQs)"},{label:"Content Lifecycle",text:"Dynamic content lifecycle management"},{label:"Gap Intelligence",text:"AI-assisted content gap detection"},{label:"Regional Localization",text:"Multilingual KB with regional layers maintained locally"}]}] } },
-      { id:"owner", label:"Owner & Next Steps", icon:"👤", content:{ type:"owner", owners:[{role:"JJMT Owner",name:"MedTech Supply Chain — Digital Strategy & Innovation"},{role:"External Support",name:"BCG"}], nextSteps:[{label:"Full KMS Design",text:"Complete detailed solution design & feasibility assessment for full KMS"},{label:"Quick Win Design",text:"In parallel, complete detailed solution design & feasibility assessment for MVP / quick win"}] } },
+      // ── OVERVIEW ──
+      { id:"overview", label:"Mission Statement", icon:"🗺️", group:"OVERVIEW",
+        content:{ type:"bullets", title:"📚 Knowledge Management System",
+          items:[{label:"Lever Outline",text:"Globally governed Knowledge Management System, consolidating SOPs and other knowledge assets into a governed, searchable global system"}], starFirst:true } },
+
+      { id:"fromto", label:"From → To", icon:"🔄", group:"OVERVIEW",
+        content:{ type:"fromto",
+          current:{
+            headline:"Fragmented, siloed, and often lost knowledge across teams — tribal know-how, no content lifecycle or governance",
+            subpoints:[
+              {label:"Inconsistent Enablement", text:"Long ramp of new reps"},
+              {label:"System Challenges", text:"Excess AHT driven by data triage, fragmented knowledge repos"}
+            ]
+          },
+          future:{
+            headline:"Single source of truth surfaced in real time within agent workflows across all support channels",
+            subpoints:[
+              {label:"Agent Enablement", text:"Accelerated ramp with structured, role-specific content paths"},
+              {label:"Workflow Efficiency", text:"Measurable AHT reduction via AI surfaced in-call knowledge search"}
+            ]
+          }
+        }
+      },
+
+      { id:"impact", label:"Impact", icon:"📊", group:"OVERVIEW",
+        content:{ type:"impact", level:"Moderate",
+          bullets:[
+            {label:"Knowledge Lookup",text:"10–20% reduction in knowledge lookup time per interaction on complex case types (e.g., returns, disputes, order exceptions) — variability expected across regions and process types"},
+            {label:"Ramp-Up Time",text:"20–35% reduction in new agent time-to-proficiency by replacing tribal knowledge and peer shadowing with a structured, governed content layer"},
+            {label:"Critical Enabler",text:"Key enabler for highest-value AI levers (Levers 1 & 4) — both degrade materially without governed, versioned knowledge assets as the underlying content layer"}
+          ]
+        }
+      },
+
+      { id:"interdep", label:"Interdependencies", icon:"🔗", group:"OVERVIEW",
+        content:{ type:"interdep",
+          items:[
+            {system:"Butterfly", level:"Low", detail:"Mostly process/content governance — ERP only matters for embedded 'how-to' aligned to future processes"},
+            {system:"TranSCend", level:"Low", detail:"Limited impact as long as KMS can be built in modular fashion & embedded in the new CRM UI later"},
+            {system:"Osprey", level:"Low", detail:"Limited impact as long as DPS SOPs can be easily incorporated and segmented out later"},
+            {system:"Other Systems", level:"Moderate", detail:"Requires integration with existing repositories (SharePoint/Confluence), search, permissions, and CRM/Genesys embedding"}
+          ]
+        }
+      },
+
+      // ── ACTION PLAN ──
+      { id:"phasing", label:"Deliverables & Milestones", icon:"🗓️", group:"ACTION PLAN",
+        content:{ type:"phasing",
+          phases:[
+            {label:"Quick Wins", items:[
+              {label:"Initial Content Consolidation", text:"Consolidation of top 50 SOPs and FAQ articles from existing sources (e.g., TruVault) into tagged / searchable KB", date:"Target Q2 2026, top 50 aggregated across regions globally"},
+              {label:"Interim AI UI Deployment", text:"Deployment of MSFT Copilot as interim front-end for consolidated repository", date:"Target Q3 2026, Copilot UI deployed globally"}
+            ]},
+            {label:"Steady State", feature:true, items:[
+              {label:"Content Scope Expansion", text:"Expansion to full scope of agent knowledge assets globally (SOPs, FAQs, process guides, exception playbooks)", date:"Target Q4 2026, all regions onboarded with locally maintained content layers"},
+              {label:"Content Lifecycle Management", text:"Implementation of dynamic content lifecycle management (ownership rules, review cadences, retirement triggers)", date:"Target Q1 2027, governance framework live with assigned content owners per region"},
+              {label:"Gap Identification", text:"Deployment of AI-assisted content gap detection to surface missing or outdated articles automatically", date:"Target Q1 2027, integrated into KMS platform post steady-state rollout"},
+              {label:"Multilingual Launch", text:"Launch of multilingual Knowledge Base with regional overlays maintained by regional KMS leads", date:"Target Q2 2027, priority languages covering top 5 markets by contact volume"}
+            ]}
+          ]
+        }
+      },
+
+      { id:"system", label:"System & Process Requirements", icon:"⚙️", group:"ACTION PLAN",
+        content:{ type:"bullets",
+          items:[
+            {label:"Governance Model", text:"Consolidate SOP ownership into a global governance model (content owners, review cadence, retirement rules)"},
+            {label:"Content Standardization", text:"Standardize article structure tied to processes (decision trees, exception playbooks, 'what good looks like')"},
+            {label:"Search & Tagging", text:"Deploy a searchable global KMS with semantic tagging by journey / product / market"}
+          ]
+        }
+      },
+
+      { id:"geo", label:"Geographic Responsibility", icon:"🌍", group:"ACTION PLAN",
+        content:{ type:"geo",
+          items:[
+            {scope:"Global Responsibility", detail:"Uphold standards of KMS as centralized, JJMT-owned core asset regardless of global services sourcing decision"},
+            {scope:"Local Responsibility", detail:"Region-specific KMS leads elevate content gaps and improvement opportunities to global KMS team for resolution"}
+          ]
+        }
+      },
+
+      { id:"owner", label:"Owner & Next Steps", icon:"👤", group:"ACTION PLAN",
+        content:{ type:"owner",
+          owners:[
+            {role:"JJMT Owner", name:"MedTech SC — Digital Strategy & Innovation"},
+            {role:"External Support", name:"BCG"}
+          ],
+          nextSteps:[
+            {label:"Full KMS Design", text:"Complete detailed solution design & feasibility assessment for full KMS"},
+            {label:"Quick Win Design", text:"In parallel, complete detailed solution design & feasibility assessment for MVP / quick win"}
+          ]
+        }
+      },
     ]
   },
   { id:"ai-agent", number:1, title:"AI Agent Handling", icon:"🤖", valueProvided:"High value", valueColor:"#10B981", sections:placeholderSections("AI Agent Handling") },
@@ -737,26 +1002,47 @@ let pendingText = {};
 
 // Per-section contextual reaction labels: { sectionId: [agreeLabel, disagreeLabel] }
 const SECTION_REACTIONS = {
-  "overview":    ["Agree with this lever framing",          "Do not agree with lever framing"],
-  "fromto_cur":  ["Accurately describes current state",     "Does not accurately describe current state in my region"],
-  "fromto_fut":  ["Agree with this vision for future state","Do not agree on this future state vision"],
-  "impact":      ["Agree with this impact",                 "Do not agree with this impact"],
-  "system_0":    ["Agree with this requirement",            "Do not agree with this requirement"],
-  "system_1":    ["Agree with this requirement",            "Do not agree with this requirement"],
-  "geo":         ["Agree with this scope",                  "Do not agree with this scope"],
-  "interdep":    ["Agree with this dependency",             "Do not agree with this dependency"],
-  "sourcing":    ["Agree with this sourcing approach",      "Do not agree with this sourcing approach"],
-  "phasing_0":   ["Agree with this quick win play",         "Do not agree with this quick win play"],
-  "phasing_1":   ["Agree with this feature",                "Do not agree with this feature"],
-  "owner_own":   ["Agree with this ownership assignment",   "Do not agree with this ownership assignment"],
-  "owner":       ["Agree with this next step",              "Do not agree with this next step"],
+  "overview":    ["Agree with this lever framing",              "Do not agree with lever framing"],
+  "fromto_cur":  ["Accurately describes current state",         "Does not accurately describe current state in my region"],
+  "fromto_fut":  ["Agree with this vision for future state",    "Do not agree on this future state vision"],
+  "impact":      ["Agree with this impact assessment",          "Do not agree with this impact assessment"],
+  "interdep":    ["Agree with this dependency assessment",      "Do not agree with this dependency assessment"],
+  "phasing_0":   ["Agree with this quick win deliverable",      "Do not agree with this quick win deliverable"],
+  "phasing_1":   ["Agree with this steady state feature",       "Do not agree with this steady state feature"],
+  "system":      ["Agree with this requirement",                "Do not agree with this requirement"],
+  "geo":         ["Agree with this geographic responsibility",  "Do not agree with this geographic responsibility"],
+  "owner_own":   ["Agree with this ownership assignment",       "Do not agree with this ownership assignment"],
+  "owner":       ["Agree with this next step",                  "Do not agree with this next step"],
 };
 function getReactionLabels(subKey) {
-  // Match subKey to known section keys (use startsWith for flexibility)
   for (const [k, labels] of Object.entries(SECTION_REACTIONS)) {
     if (subKey === k || subKey.startsWith(k)) return labels;
   }
   return ["Agree", "Do not agree"];
+}
+
+// Map a 1-6 score to a display label using contextual agree/disagree labels
+function getLikertLabel(score, agreeLabel, disagreeLabel) {
+  const map = {
+    1: "Strongly " + agreeLabel,
+    2: agreeLabel,
+    3: "Neutral",
+    4: disagreeLabel,
+    5: "Strongly " + disagreeLabel,
+  };
+  return map[score] || "Neutral";
+}
+
+function getLikertColor(score) {
+  if (score <= 2) return "#10B981";
+  if (score === 3) return "#94a3b8";
+  return "#DC2626";
+}
+
+function getLikertBg(score) {
+  if (score <= 2) return "#f0fdf4";
+  if (score === 3) return "#f8fafc";
+  return "#fef2f2";
 }
 // tracks which levers and sections the user has visited: { leverId: Set(sectionIdx) }
 let visitedLevers = new Set();
@@ -775,6 +1061,17 @@ function enterWorkshop() {
   document.getElementById("app-screen").style.display = "block";
   document.getElementById("user-greeting").textContent = "Welcome, " + currentUser + "!";
   renderLeverList();
+}
+
+function leverCompletionBar(leverId, total) {
+  const visited = visitedSections[leverId];
+  if (!visited || visited.size === 0) return "";
+  const reacted = allVotes.filter(v => v.lever_id === leverId).length;
+  const pct = Math.round((visited.size / total) * 100);
+  return '<div class="lever-completion-bar">' +
+    '<div class="lever-completion-track"><div class="lever-completion-fill" style="width:' + pct + '%"></div></div>' +
+    '<div class="lever-completion-label">' + visited.size + '/' + total + ' sections viewed · ' + reacted + ' reaction' + (reacted!==1?'s':'') + '</div>' +
+    '</div>';
 }
 
 // ── Lever list ─────────────────────────────────────────────────────────────────
@@ -798,7 +1095,8 @@ function renderLeverList() {
     card.className = "lever-card";
     const voteCount = allVotes.filter(v => v.lever_id === lever.id).length;
     const isReviewed = visitedLevers.has(lever.id);
-    card.className = "lever-card " + (isReviewed ? "is-reviewed" : "needs-review");
+    const isRapidCurrent = rapidMode && RAPID_ORDER[rapidLeverIdx]?.id === lever.id;
+    card.className = "lever-card " + (isRapidCurrent ? "rapid-current" : isReviewed ? "is-reviewed" : "needs-review");
     const statusBadge = isReviewed
       ? `<span class="reviewed-badge">✓ Reviewed</span>`
       : `<span class="review-badge">● Review needed</span>`;
@@ -811,8 +1109,8 @@ function renderLeverList() {
           <div class="lever-name">${lever.title}</div>
           <div class="lever-meta">
             <span class="value-badge" style="background:${lever.valueColor}20;color:${lever.valueColor}">${lever.valueProvided}</span>
-  
           </div>
+          ${leverCompletionBar(lever.id, lever.sections.length)}
         </div>
       </div>`;
     card.addEventListener("click", () => openLever(lever));
@@ -852,14 +1150,24 @@ function renderSidebar() {
   if (!currentLever) return;
   const sidebar = document.getElementById("sidebar-items");
   sidebar.innerHTML = "";
+  let lastGroup = null;
   currentLever.sections.forEach((sec, idx) => {
+    // Insert group header divider when group changes
+    if (sec.group && sec.group !== lastGroup) {
+      lastGroup = sec.group;
+      const divider = document.createElement("div");
+      divider.className = "sidebar-group-header";
+      divider.textContent = sec.group;
+      sidebar.appendChild(divider);
+    }
     const hasReaction = allVotes.some(v => v.section_key === sec.id);
     const active = idx === currentSectionIdx;
     const visited = visitedSections[currentLever.id] && visitedSections[currentLever.id].has(idx);
     const item = document.createElement("div");
-    item.className = "sidebar-item" + (active ? " active" : "");
+    const isRapidSection = rapidMode && idx === currentSectionIdx;
+    item.className = "sidebar-item" + (active ? " active" : "") + (isRapidSection && !active ? " rapid-current-section" : "");
     const trailingDot = !visited ? '<span class="section-unread-dot"></span>' : hasReaction ? '<span class="sidebar-dot"></span>' : "";
-    item.innerHTML = `<span style="font-size:22px">${sec.icon}</span><span style="flex:1;line-height:1.4">${sec.label}</span>${trailingDot}`;
+    item.innerHTML = `<span style="font-size:20px">${sec.icon}</span><span style="flex:1;line-height:1.4">${sec.label}</span>${trailingDot}`;
     item.addEventListener("click", () => { currentSectionIdx = idx; pendingText = {}; renderSidebar(); renderSection(); });
     sidebar.appendChild(item);
   });
@@ -900,15 +1208,32 @@ function buildSectionHTML(sec) {
     return html;
   }
   if (c.type === "fromto") {
-    // Merge all current bullets into one card, all future bullets into one card
-    const currentText = c.current.map((item, i) => i === 0
-      ? `<div style="margin-bottom:${c.current.length > 1 ? '14px' : '0'};font-size:15px;font-weight:500;color:#1e293b;line-height:1.7">${item}</div>`
-      : `<div style="margin-bottom:${i < c.current.length-1 ? '10px' : '0'};padding-left:16px;border-left:2px solid #e2e8f0;font-size:13px;font-style:italic;color:#64748b;line-height:1.6">${item}</div>`
-    ).join("");
-    const futureText  = c.future.map((item, i)  => i === 0
-      ? `<div style="margin-bottom:${c.future.length > 1 ? '14px' : '0'};font-size:15px;font-weight:500;color:#1e293b;line-height:1.7">${item}</div>`
-      : `<div style="margin-bottom:${i < c.future.length-1 ? '10px' : '0'};padding-left:16px;border-left:2px solid #e2e8f0;font-size:13px;font-style:italic;color:#64748b;line-height:1.6">${item}</div>`
-    ).join("");
+    // Build current state text
+    const cur = c.current;
+    const fut = c.future;
+    const buildStateText = (state, subLabel) => {
+      // Handle both old array format and new {headline, subpoints} format
+      if (Array.isArray(state)) {
+        return state.map((item, i) => i === 0
+          ? `<div style="margin-bottom:${state.length > 1 ? '14px' : '0'};font-size:15px;font-weight:500;color:#1e293b;line-height:1.7">${item}</div>`
+          : `<div style="margin-bottom:${i < state.length-1 ? '10px' : '0'};padding-left:16px;border-left:2px solid #e2e8f0;font-size:13px;font-style:italic;color:#64748b;line-height:1.6">${item}</div>`
+        ).join("");
+      }
+      // New format: {headline, subpoints:[{label,text}]}
+      let html = `<div style="font-size:15px;font-weight:500;color:#1e293b;line-height:1.7;margin-bottom:${state.subpoints?.length ? '14px' : '0'}">${state.headline}</div>`;
+      if (state.subpoints && state.subpoints.length) {
+        html += `<div style="font-size:12px;font-weight:700;color:#94a3b8;letter-spacing:0.5px;margin-bottom:8px;padding-left:16px">${subLabel}</div>`;
+        state.subpoints.forEach((sp, i) => {
+          html += `<div style="padding-left:16px;border-left:2px solid #e2e8f0;margin-bottom:${i < state.subpoints.length-1 ? '8px' : '0'};line-height:1.5">
+            <span style="font-size:12px;font-weight:700;color:#475569;font-style:italic">${sp.label}: </span>
+            <span style="font-size:13px;color:#64748b;font-style:italic">${sp.text}</span>
+          </div>`;
+        });
+      }
+      return html;
+    };
+    const currentText = buildStateText(cur, "PAIN POINTS");
+    const futureText = buildStateText(fut, "TARGET EXPERIENCES");
     let html = `<div class="section-subheader" style="color:#DC2626">Current State ❌</div><hr class="section-divider">`;
     html += bulletCardHTML(sec.id+"_cur", 0, currentText);
     html += `<div class="section-subheader" style="color:#059669;margin-top:16px">Future State ✅</div><hr class="section-divider">`;
@@ -947,7 +1272,8 @@ function buildSectionHTML(sec) {
       let html = `<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px"><div class="phase-header" style="margin-bottom:0">${pi===0?"⚡":"🏗️"} ${phase.label}</div></div>`;
       phase.items.forEach((item, i) => {
         const resolvedItem = typeof item === "object"
-          ? `<span style="font-weight:700;color:#1B3A8C">${item.label}</span><br><span style="font-weight:400">${item.text}</span>`
+          ? `<span style="font-weight:700;color:#1B3A8C">${item.label}</span><br><span style="font-weight:400">${item.text}</span>` +
+            (item.date ? `<div style="margin-top:6px;font-size:11px;color:#8B5CF6;font-style:italic;font-weight:600">📅 ${item.date}</div>` : "")
           : item;
         const text = phase.feature
           ? `<span style="display:inline-flex;align-items:center;background:#1B3A8C;color:#fff;border-radius:8px;padding:2px 10px;font-size:12px;font-weight:700;margin-right:8px;margin-bottom:4px;vertical-align:middle">Feature ${i+1}</span><span style="vertical-align:middle">${resolvedItem}</span>`
@@ -1009,58 +1335,50 @@ function buildSectionHTML(sec) {
 function bulletCardHTML(subKey, idx, text, useStar, hideNum) {
   const bulletKey = currentLever.id + "__" + subKey + "__" + idx;
   const myVote = allVotes.find(v => v.user_name === currentUser && v.bullet_key === bulletKey);
-  const myReaction = myVote ? myVote.reaction : null;
-  const pending = pendingText[bulletKey];
+  const score = myVote ? parseInt(myVote.reaction) || 0 : 0;
+  const note = myVote?.note || "";
 
   const [agreeLabel, disagreeLabel] = getReactionLabels(subKey);
-  const borderClass = myReaction === "Agree" ? "has-agree-ctx" : myReaction === "Disagree" ? "has-disagree" : "";
+  const borderClass = score > 0 ? "score-" + score : "";
 
-  // ── Agree button ──
-  const agreeActive = myReaction === "Agree";
-  const agreeBtn = `<button class="bullet-react-btn ${agreeActive?"active-agree-ctx":""}" data-key="${bulletKey}" data-reaction="Agree" data-needs-text="false">
-    ✓ ${agreeLabel}
-  </button>`;
+  // Slider current label
+  const currentLabel = score > 0 ? getLikertLabel(score, agreeLabel, disagreeLabel) : "Not yet rated";
+  const labelColor = score > 0 ? getLikertColor(score) : "#94a3b8";
+  const labelBg = score > 0 ? getLikertBg(score) : "#f1f5f9";
 
-  // ── Disagree button ──
-  const disagreeActive = myReaction === "Disagree";
-  const disagreeBtn = `<button class="bullet-react-btn ${disagreeActive?"active-disagree":""}" data-key="${bulletKey}" data-reaction="Disagree" data-needs-text="true">
-    ✗ ${disagreeLabel}
-  </button>`;
+  const sliderHTML = `<div class="likert-left">
+    <div class="likert-labels">
+      <span class="likert-label-agree">${agreeLabel}</span>
+      <span class="likert-label-neutral">Neutral</span>
+      <span class="likert-label-disagree">${disagreeLabel}</span>
+    </div>
+    <div class="likert-slider-row">
+      <input type="range" class="likert-slider" min="1" max="5"
+        value="${score || 3}" data-key="${bulletKey}"
+        data-agree="${agreeLabel}" data-disagree="${disagreeLabel}">
+    </div>
+    <div class="likert-ticks">
+      ${[1,2,3,4,5].map(n => '<span class="likert-tick">' + n + '</span>').join("")}
+    </div>
+    <div class="likert-saved" id="ls-${bulletKey}"></div>
+  </div>`;
 
-  const reactionBtns = agreeBtn + disagreeBtn;
-
-  // ── Text input (shown when disagree is pending or active without note) ──
-  let textArea = "";
-  if (pending || (myReaction === "Disagree" && !myVote?.note)) {
-    const currentText = pending ? pending.text : "";
-    const limit = 200;
-    textArea = `<div class="bullet-text-input-wrap">
-      <textarea class="bullet-text-input" data-key="${bulletKey}" data-reaction="Disagree" data-limit="${limit}" rows="2" placeholder="Please describe your perspective..." maxlength="${limit}">${currentText}</textarea>
-      <div class="text-input-footer">
-        <span class="char-count" id="cc-${bulletKey}">${currentText.length}/${limit}</span>
-        <button class="submit-note-btn" data-key="${bulletKey}" data-reaction="Disagree" ${currentText.trim().length===0?"disabled":""}>Submit</button>
-      </div>
-    </div>`;
-  }
-
-  // ── Submitted note chip ──
-  let notesHTML = "";
-  if (myVote?.note && myVote.note.trim()) {
-    notesHTML = `<div class="notes-display"><div class="note-chip">
-      <span class="note-chip-emoji">✗</span>
-      <span class="note-chip-text"><span class="note-chip-author">${myVote.user_name}:</span> ${escHtml(myVote.note)}</span>
-      <button class="note-chip-delete" data-key="${bulletKey}" data-del="true" title="Remove">×</button>
-    </div></div>`;
-  }
+  const commentHTML = `<div class="likert-right">
+    <div class="likert-comment-label">COMMENT (OPTIONAL)</div>
+    <textarea class="likert-comment" data-key="${bulletKey}"
+      placeholder="Share context on your rating..."
+      maxlength="250">${escHtml(note)}</textarea>
+  </div>`;
 
   return `<div class="bullet-card ${borderClass}" id="bc-${bulletKey}">
     <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:20px">
       ${!hideNum ? `<span style="flex-shrink:0;width:28px;height:28px;border-radius:50%;background:#1B3A8C;color:#fff;font-size:${useStar?"16px":"13px"};font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px">${useStar?"★":idx+1}</span>` : ""}
       <div class="bullet-text" style="margin-bottom:0">${text}</div>
     </div>
-    <div class="bullet-reactions">${reactionBtns}</div>
-    ${textArea}
-    ${notesHTML}
+    <div class="likert-wrap">
+      ${sliderHTML}
+      ${commentHTML}
+    </div>
   </div>`;
 }
 
@@ -1095,78 +1413,72 @@ function escHtml(s) { return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replac
 
 // ── Event listeners on content area ───────────────────────────────────────────
 function attachBulletListeners(area) {
-  // reaction button clicks
-  area.querySelectorAll(".bullet-react-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const key = btn.dataset.key;
-      const reaction = btn.dataset.reaction;
-      const needsText = btn.dataset.needsText === "true";
+  // Likert slider — live label update + auto-save on change
+  area.querySelectorAll(".likert-slider").forEach(slider => {
+    const key = slider.dataset.key;
+    const agreeLabel = slider.dataset.agree;
+    const disagreeLabel = slider.dataset.disagree;
 
-      // Immediately apply active class so button stays lit before re-render
-      const isCurrentlyActive = btn.classList.contains("active-agree-ctx") || btn.classList.contains("active-disagree");
-      if (!isCurrentlyActive) {
-        // Deactivate sibling buttons in same bullet card first
-        const card = btn.closest(".bullet-card");
-        if (card) {
-          card.querySelectorAll(".bullet-react-btn").forEach(b => {
-            b.classList.remove("active-agree-ctx", "active-disagree");
-          });
-        }
-        if (reaction === "Agree") btn.classList.add("active-agree-ctx");
-        else btn.classList.add("active-disagree");
-      } else {
-        // Toggling off
-        btn.classList.remove("active-agree-ctx", "active-disagree");
+    // Sound feedback while dragging
+    slider.addEventListener("input", () => {
+      playClickSound(440 + parseInt(slider.value) * 40, 0.04, "sine");
+    });
+
+    // Auto-save on release
+    slider.addEventListener("change", async () => {
+      const score = slider.value;
+      const card = slider.closest(".bullet-card");
+      // Update card border class
+      if (card) {
+        card.className = card.className.replace(/score-\d/g, "").trim();
+        card.classList.add("score-" + score);
       }
-
-      // Pulse animation
-      btn.classList.remove("just-activated");
-      void btn.offsetWidth;
-      btn.classList.add("just-activated");
-      btn.addEventListener("animationend", () => btn.classList.remove("just-activated"), { once: true });
-
-      handleReactionClick(key, reaction, needsText);
+      // Get current comment
+      const commentEl = area.querySelector(".likert-comment[data-key='" + key + "']");
+      const note = commentEl ? commentEl.value.trim() : "";
+      await saveLikert(key, score, note);
     });
   });
 
-  // textarea input
-  area.querySelectorAll(".bullet-text-input").forEach(ta => {
-    ta.addEventListener("input", () => {
+  // Comment box — auto-save on blur
+  area.querySelectorAll(".likert-comment").forEach(ta => {
+    ta.addEventListener("blur", async () => {
       const key = ta.dataset.key;
-      const reaction = ta.dataset.reaction;
-      const limit = parseInt(ta.dataset.limit);
-      const val = ta.value;
-      if (!pendingText[key]) pendingText[key] = { reaction, text: "" };
-      pendingText[key].text = val;
-      const cc = document.getElementById("cc-" + key);
-      if (cc) {
-        cc.textContent = val.length + "/" + limit;
-        cc.className = "char-count" + (val.length >= limit ? " at-limit" : val.length >= limit*0.8 ? " near-limit" : "");
-      }
-      const submitBtn = ta.parentElement.querySelector(".submit-note-btn");
-      if (submitBtn) submitBtn.disabled = val.trim().length === 0;
+      const sliderEl = area.querySelector(".likert-slider[data-key='" + key + "']");
+      const score = sliderEl ? sliderEl.value : "3";
+      await saveLikert(key, score, ta.value.trim());
     });
   });
+}
 
-  // submit button
-  area.querySelectorAll(".submit-note-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const key = btn.dataset.key;
-      const reaction = btn.dataset.reaction;
-      const pending = pendingText[key];
-      if (pending && pending.text.trim()) {
-        submitNote(key, reaction, pending.text.trim());
-      }
-    });
+async function saveLikert(bulletKey, score, note) {
+  const parts = bulletKey.split("__");
+  const leverId = parts[0];
+  const sectionKey = parts[1];
+  // Get contextual labels for this bullet to save the word value
+  const [agreeLabel, disagreeLabel] = getReactionLabels(sectionKey);
+  const reactionLabel = getLikertLabel(parseInt(score), agreeLabel, disagreeLabel);
+  const row = await upsertVote({
+    user_name: currentUser,
+    lever_id: leverId,
+    section_key: sectionKey,
+    bullet_key: bulletKey,
+    reaction: String(score),          // numeric: "1" – "6"
+    reaction_label: reactionLabel,    // word: e.g. "Strongly Agree with this lever framing"
+    note: note || null
   });
-
-  // delete own note
-  area.querySelectorAll(".note-chip-delete").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const key = btn.dataset.key;
-      deleteOwnVote(key);
-    });
-  });
+  if (row) {
+    // Update allVotes in memory
+    allVotes = allVotes.filter(v => !(v.user_name === currentUser && v.bullet_key === bulletKey));
+    allVotes.push(Array.isArray(row) ? row[0] : row);
+    // Show saved indicator
+    const saved = document.getElementById("ls-" + bulletKey);
+    if (saved) {
+      saved.textContent = "✓ Saved";
+      setTimeout(() => { if (saved) saved.textContent = ""; }, 2000);
+    }
+    showSaved();
+  }
 }
 
 async function handleReactionClick(bulletKey, reaction, needsText) {
@@ -1226,6 +1538,17 @@ function navigate(dir) {
   if (dir===1 && currentSectionIdx >= total-1) {
     if (rapidMode) { rapidNextLever(); return; }
     renderLeverList(); return;
+  }
+  // Check if current section has no reaction before moving forward
+  if (dir === 1) {
+    const sec = currentLever.sections[currentSectionIdx];
+    const hasReacted = allVotes.some(v => v.user_name === currentUser && v.section_key === sec.id) ||
+      allVotes.some(v => v.user_name === currentUser && v.bullet_key && v.bullet_key.startsWith(currentLever.id + "__" + sec.id));
+    const nudge = document.getElementById("react-nudge");
+    if (!hasReacted && nudge) {
+      nudge.classList.add("show");
+      setTimeout(() => nudge.classList.remove("show"), 3000);
+    }
   }
   currentSectionIdx = Math.max(0, Math.min(total-1, currentSectionIdx+dir));
   pendingText = {}; renderSidebar(); renderSection();
@@ -1306,6 +1629,8 @@ let rapidLeverIdx = 0;
 let rapidStartTime = null;
 let rapidTimerInterval = null;
 let rapidElapsedBeforePause = 0;  // tracks time accumulated before pausing
+let rapidStreak = 0;              // consecutive levers completed in rapid mode
+let soundEnabled = true;          // click sound toggle
 const RAPID_ORDER = [...LEVERS].sort((a,b) => a.number - b.number);
 
 // Find the furthest unvisited lever+section to resume from
@@ -1335,13 +1660,11 @@ function startRapidMode(resume) {
   rapidMode = true;
   rapidLeverIdx = resumePoint ? resumePoint.sectionIdx === 0 ? resumePoint.leverIdx : resumePoint.leverIdx : 0;
 
-  // Timer: if resuming, carry over elapsed time
+  // Timer: fresh start resets, resume just restarts the interval from where we paused
   if (!resume) {
     rapidElapsedBeforePause = 0;
-    rapidStartTime = Date.now();
-  } else {
-    rapidStartTime = Date.now(); // timer restarts from where we left off via elapsed offset
   }
+  rapidStartTime = Date.now(); // always mark current segment start
 
   clearInterval(rapidTimerInterval);
   rapidTimerInterval = setInterval(updateRapidTimer, 1000);
@@ -1358,6 +1681,29 @@ function startRapidMode(resume) {
   updateRapidStartBtn();
 }
 
+// ── Sound system ─────────────────────────────────────────────────────────────
+let audioCtx = null;
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function playClickSound(freq, vol, type) {
+  if (!soundEnabled) return;
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = type || "sine";
+    osc.frequency.setValueAtTime(freq || 600, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(freq * 0.7, ctx.currentTime + 0.08);
+    gain.gain.setValueAtTime(vol || 0.08, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.12);
+  } catch(e) {}
+}
+
 function updateRapidStartBtn() {
   const btn = document.getElementById("btn-rapid-start");
   if (!btn) return;
@@ -1371,27 +1717,39 @@ function updateRapidStartBtn() {
 }
 
 function exitRapidMode() {
-  // Save elapsed time so resume can show accurate total
   if (rapidStartTime) {
     rapidElapsedBeforePause += Math.floor((Date.now() - rapidStartTime) / 1000);
   }
   rapidMode = false;
+  rapidStreak = 0;
   clearInterval(rapidTimerInterval);
   document.getElementById("rapid-bar").classList.remove("active");
+  const badge = document.getElementById("streak-badge");
+  if (badge) badge.classList.remove("show");
   swapNextBtn(false);
   renderLeverList();
 }
 
 function rapidNextLever() {
+  rapidStreak++;
   rapidLeverIdx++;
   if (rapidLeverIdx >= RAPID_ORDER.length) {
-    // All done!
     rapidMode = false;
     clearInterval(rapidTimerInterval);
     document.getElementById("rapid-bar").classList.remove("active");
     swapNextBtn(false);
+    rapidStreak = 0;
     showRapidComplete();
     return;
+  }
+  // Show streak badge after 3+ levers
+  if (rapidStreak >= 3) {
+    const badge = document.getElementById("streak-badge");
+    const count = document.getElementById("streak-count");
+    if (badge && count) {
+      count.textContent = rapidStreak;
+      badge.classList.add("show");
+    }
   }
   openLever(RAPID_ORDER[rapidLeverIdx]);
   document.getElementById("rapid-bar").classList.add("active");
@@ -1399,8 +1757,21 @@ function rapidNextLever() {
 }
 
 function doneReviewing() {
+  showLeverCelebration(currentLever?.title || "Lever");
+  playClickSound(880, 0.15, "sine");
   if (rapidMode) { rapidNextLever(); }
-  else { renderLeverList(); }
+  else { setTimeout(renderLeverList, 600); }
+}
+
+function showLeverCelebration(title) {
+  const el = document.createElement("div");
+  el.className = "lever-celebrate";
+  el.innerHTML = `<span style="font-size:22px">🎯</span> <span>${title} complete!</span>`;
+  document.body.appendChild(el);
+  setTimeout(() => {
+    el.classList.add("fadeout");
+    setTimeout(() => el.remove(), 600);
+  }, 1800);
 }
 
 function updateRapidBar() {
@@ -1480,12 +1851,16 @@ async function loadDashboard() {
 
   // Fetch all votes with notes across all levers and users
   const rows = await sbReq("GET", "votes?select=*&note=not.is.null&order=created_at.desc", null);
-  const votes = (rows || []).filter(v => v.note && v.note.trim().length > 0 && ["Disagree","Freetext"].includes(v.reaction));
+  // Likert: reactions are now "1"-"6" scores; also keep Freetext
+  const allWithNotes = (rows || []).filter(v => v.note && v.note.trim().length > 0);
+  const likertVotes = (rows || []).filter(v => !isNaN(parseInt(v.reaction)));
+  const votes = allWithNotes.filter(v => !isNaN(parseInt(v.reaction)) || v.reaction === "Freetext");
 
   document.getElementById("dash-loading").style.display = "none";
   document.getElementById("dash-content").style.display = "block";
 
-  const disagreements = votes.filter(v => v.reaction === "Disagree");
+  // Split: scores 4-6 = disagreement side, scores 1-3 = agreement side (show all with comments)
+  const disagreements = likertVotes.filter(v => parseInt(v.reaction) >= 4 && v.note && v.note.trim());
   document.getElementById("dash-qc-count").textContent = disagreements.length;
 
   document.getElementById("dash-qc-list").innerHTML = disagreements.length === 0
@@ -1505,18 +1880,23 @@ function dashCard(v) {
 
   // Get contextual label used for this bullet
   const [agreeLabel, disagreeLabel] = getReactionLabels(subKey);
-  const isDisagree = v.reaction === "Disagree";
-  const isFreetext = v.reaction === "Freetext";
+  // isDisagree defined below
+  // isFreetext defined below
 
-  const typeClass = isDisagree ? "question" : "concern";
-  const typeBadge = isDisagree
-    ? `<span class="dash-card-type question">✗ Do Not Agree</span>`
-    : `<span class="dash-card-type concern">💬 Additional Input</span>`;
-
-  // Show what they were reacting to (the disagree label context)
-  const contextLine = isDisagree
-    ? `<div style="font-size:11px;color:#94a3b8;font-style:italic;margin-bottom:8px">Re: "${disagreeLabel}"</div>`
+  const scoreNum = parseInt(v.reaction);
+  const isLikert = !isNaN(scoreNum);
+  const scoreColor = isLikert ? getLikertColor(scoreNum) : "#8B5CF6";
+  const scoreBg = isLikert ? getLikertBg(scoreNum) : "#f5f3ff";
+  const scoreLabel = isLikert ? getLikertLabel(scoreNum, agreeLabel, disagreeLabel) : "Additional Input";
+  const typeBadge = `<span class="dash-card-type" style="background:${scoreBg};color:${scoreColor};border:1px solid ${scoreColor}40">
+    ${isLikert ? "● " + scoreLabel + " (" + scoreNum + "/5)" : "💬 " + scoreLabel}
+  </span>`;
+  const contextLine = isLikert
+    ? `<div style="font-size:11px;color:#94a3b8;font-style:italic;margin-bottom:8px">Rating scale: ${agreeLabel} → ${disagreeLabel}</div>`
     : "";
+  const typeClass = "";
+  const isDisagree = isLikert && scoreNum >= 4;
+  const isFreetext = v.reaction === "Freetext";
 
   return `<div class="dash-card">
     ${typeBadge}
@@ -1543,7 +1923,7 @@ async function generateAISummary() {
 
   // Gather all data from Supabase
   const rows = await sbReq("GET", "votes?select=*&note=not.is.null&order=created_at.desc", null);
-  const votes = (rows || []).filter(v => v.note && v.note.trim().length > 0 && ["Disagree","Freetext"].includes(v.reaction));
+  const votes = (rows || []).filter(v => v.note && v.note.trim().length > 0 && (!isNaN(parseInt(v.reaction)) || v.reaction === "Freetext"));
 
   if (votes.length === 0) {
     output.innerHTML = '<div class="ai-error">No submissions yet to summarise.</div>';
@@ -1565,7 +1945,7 @@ async function generateAISummary() {
     if (!byLever[leverTitle]) byLever[leverTitle] = [];
     byLever[leverTitle].push({
       section: secLabel,
-      type: v.reaction === "Disagree" ? `Disagreement (re: "${disagreeLabel}")` : "Additional input",
+      type: !isNaN(parseInt(v.reaction)) ? `Score ${v.reaction}/6 (${getLikertLabel(parseInt(v.reaction), agreeLabel, disagreeLabel)})` : "Additional input",
       note: v.note,
       user: v.user_name
     });
@@ -1679,7 +2059,7 @@ async function generateDiscussionTopics() {
 
   // Gather all votes with notes (both disagree and freetext)
   const rows = await sbReq("GET", "votes?select=*&note=not.is.null&order=created_at.desc", null);
-  const votes = (rows || []).filter(v => v.note && v.note.trim().length > 0 && ["Disagree","Freetext"].includes(v.reaction));
+  const votes = (rows || []).filter(v => v.note && v.note.trim().length > 0 && (!isNaN(parseInt(v.reaction)) || v.reaction === "Freetext"));
 
   if (votes.length === 0) {
     loading.style.display = "none";
@@ -1699,7 +2079,8 @@ async function generateDiscussionTopics() {
     const sec = lever ? lever.sections.find(s => subKey === s.id || subKey.startsWith(s.id)) : null;
     const secLabel = sec ? sec.label : subKey;
     if (!byLever[leverTitle]) byLever[leverTitle] = [];
-    byLever[leverTitle].push({ section: secLabel, note: v.note, type: v.reaction });
+    const [al, dl] = getReactionLabels(subKey);
+    byLever[leverTitle].push({ section: secLabel, note: v.note, type: !isNaN(parseInt(v.reaction)) ? "Score " + v.reaction + "/6 (" + getLikertLabel(parseInt(v.reaction), al, dl) + ")" : v.reaction });
   });
 
   const submissionsText = Object.entries(byLever).map(([lever, items]) =>
@@ -1710,22 +2091,25 @@ async function generateDiscussionTopics() {
 
   const prompt = `You are helping a workshop facilitator at Johnson & Johnson MedTech prepare for a live discussion session on customer service optimisation initiatives.
 
-Based on the participant feedback below, generate discussion topics grouped by lever. For each lever that has feedback, provide 1-3 specific discussion topics.
+Based on participant feedback, generate up to 5 discussion topics per lever. Each topic needs:
+1. A SHORT TITLE — maximum 30 characters, punchy and specific (e.g. "Governance ownership gap")
+2. A NEXT STEP — one clear, concise decision required to move this forward (max 20 words, start with an action verb)
 
 Requirements:
-- Each topic must be a specific, actionable question or debate point (not a vague theme)
-- Use **bold** markdown around the single most important phrase or tension in each topic to aid readability
-- Be direct, specific and provocative enough to drive genuine group debate
-- Prioritise topics by controversy and importance within each lever
+- Only include levers that have actual feedback
+- Topics must reflect real tensions or disagreements in the comments
+- Next steps must be decision-oriented, not descriptive
 
-Format your response EXACTLY like this — no other text:
+Format EXACTLY like this — no other text:
 LEVER: [lever name]
-TOPIC: [specific discussion question with **bolded key tension**]
-TOPIC: [specific discussion question with **bolded key tension**]
+TOPIC: [max 30 char title]
+NEXT: [action verb + decision, max 20 words]
+TOPIC: [max 30 char title]
+NEXT: [action verb + decision, max 20 words]
 
 LEVER: [next lever name]
-TOPIC: [specific discussion question with **bolded key tension**]
-...
+TOPIC: [max 30 char title]
+NEXT: [action verb + decision, max 20 words]
 
 PARTICIPANT FEEDBACK:
 ${submissionsText}`;
@@ -1742,6 +2126,7 @@ ${submissionsText}`;
     const text = data.choices[0].message.content;
     list.innerHTML = renderDiscussionTopics(text);
     list.style.opacity = "1";
+    playClickSound(660, 0.06, "sine");
   } catch (err) {
     list.innerHTML = `<div class="ai-error">⚠️ Error: ${err.message}</div>`;
     list.style.opacity = "1";
@@ -1753,46 +2138,87 @@ ${submissionsText}`;
 }
 
 function boldMarkdown(text) {
-  // Convert **bold** markdown to <strong> tags
   return text.replace(/\*\*(.+?)\*\*/g, '<strong style="color:#1e293b">$1</strong>');
 }
 
+// Store topics by lever for filtering
+let _topicsByLever = {};
+let _activeLeverFilter = "ALL";
+
 function renderDiscussionTopics(text) {
   const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
-  if (lines.length === 0) return '<div class="dash-empty">No topics could be generated from the current submissions.</div>';
+  if (lines.length === 0) return '<div class="dash-empty">No topics could be generated.</div>';
 
-  let html = "";
+  // Parse into structure
+  _topicsByLever = {};
   let currentLever = "";
-  let topicCount = 0;
-  let leverTopicIdx = 0;
+  let pendingTopic = null;
 
   lines.forEach(line => {
     if (line.startsWith("LEVER:")) {
-      // Close previous lever group if open
-      if (currentLever) html += "</div>";
       currentLever = line.replace("LEVER:", "").trim();
-      leverTopicIdx = 0;
-      html += `<div style="margin-bottom:20px">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-          <span style="font-size:11px;font-weight:700;letter-spacing:1px;color:#7c3aed">LEVER</span>
-          <span class="dash-card-lever" style="background:#f5f3ff;color:#7c3aed;font-size:13px;padding:4px 12px">${currentLever}</span>
-        </div>`;
+      if (!_topicsByLever[currentLever]) _topicsByLever[currentLever] = [];
+      pendingTopic = null;
     } else if (line.startsWith("TOPIC:")) {
-      const question = line.replace("TOPIC:", "").trim();
-      leverTopicIdx++;
-      topicCount++;
-      html += `<div class="dash-card" style="border-left:4px solid #8B5CF6;margin-bottom:10px">
-        <div style="display:flex;align-items:flex-start;gap:10px">
-          <span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;background:#8B5CF6;color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:2px">${leverTopicIdx}</span>
-          <div class="dash-card-comment" style="font-size:14px;margin-bottom:0">${boldMarkdown(question)}</div>
-        </div>
-      </div>`;
+      pendingTopic = { title: line.replace("TOPIC:", "").trim(), next: "" };
+      if (currentLever) _topicsByLever[currentLever].push(pendingTopic);
+    } else if (line.startsWith("NEXT:") && pendingTopic) {
+      pendingTopic.next = line.replace("NEXT:", "").trim();
     }
   });
 
-  // Close last lever group
-  if (currentLever) html += "</div>";
-  if (topicCount === 0) return '<div class="dash-empty">No topics could be generated from the current submissions.</div>';
+  // Build lever filter buttons
+  const leverNames = Object.keys(_topicsByLever);
+  const filterRow = document.getElementById("lever-filter-row");
+  if (filterRow) {
+    filterRow.style.display = "flex";
+    filterRow.innerHTML = "<button class=\"lever-filter-btn active\" onclick=\"filterTopics('ALL', this)\">All Levers</button>" +
+      leverNames.map(l => `<button class="lever-filter-btn" onclick="filterTopics('${l.replace(/'/g,"\'")}', this)">${l}</button>`).join("");
+  }
+
+  return buildTopicsHTML(_topicsByLever, "ALL");
+}
+
+function filterTopics(leverName, btn) {
+  _activeLeverFilter = leverName;
+  // Update button states
+  document.querySelectorAll(".lever-filter-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  document.getElementById("disc-topics-list").innerHTML = buildTopicsHTML(_topicsByLever, leverName);
+}
+
+function buildTopicsHTML(byLever, filter) {
+  let html = "";
+  let totalCount = 0;
+
+  Object.entries(byLever).forEach(([lever, topics]) => {
+    if (filter !== "ALL" && lever !== filter) return;
+    if (!topics.length) return;
+
+    html += `<div style="margin-bottom:24px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <span style="font-size:10px;font-weight:800;letter-spacing:1.5px;color:#7c3aed">LEVER</span>
+        <span class="dash-card-lever" style="background:#f5f3ff;color:#7c3aed;font-size:13px;padding:4px 14px">${lever}</span>
+      </div>`;
+
+    topics.slice(0, 5).forEach((t, i) => {
+      totalCount++;
+      html += `<div class="disc-topic-card">
+        <div class="disc-topic-num">${i + 1}</div>
+        <div class="disc-topic-body">
+          <div class="disc-topic-title">${t.title}</div>
+          ${t.next ? `<div class="disc-next-step">
+            <span class="disc-next-step-label">Next Step</span>
+            ${t.next}
+          </div>` : ""}
+        </div>
+      </div>`;
+    });
+
+    html += "</div>";
+  });
+
+  if (totalCount === 0) return '<div class="dash-empty">No topics for this lever yet.</div>';
   return html;
 }
 
