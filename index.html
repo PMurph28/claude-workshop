@@ -263,7 +263,7 @@
     margin-right: 10px; vertical-align: middle;
   }
   .risk-low  { background: #DCFCE7; color: #166534; border: 1.5px solid #86EFAC; }
-  .risk-med  { background: #FEF3C7; color: #92400E; border: 1.5px solid #FCD34D; }
+  .risk-med  { background: #FEF08A; color: #713F12; border: 1.5px solid #EAB308; }
   .risk-high { background: #FEE2E2; color: #991B1B; border: 1.5px solid #FCA5A5; }
   .risk-desc { font-size: 14px; color: #64748b; font-style: italic; margin-top: 6px; line-height: 1.5; }
   .resource-category {
@@ -985,8 +985,8 @@ function placeholderSections(title) {
     { id:"execrisk", label:"Execution Risk", icon:"⚠️", group:"OVERVIEW", content:{type:"placeholder"} },
     { id:"phasing", label:"Deliverables & Milestones", icon:"🗓️", group:"ACTION PLAN", content:{type:"placeholder"} },
     { id:"geo", label:"Geographic Responsibility", icon:"🌍", group:"ACTION PLAN", content:{type:"placeholder"} },
-    { id:"resourcing", label:"Resourcing Categories", icon:"👥", group:"ACTION PLAN", content:{type:"placeholder"} },
-    { id:"owner", label:"Owner & Next Steps", icon:"👤", group:"ACTION PLAN", content:{type:"placeholder"} },
+    { id:"resourcing", label:"Resourcing Categories", icon:"🤝", group:"ACTION PLAN", content:{type:"placeholder"} },
+    { id:"owner", label:"Owner & Next Steps", icon:"🧑‍💼", group:"ACTION PLAN", content:{type:"placeholder"} },
   ];
 }
 
@@ -1076,7 +1076,7 @@ const LEVERS = [
         }
       },
 
-      { id:"resourcing", label:"Resourcing Categories", icon:"👥", group:"ACTION PLAN",
+      { id:"resourcing", label:"Resourcing Categories", icon:"🤝", group:"ACTION PLAN",
         content:{ type:"resourcing",
           categories:[
             {
@@ -1088,7 +1088,7 @@ const LEVERS = [
         }
       },
 
-      { id:"owner", label:"Owner & Next Steps", icon:"👤", group:"ACTION PLAN",
+      { id:"owner", label:"Owner & Next Steps", icon:"🧑‍💼", group:"ACTION PLAN",
         content:{ type:"owner",
           owners:[
             {role:"JJMT Owner", name:"MedTech SC — Digital Strategy & Innovation"},
@@ -1183,7 +1183,7 @@ const LEVERS = [
         }
       },
 
-      { id:"resourcing", label:"Resourcing Categories", icon:"👥", group:"ACTION PLAN",
+      { id:"resourcing", label:"Resourcing Categories", icon:"🤝", group:"ACTION PLAN",
         content:{ type:"resourcing",
           categories:[
             {
@@ -1195,7 +1195,7 @@ const LEVERS = [
         }
       },
 
-      { id:"owner", label:"Owner & Next Steps", icon:"👤", group:"ACTION PLAN",
+      { id:"owner", label:"Owner & Next Steps", icon:"🧑‍💼", group:"ACTION PLAN",
         content:{ type:"owner",
           owners:[
             {role:"JJMT Owner", name:"MedTech SC — Digital Strategy & Innovation"},
@@ -1292,7 +1292,7 @@ const LEVERS = [
         }
       },
 
-      { id:"resourcing", label:"Resourcing Categories", icon:"👥", group:"ACTION PLAN",
+      { id:"resourcing", label:"Resourcing Categories", icon:"🤝", group:"ACTION PLAN",
         content:{ type:"resourcing",
           categories:[
             {
@@ -1304,7 +1304,7 @@ const LEVERS = [
         }
       },
 
-      { id:"owner", label:"Owner & Next Steps", icon:"👤", group:"ACTION PLAN",
+      { id:"owner", label:"Owner & Next Steps", icon:"🧑‍💼", group:"ACTION PLAN",
         content:{ type:"owner",
           owners:[
             {role:"JJMT Owner", name:"MedTech SC — Digital Strategy & Innovation"},
@@ -1407,7 +1407,7 @@ const LEVERS = [
         }
       },
 
-      { id:"resourcing", label:"Resourcing Categories", icon:"👥", group:"ACTION PLAN",
+      { id:"resourcing", label:"Resourcing Categories", icon:"🤝", group:"ACTION PLAN",
         content:{ type:"resourcing",
           categories:[
             {
@@ -1419,7 +1419,7 @@ const LEVERS = [
         }
       },
 
-      { id:"owner", label:"Owner & Next Steps", icon:"👤", group:"ACTION PLAN",
+      { id:"owner", label:"Owner & Next Steps", icon:"🧑‍💼", group:"ACTION PLAN",
         content:{ type:"owner",
           owners:[
             {role:"JJMT Owner", name:"MedTech SC — Digital Strategy & Innovation"},
@@ -1671,18 +1671,18 @@ function buildSectionHTML(sec) {
       // New format: {headline, subpoints:[{label,text}]}
       let html = `<div style="font-size:15px;font-weight:500;color:#1e293b;line-height:1.7;margin-bottom:${state.subpoints?.length ? '14px' : '0'}">${state.headline}</div>`;
       if (state.subpoints && state.subpoints.length) {
-        html += `<div style="font-size:12px;font-weight:700;color:#94a3b8;letter-spacing:0.5px;margin-bottom:8px;padding-left:16px">${subLabel}</div>`;
+        html += `<div style="font-size:10px;font-weight:800;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;padding-left:16px">${subLabel}</div>`;
         state.subpoints.forEach((sp, i) => {
-          html += `<div style="padding-left:16px;border-left:2px solid #e2e8f0;margin-bottom:${i < state.subpoints.length-1 ? '8px' : '0'};line-height:1.5">
-            <span style="font-size:12px;font-weight:700;color:#475569;font-style:italic">${sp.label}: </span>
-            <span style="font-size:13px;color:#64748b;font-style:italic">${sp.text}</span>
+          html += `<div style="padding-left:16px;border-left:3px solid #BFDBFE;margin-bottom:${i < state.subpoints.length-1 ? '12px' : '0'};line-height:1.5">
+            <div style="font-size:13px;font-weight:800;color:#1B3A8C;margin-bottom:2px">${sp.label}</div>
+            <div style="font-size:13px;color:#64748b;font-style:italic;line-height:1.5">${sp.text}</div>
           </div>`;
         });
       }
       return html;
     };
-    const currentText = buildStateText(cur, "PAIN POINTS");
-    const futureText = buildStateText(fut, "TARGET EXPERIENCES");
+    const currentText = buildStateText(cur, "Pain Points");
+    const futureText = buildStateText(fut, "Target Experiences");
     let html = `<div class="section-subheader" style="color:#DC2626">Current State ❌</div><hr class="section-divider">`;
     html += bulletCardHTML(sec.id+"_cur", 0, currentText);
     html += `<div class="section-subheader" style="color:#059669;margin-top:16px">Future State ✅</div><hr class="section-divider">`;
@@ -1762,7 +1762,7 @@ function buildSectionHTML(sec) {
   if (c.type === "execrisk") {
     let html = "";
     c.risks.forEach((risk, i) => {
-      const levelClass = risk.level === "Low" ? "risk-low" : risk.level === "Medium" ? "risk-med" : "risk-high";
+      const levelClass = risk.level === "Low" ? "risk-low" : risk.level === "Moderate" ? "risk-med" : "risk-high";
       const riskText = `<div>
         <span class="risk-level-badge ${levelClass}">${risk.level} Risk</span>
         <div class="risk-desc">${risk.description}</div>
@@ -1802,7 +1802,7 @@ function buildSectionHTML(sec) {
       const text = typeof step === "object"
         ? `<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px">
             <span style="font-weight:700;color:#1B3A8C">${step.label}</span>
-            <span style="display:inline-flex;align-items:center;background:${ownerBg};color:${ownerColor};border:1px solid ${ownerBorder};border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;white-space:nowrap">👤 Owner: ${stepOwner}</span>
+            <span style="display:inline-flex;align-items:center;background:${ownerBg};color:${ownerColor};border:1px solid ${ownerBorder};border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;white-space:nowrap">${ownerIsBCG ? "🟣" : "🟠"} Owner: ${stepOwner}</span>
           </div>
           <span style="font-weight:400;color:#334155">${step.text}</span>`
         : step;
@@ -2864,7 +2864,7 @@ async function showPeerNudge(bulletKey, myScore) {
   const nudge = document.createElement("div");
   nudge.className = "peer-nudge show";
   let msg = "";
-  if (diff <= 0.8) msg = "👥 " + others.length + " other" + (others.length>1?"s":"") + " rated this similarly";
+  if (diff <= 0.8) msg = "🤝 " + others.length + " other" + (others.length>1?"s":"") + " rated this similarly";
   else if (parseInt(myScore) < avg) msg = "🔍 You're more positive than most on this one (" + others.length + " others rated it " + avg.toFixed(1) + "/5)";
   else msg = "🔍 You're in the minority here — " + others.length + " other" + (others.length>1?"s":"") + " rated this " + avg.toFixed(1) + "/5";
   nudge.textContent = msg;
