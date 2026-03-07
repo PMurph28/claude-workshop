@@ -256,6 +256,34 @@
   .section-label-sm { font-weight: 700; color: #475569; font-size: 18px; letter-spacing: 0.5px; margin-bottom: 14px; margin-top: 4px; }
   .placeholder-box { padding: 60px 20px; text-align: center; color: #94a3b8; }
 
+  /* ── Execution Risk & Resourcing ── */
+  .risk-level-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    border-radius: 8px; padding: 4px 12px; font-size: 12px; font-weight: 800;
+    margin-right: 10px; vertical-align: middle;
+  }
+  .risk-low  { background: #DCFCE7; color: #166534; border: 1.5px solid #86EFAC; }
+  .risk-med  { background: #FEF3C7; color: #92400E; border: 1.5px solid #FCD34D; }
+  .risk-high { background: #FEE2E2; color: #991B1B; border: 1.5px solid #FCA5A5; }
+  .risk-desc { font-size: 14px; color: #64748b; font-style: italic; margin-top: 6px; line-height: 1.5; }
+  .resource-category {
+    background: #fff; border: 1.5px solid #e2e8f0; border-radius: 14px;
+    padding: 22px 24px; margin-bottom: 16px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  }
+  .resource-title {
+    font-size: 13px; font-weight: 800; letter-spacing: 1px;
+    color: #1B3A8C; margin-bottom: 6px;
+  }
+  .resource-question {
+    font-size: 14px; color: #475569; margin-bottom: 14px; line-height: 1.5;
+  }
+  .resource-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+  .resource-tag {
+    background: #EFF6FF; color: #1B3A8C; border: 1.5px solid #BFDBFE;
+    border-radius: 20px; padding: 5px 14px; font-size: 13px; font-weight: 600;
+  }
+
   /* ── Hype Screen ── */
   #hype-screen {
     display: flex; position: fixed; inset: 0; z-index: 1000;
@@ -954,8 +982,10 @@ function placeholderSections(title) {
     { id:"fromto", label:"From → To", icon:"🔄", group:"OVERVIEW", content:{type:"placeholder"} },
     { id:"impact", label:"Impact", icon:"📊", group:"OVERVIEW", content:{type:"placeholder"} },
     { id:"interdep", label:"Interdependencies", icon:"🔗", group:"OVERVIEW", content:{type:"placeholder"} },
+    { id:"execrisk", label:"Execution Risk", icon:"⚠️", group:"OVERVIEW", content:{type:"placeholder"} },
     { id:"phasing", label:"Deliverables & Milestones", icon:"🗓️", group:"ACTION PLAN", content:{type:"placeholder"} },
     { id:"geo", label:"Geographic Responsibility", icon:"🌍", group:"ACTION PLAN", content:{type:"placeholder"} },
+    { id:"resourcing", label:"Resourcing Categories", icon:"👥", group:"ACTION PLAN", content:{type:"placeholder"} },
     { id:"owner", label:"Owner & Next Steps", icon:"👤", group:"ACTION PLAN", content:{type:"placeholder"} },
   ];
 }
@@ -1010,6 +1040,15 @@ const LEVERS = [
         }
       },
 
+      { id:"execrisk", label:"Execution Risk", icon:"⚠️", group:"OVERVIEW",
+        content:{ type:"execrisk",
+          risks:[
+            {level:"Low", description:"Platform selection risk is low given maturity of commercial KMS vendors (Guru, Bloomfire, Confluence) — off-the-shelf solutions reduce build complexity and timeline uncertainty"},
+            {level:"Moderate", description:"Content governance adoption is the primary execution risk — success depends on sustained JJMT ownership of content lifecycle, regional participation, and adherence to tagging standards across markets"}
+          ]
+        }
+      },
+
       // ── ACTION PLAN ──
       { id:"phasing", label:"Deliverables & Milestones", icon:"🗓️", group:"ACTION PLAN",
         content:{ type:"phasing",
@@ -1037,6 +1076,18 @@ const LEVERS = [
         }
       },
 
+      { id:"resourcing", label:"Resourcing Categories", icon:"👥", group:"ACTION PLAN",
+        content:{ type:"resourcing",
+          categories:[
+            {
+              title: "LABOR",
+              question: "We believe this initiative will require the involvement of:",
+              tags: ["Program Manager", "Business Analyst", "Content Architect", "KMS Platform Admin", "Regional KMS Lead"]
+            }
+          ]
+        }
+      },
+
       { id:"owner", label:"Owner & Next Steps", icon:"👤", group:"ACTION PLAN",
         content:{ type:"owner",
           owners:[
@@ -1051,15 +1102,338 @@ const LEVERS = [
       },
     ]
   },
-  { id:"ai-agent", number:1, title:"AI Agent Handling", icon:"🤖", valueProvided:"High value", valueColor:"#10B981", sections:placeholderSections("AI Agent Handling") },
+  { id:"ai-agent", number:1, title:"AI Agent Handling", icon:"🤖", valueProvided:"High value", valueColor:"#10B981",
+    sections:[
+      { id:"overview", label:"Mission Statement", icon:"🗺️", group:"OVERVIEW",
+        content:{ type:"bullets", title:"🤖 AI Agent Handling",
+          items:[{label:"Lever Outline", text:"Build voice & email-based AI agents to resolve simple inquiry types (especially manual standard orders and order status checks) prior to CSR escalation"}], starFirst:true }
+      },
+
+      { id:"fromto", label:"From → To", icon:"🔄", group:"OVERVIEW",
+        content:{ type:"fromto",
+          current:{
+            headline:"All inbound contacts — regardless of complexity — routed to human CSRs, creating avoidable queue pressure and inefficient use of skilled agent time",
+            subpoints:[
+              {label:"Capacity Drain", text:"High-volume, low-complexity contacts (order status, standard orders) consume skilled CSR time at scale"},
+              {label:"Queue Pressure", text:"No automated triage layer means demand spikes translate directly into SLA misses and wait times"}
+            ]
+          },
+          future:{
+            headline:"AI agents handle structured, repeatable inquiries end-to-end across voice and email, escalating only when complexity or risk thresholds are met",
+            subpoints:[
+              {label:"Contact Deflection", text:"Routine order status and standard order inquiries resolved without CSR involvement, at any hour"},
+              {label:"Intelligent Escalation", text:"Edge cases and high-risk contacts routed seamlessly to human agents with full context preserved"}
+            ]
+          }
+        }
+      },
+
+      { id:"impact", label:"Impact", icon:"📊", group:"OVERVIEW",
+        content:{ type:"impact", level:"High",
+          bullets:[
+            {label:"Contact Deflection", text:"Estimated 20–40% reduction in CSR-handled contacts on highest-frequency, lowest-complexity inquiry types (order status, standard order entry)"},
+            {label:"Capacity Relief", text:"Structural headcount avoidance as AI handles volume growth without proportional staffing increase"},
+            {label:"Critical Dependency", text:"Foundational to realizing full productivity gains from Unified Desktop (Lever 4) and Dynamic Routing (Lever 2) — AI triage reshapes inbound queue composition for all downstream levers"}
+          ]
+        }
+      },
+
+      { id:"interdep", label:"Interdependencies", icon:"🔗", group:"OVERVIEW",
+        content:{ type:"interdep",
+          items:[
+            {system:"Butterfly", level:"Moderate", detail:"Bot can operate via telephony layer first, but full resolution requires CRM write-backs in target taxonomy"},
+            {system:"TranSCend", level:"Moderate", detail:"Bot needs authoritative data for workflows; TranSCend stabilizes the underlying SAP data"},
+            {system:"Other Systems", level:"High", detail:"Genesys bot/IVR integration, KMS, authentication, and escalation-to-agent handoff all required"}
+          ]
+        }
+      },
+
+      { id:"execrisk", label:"Execution Risk", icon:"⚠️", group:"OVERVIEW",
+        content:{ type:"execrisk",
+          risks:[
+            {level:"High", description:"AI agent deployment requires stable ERP data layer (TranSCend) and robust Genesys integration — both represent live dependencies that could delay or degrade MVP delivery"},
+            {level:"Moderate", description:"Intent taxonomy design and escalation logic are organizationally complex — requires alignment across CS, IT, and regional ops before deployment"}
+          ]
+        }
+      },
+
+      { id:"phasing", label:"Deliverables & Milestones", icon:"🗓️", group:"ACTION PLAN",
+        content:{ type:"phasing",
+          phases:[
+            {label:"Quick Wins", items:[
+              {label:"Order Status MVP", text:"Deploy AI agent for single highest-volume use case (order status inquiry) via Genesys voice channel", date:"Target Q2 2026, read-only ERP integration to limit dependency on TranSCend stabilization"},
+              {label:"Escalation Framework", text:"Define and deploy human-in-the-loop escalation logic for all edge cases", date:"Target Q2 2026, guardrails live across clinical/regulatory topics, high-value accounts, repeat failures"}
+            ]},
+            {label:"Steady State", feature:true, items:[
+              {label:"Full Channel Coverage", text:"Voice and email AI agent coverage across top inquiry types (order status, standard order entry, shipment tracking)", date:"Target Q4 2026, all regions and channels onboarded"},
+              {label:"Write-Enabled ERP Integration", text:"Standard order creation via AI agent with full ERP write-back capability", date:"Target Q1 2027, dependent on TranSCend stabilization milestone"},
+              {label:"Dynamic Escalation Logic", text:"Account tier, topic, and failure pattern-based escalation routing live", date:"Target Q1 2027, integrated with Genesys ACD and CRM case creation"},
+              {label:"Multilingual Support", text:"AI agent handling in all primary languages across served markets", date:"Target Q2 2027, priority languages covering top 5 markets by contact volume"}
+            ]}
+          ]
+        }
+      },
+
+      { id:"geo", label:"Geographic Responsibility", icon:"🌍", group:"ACTION PLAN",
+        content:{ type:"geo",
+          items:[
+            {scope:"Global Responsibility", detail:"Core AI agent platform and intent taxonomy centrally governed and deployed across all JJMT regions"},
+            {scope:"Local Responsibility", detail:"Regional leads own localization of language models, escalation thresholds, and regulatory guardrails by market"}
+          ]
+        }
+      },
+
+      { id:"resourcing", label:"Resourcing Categories", icon:"👥", group:"ACTION PLAN",
+        content:{ type:"resourcing",
+          categories:[
+            {
+              title:"LABOR",
+              question:"We believe this initiative will require the involvement of:",
+              tags:["AI/Bot Developer", "Genesys Engineer", "Business Analyst", "Tenured CSRs", "Regional Ops Lead", "IT Integration Lead"]
+            }
+          ]
+        }
+      },
+
+      { id:"owner", label:"Owner & Next Steps", icon:"👤", group:"ACTION PLAN",
+        content:{ type:"owner",
+          owners:[
+            {role:"JJMT Owner", name:"MedTech SC — Digital Strategy & Innovation"},
+            {role:"External Support", name:"BCG"}
+          ],
+          nextSteps:[
+            {label:"Intent Taxonomy Design", text:"Define target use case scope and intent taxonomy for AI agent MVP"},
+            {label:"Platform Selection", text:"Complete Genesys integration architecture assessment and bot platform vendor selection"},
+            {label:"MVP Scoping", text:"Support business case refinement and MVP scoping workshop", owner:"BCG"}
+          ]
+        }
+      }
+    ]
+  },
   { id:"routing", number:2, title:"Dynamic Routing & Capacity", icon:"⚡", valueProvided:"High value", valueColor:"#10B981", sections:placeholderSections("Dynamic Routing & Capacity") },
-  { id:"proactive", number:3, title:"Proactive Comms", icon:"📣", valueProvided:"High value", valueColor:"#10B981", sections:placeholderSections("Proactive Comms") },
+  { id:"proactive", number:3, title:"Proactive Comms", icon:"📣", valueProvided:"High value", valueColor:"#10B981",
+    sections:[
+      { id:"overview", label:"Mission Statement", icon:"🗺️", group:"OVERVIEW",
+        content:{ type:"bullets", title:"📣 Proactive Communications",
+          items:[{label:"Lever Outline", text:"Activate event-triggered outbound notifications (shipment delays, invoice discrepancies) to prevent avoidable inbound contact demand before it reaches CSR queues"}], starFirst:true }
+      },
+
+      { id:"fromto", label:"From → To", icon:"🔄", group:"OVERVIEW",
+        content:{ type:"fromto",
+          current:{
+            headline:"Customers receive no proactive communication when order or invoice exceptions occur — issues are discovered reactively, generating avoidable inbound volume",
+            subpoints:[
+              {label:"Reactive by Design", text:"No outbound trigger mechanism exists — every exception becomes an inbound contact initiated by the customer"},
+              {label:"Avoidable Queue Load", text:"Delay and shipment inquiry types represent high-frequency, fully resolvable contacts that consume disproportionate CSR time"}
+            ]
+          },
+          future:{
+            headline:"Automated outbound notifications triggered by SAP and logistics events keep customers informed in real time, deflecting a material share of inbound inquiry volume",
+            subpoints:[
+              {label:"Proactive Transparency", text:"Customers receive branded, timely notifications at key order lifecycle moments without needing to call"},
+              {label:"Structural Deflection", text:"Delay, shipment, and invoice inquiry types shift off CSR queues permanently as trigger coverage expands"}
+            ]
+          }
+        }
+      },
+
+      { id:"impact", label:"Impact", icon:"📊", group:"OVERVIEW",
+        content:{ type:"impact", level:"High",
+          bullets:[
+            {label:"Inbound Deflection", text:"Estimated 15–30% reduction in avoidable inbound contacts on delay, shipment, and invoice inquiry types as trigger coverage scales"},
+            {label:"Customer Experience", text:"Measurable improvement in proactive resolution rate — customers informed before they identify an issue, reducing escalation likelihood"},
+            {label:"Lever Multiplier", text:"Reduces raw inbound demand handled by AI agent (Lever 1) and CSR desktop (Lever 4) — amplifying efficiency gains across the program"}
+          ]
+        }
+      },
+
+      { id:"interdep", label:"Interdependencies", icon:"🔗", group:"OVERVIEW",
+        content:{ type:"interdep",
+          items:[
+            {system:"Butterfly", level:"Moderate", detail:"Outbound orchestration logic must align to future CRM workflow design and case ownership model in Butterfly"},
+            {system:"TranSCend", level:"Moderate", detail:"Core event triggers originate in SAP and logistics execution layer — TranSCend stabilization improves reliability and timeliness of triggers"},
+            {system:"Other Systems", level:"Moderate", detail:"Email and SMS delivery platforms, eventing/middleware layer, and consent management tooling required"}
+          ]
+        }
+      },
+
+      { id:"execrisk", label:"Execution Risk", icon:"⚠️", group:"OVERVIEW",
+        content:{ type:"execrisk",
+          risks:[
+            {level:"Moderate", description:"Event trigger reliability is dependent on TranSCend stabilization — incomplete SAP data quality will generate false or delayed notifications, eroding customer trust if deployed prematurely"},
+            {level:"Low", description:"Template governance and consent management are operationally straightforward but require coordinated market-level onboarding to ensure language compliance and opt-out handling are live before go-live"}
+          ]
+        }
+      },
+
+      { id:"phasing", label:"Deliverables & Milestones", icon:"🗓️", group:"ACTION PLAN",
+        content:{ type:"phasing",
+          phases:[
+            {label:"Quick Wins", items:[
+              {label:"Shipment Delay Pilot", text:"Activate outbound email notifications for single highest-volume exception type (shipment delay) in one pilot market", date:"Target Q2 2026, manual trigger review in place before full automation"},
+              {label:"Template Library v1", text:"Standardize lifecycle communication templates for order confirmation, delay alert, and shipment dispatch event types", date:"Target Q2 2026, globally governed template set with market-level language variants"}
+            ]},
+            {label:"Steady State", feature:true, items:[
+              {label:"Full Lifecycle Coverage", text:"Outbound notification coverage across all order, shipment, and invoice event types", date:"Target Q4 2026, all regions live with real-time SAP/logistics triggers"},
+              {label:"Full Automation", text:"Real-time event triggers with no manual intervention across all active notification types", date:"Target Q4 2026, middleware integration complete and monitoring live"},
+              {label:"Multilingual Templates", text:"Full template library in all primary market languages with local content governance", date:"Target Q1 2027, priority languages covering top 5 markets by contact volume"},
+              {label:"Closed-Loop Measurement", text:"Deflection tracking connecting notification send events to inbound contact reduction", date:"Target Q1 2027, integrated into KPI reporting layer (Lever 6)"}
+            ]}
+          ]
+        }
+      },
+
+      { id:"geo", label:"Geographic Responsibility", icon:"🌍", group:"ACTION PLAN",
+        content:{ type:"geo",
+          items:[
+            {scope:"Global Responsibility", detail:"Centrally governed template library, event trigger framework, and notification standards owned by JJMT"},
+            {scope:"Local Responsibility", detail:"Market-level leads own communication content, language compliance, consent management, and opt-out handling"}
+          ]
+        }
+      },
+
+      { id:"resourcing", label:"Resourcing Categories", icon:"👥", group:"ACTION PLAN",
+        content:{ type:"resourcing",
+          categories:[
+            {
+              title:"LABOR",
+              question:"We believe this initiative will require the involvement of:",
+              tags:["Integration Engineer", "Business Analyst", "CRM/Comms Architect", "Regional Ops Lead", "Content & Localization Lead"]
+            }
+          ]
+        }
+      },
+
+      { id:"owner", label:"Owner & Next Steps", icon:"👤", group:"ACTION PLAN",
+        content:{ type:"owner",
+          owners:[
+            {role:"JJMT Owner", name:"MedTech SC — Digital Strategy & Innovation"},
+            {role:"External Support", name:"BCG"}
+          ],
+          nextSteps:[
+            {label:"Event Trigger Mapping", text:"Map top inbound contact drivers to triggerable SAP/logistics events and prioritize MVP notification type"},
+            {label:"Platform Audit", text:"Audit existing CRM workflow and email/SMS delivery capability against requirements"},
+            {label:"Pilot Design", text:"Support event trigger architecture design and pilot market selection for MVP rollout", owner:"BCG"}
+          ]
+        }
+      }
+    ]
+  },
   { id:"desktop", number:4, title:"Unified Desktop w/ AI Assistant", icon:"🖥️", valueProvided:"High value", valueColor:"#10B981", sections:placeholderSections("Unified Desktop w/ AI Assistant") },
   { id:"oti", number:5, title:"OTI Fixes", icon:"🔧", valueProvided:"Moderate value", valueColor:"#F59E0B", sections:placeholderSections("OTI Fixes") },
   { id:"kpi", number:6, title:"KPI-Oriented Perf. Mgmt.", icon:"📈", valueProvided:"Moderate value", valueColor:"#F59E0B", sections:placeholderSections("KPI-Oriented Perf. Mgmt.") },
   { id:"selfdef", number:8, title:"Improved Cust. Self-Deflection", icon:"🙋", valueProvided:"Moderate value", valueColor:"#F59E0B", sections:placeholderSections("Improved Cust. Self-Deflection") },
   { id:"process", number:9, title:"Process Optimization", icon:"⚙️", valueProvided:"Incremental value", valueColor:"#6B7280", sections:placeholderSections("Process Optimization") },
-  { id:"skillset", number:10, title:"Skillset of Future", icon:"🎓", valueProvided:"Incremental value", valueColor:"#6B7280", sections:placeholderSections("Skillset of Future") },
+  { id:"skillset", number:10, title:"Skillset of the Future", icon:"🎓", valueProvided:"Incremental value", valueColor:"#6B7280",
+    sections:[
+      { id:"overview", label:"Mission Statement", icon:"🗺️", group:"OVERVIEW",
+        content:{ type:"bullets", title:"🎓 Skillset of the Future",
+          items:[{label:"Lever Outline", text:"Establish a global CSR capability model emphasizing business context awareness, digital-first handling, and automation readiness to elevate CSR productivity and accelerate adoption of new tools and ways of working"}], starFirst:true }
+      },
+
+      { id:"fromto", label:"From → To", icon:"🔄", group:"OVERVIEW",
+        content:{ type:"fromto",
+          current:{
+            headline:"CSR capability profiles vary significantly across hubs — training is inconsistent, onboarding is lengthy, and agents are not systematically prepared for digital-first or AI-assisted ways of working",
+            subpoints:[
+              {label:"Inconsistent Enablement", text:"Long ramp of new reps driven by unstructured onboarding and reliance on peer shadowing — proficiency timelines measured in months, not weeks"},
+              {label:"Automation Readiness Gap", text:"No standardized digital-first handling standards exist — agents are underprepared to work alongside AI tools as they roll out across the program"}
+            ]
+          },
+          future:{
+            headline:"Globally consistent competency model defines what 'great' looks like at every CSR tier — structured onboarding, embedded digital guidance, and continuous upskilling prepare agents to work alongside AI tools from day one",
+            subpoints:[
+              {label:"Agent Enablement", text:"Accelerated ramp with structured, role-specific content paths replacing tribal knowledge transfer and peer shadowing"},
+              {label:"Digital Readiness", text:"CSRs equipped and confident to operate AI-assisted workflows from day one, maximizing adoption and value realization across technology levers"}
+            ]
+          }
+        }
+      },
+
+      { id:"impact", label:"Impact", icon:"📊", group:"OVERVIEW",
+        content:{ type:"impact", level:"Incremental",
+          bullets:[
+            {label:"Time-to-Proficiency", text:"Estimated 20–35% reduction in new agent ramp time through standardized onboarding curriculum and embedded competency assessments"},
+            {label:"Adoption Multiplier", text:"Accelerates effective use of high-value technology levers (Levers 1, 4, 7) — capability gaps are a leading cause of underrealization on technology investments"},
+            {label:"Quality Consistency", text:"Reduces performance variation across hubs by anchoring handling standards to a globally consistent competency framework"}
+          ]
+        }
+      },
+
+      { id:"interdep", label:"Interdependencies", icon:"🔗", group:"OVERVIEW",
+        content:{ type:"interdep",
+          items:[
+            {system:"Butterfly", level:"Low", detail:"Competency model and handling standards must align to new CRM workflow definitions as Butterfly rolls out — training content will need versioning to track platform changes"},
+            {system:"TranSCend", level:"Low", detail:"Alignment to future SAP process templates required for ERP-related handling standards — not a hard blocker for capability model design"},
+            {system:"Other Systems", level:"Low", detail:"JCC adoption, Genesys scripting, and AI assistant tooling inform training content but do not block capability model development"}
+          ]
+        }
+      },
+
+      { id:"execrisk", label:"Execution Risk", icon:"⚠️", group:"OVERVIEW",
+        content:{ type:"execrisk",
+          risks:[
+            {level:"Moderate", description:"Cross-hub adoption is the primary execution risk — globally consistent standards require sustained hub lead engagement and local champion ownership to prevent reversion to legacy training patterns"},
+            {level:"Low", description:"Content design and LMS delivery are technically straightforward — the risk is organizational, not technical. Sequencing the curriculum rollout to align with technology lever deployment (Levers 1, 4, 7) is critical to maximizing adoption multiplier effect"}
+          ]
+        }
+      },
+
+      { id:"phasing", label:"Deliverables & Milestones", icon:"🗓️", group:"ACTION PLAN",
+        content:{ type:"phasing",
+          phases:[
+            {label:"Quick Wins", items:[
+              {label:"Competency Model v1", text:"Define global competency model for core CSR tier with assessment rubric", date:"Target Q2 2026, aligned across all hub leads with sign-off from Digital Strategy & Innovation"},
+              {label:"Pilot Onboarding Curriculum", text:"Develop and deploy standardized onboarding curriculum for highest-volume hub as pilot", date:"Target Q3 2026, structured curriculum replacing unstructured shadowing for all new hires at pilot hub"},
+              {label:"Embedded Handling Standards", text:"Embed top 10 handling standard checklists and macros in CRM for immediate CSR use", date:"Target Q3 2026, live in CRM across all active hubs"}
+            ]},
+            {label:"Steady State", feature:true, items:[
+              {label:"Full Competency Coverage", text:"Competency model coverage across all CSR tiers and specialty roles globally", date:"Target Q4 2026, all hubs operating against globally consistent competency standards"},
+              {label:"Global Curriculum Rollout", text:"Standardized onboarding curriculum deployed across all hubs with localized content variants", date:"Target Q1 2027, language-adapted content live for top 5 markets by headcount"},
+              {label:"Continuous Upskilling Program", text:"Modular micro-learning curriculum aligned to technology lever rollout — updated as tools evolve", date:"Target Q1 2027, integrated into LMS with lever-sequenced release cadence"},
+              {label:"Performance Integration", text:"Competency assessment embedded into performance management and career progression frameworks", date:"Target Q2 2027, live across all hubs with manager coaching guidance"},
+              {label:"AI-Assisted Coaching", text:"Supervisor coaching recommendations surfaced based on individual CSR performance data", date:"Target Q2 2027, integrated into unified desktop (Lever 4) post steady-state rollout"}
+            ]}
+          ]
+        }
+      },
+
+      { id:"geo", label:"Geographic Responsibility", icon:"🌍", group:"ACTION PLAN",
+        content:{ type:"geo",
+          items:[
+            {scope:"Global Responsibility", detail:"Centrally governed competency model, onboarding curriculum, and handling standards owned by JJMT"},
+            {scope:"Local Responsibility", detail:"Hub-level leads own training delivery, language-adapted content, and regional process nuances within global framework guardrails"}
+          ]
+        }
+      },
+
+      { id:"resourcing", label:"Resourcing Categories", icon:"👥", group:"ACTION PLAN",
+        content:{ type:"resourcing",
+          categories:[
+            {
+              title:"LABOR",
+              question:"We believe this initiative will require the involvement of:",
+              tags:["L&D Program Manager", "Business Analyst", "Tenured CSRs", "Hub Leads", "LMS Administrator", "Regional Ops Support"]
+            }
+          ]
+        }
+      },
+
+      { id:"owner", label:"Owner & Next Steps", icon:"👤", group:"ACTION PLAN",
+        content:{ type:"owner",
+          owners:[
+            {role:"JJMT Owner", name:"MedTech SC — Digital Strategy & Innovation"},
+            {role:"External Support", name:"BCG"}
+          ],
+          nextSteps:[
+            {label:"Baseline Assessment", text:"Audit current onboarding and training approaches across hubs to baseline variation and identify quick wins"},
+            {label:"LMS Audit", text:"Assess existing LMS capability and identify gaps versus requirements for global curriculum delivery"},
+            {label:"Competency Framework Design", text:"Design global competency model framework and facilitate cross-hub alignment on handling standards", owner:"BCG"}
+          ]
+        }
+      }
+    ]
+  },
   { id:"datalake", number:11, title:"Unified Data Lake", icon:"🗄️", valueProvided:"Enabler", valueColor:"#8B5CF6", sections:placeholderSections("Unified Data Lake") },
   { id:"sysint", number:12, title:"System Integration", icon:"🔌", valueProvided:"Enabler", valueColor:"#8B5CF6", sections:placeholderSections("System Integration") },
 ];
@@ -1083,6 +1457,8 @@ const SECTION_REACTIONS = {
   "phasing_0":   ["Agree with this quick win deliverable",      "Do not agree with this quick win deliverable"],
   "phasing_1":   ["Agree with this steady state feature",       "Do not agree with this steady state feature"],
   "geo":         ["Agree with this geographic responsibility",  "Do not agree with this geographic responsibility"],
+  "execrisk":    ["Agree with this risk assessment",             "Do not agree with this risk assessment"],
+  "resourcing":  ["Agree with this resourcing requirement",      "Do not agree with this resourcing requirement"],
   "owner_own":   ["Agree with this ownership assignment",       "Do not agree with this ownership assignment"],
   "owner":       ["Agree with this next step",                  "Do not agree with this next step"],
   "phasing_timeline": ["Agree with this timeline",             "Do not agree with this timeline"],
@@ -1383,6 +1759,33 @@ function buildSectionHTML(sec) {
     });
     return html;
   }
+  if (c.type === "execrisk") {
+    let html = "";
+    c.risks.forEach((risk, i) => {
+      const levelClass = risk.level === "Low" ? "risk-low" : risk.level === "Medium" ? "risk-med" : "risk-high";
+      const riskText = `<div>
+        <span class="risk-level-badge ${levelClass}">${risk.level} Risk</span>
+        <div class="risk-desc">${risk.description}</div>
+      </div>`;
+      html += bulletCardHTML(sec.id, i, riskText);
+    });
+    return html;
+  }
+
+  if (c.type === "resourcing") {
+    let html = "";
+    c.categories.forEach((cat, ci) => {
+      const tagsHTML = cat.tags.map(t => `<span class="resource-tag">${t}</span>`).join("");
+      const catText = `<div>
+        <div class="resource-title">${cat.title}</div>
+        <div class="resource-question">${cat.question}</div>
+        <div class="resource-tags">${tagsHTML}</div>
+      </div>`;
+      html += bulletCardHTML(sec.id, ci, catText);
+    });
+    return html;
+  }
+
   if (c.type === "owner") {
     let html = `<div class="focus-badge">🎯 Focus for Live Discussion</div><div class="section-label-sm" style="margin-top:16px">OWNERS</div>`;
     c.owners.forEach((o, i) => {
@@ -1391,10 +1794,15 @@ function buildSectionHTML(sec) {
     });
     html += `<div class="section-label-sm" style="margin-top:20px">NEXT STEPS</div>`;
     c.nextSteps.forEach((step, i) => {
+      const stepOwner = step.owner || "Digital Strategy & Innovation team";
+      const ownerIsBCG = stepOwner === "BCG";
+      const ownerBg = ownerIsBCG ? "#F5F3FF" : "#EFF6FF";
+      const ownerColor = ownerIsBCG ? "#6D28D9" : "#1B3A8C";
+      const ownerBorder = ownerIsBCG ? "#DDD6FE" : "#BFDBFE";
       const text = typeof step === "object"
         ? `<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px">
             <span style="font-weight:700;color:#1B3A8C">${step.label}</span>
-            <span style="display:inline-flex;align-items:center;background:#EFF6FF;color:#1B3A8C;border:1px solid #BFDBFE;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;white-space:nowrap">👤 Owner: Digital Strategy & Innovation team</span>
+            <span style="display:inline-flex;align-items:center;background:${ownerBg};color:${ownerColor};border:1px solid ${ownerBorder};border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;white-space:nowrap">👤 Owner: ${stepOwner}</span>
           </div>
           <span style="font-weight:400;color:#334155">${step.text}</span>`
         : step;
