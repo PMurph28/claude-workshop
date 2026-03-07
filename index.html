@@ -1003,17 +1003,19 @@ const LEVERS = [
       { id:"fromto", label:"From → To", icon:"🔄", group:"OVERVIEW",
         content:{ type:"fromto",
           current:{
+            title:"Fragmented Knowledge",
             headline:"Fragmented, siloed, and often lost knowledge across teams — tribal know-how, no content lifecycle or governance",
             subpoints:[
               {label:"Inconsistent Enablement", text:"Long ramp of new reps"},
-              {label:"System Challenges", text:"Excess AHT driven by data triage, fragmented knowledge repos"}
+              {label:"System challenges", text:"Excess AHT driven by data triage, fragmented knowledge repos"}
             ]
           },
           future:{
+            title:"Unified Knowledge Layer",
             headline:"Single source of truth surfaced in real time within agent workflows across all support channels",
             subpoints:[
-              {label:"Agent Enablement", text:"Accelerated ramp with structured, role-specific content paths"},
-              {label:"Workflow Efficiency", text:"Measurable AHT reduction via AI surfaced in-call knowledge search"}
+              {label:"Agent enablement", text:"Accelerated ramp with structured, role-specific content paths"},
+              {label:"Workflow efficiency", text:"Measurable AHT reduction via AI surfaced in-call knowledge search"}
             ]
           }
         }
@@ -1112,17 +1114,19 @@ const LEVERS = [
       { id:"fromto", label:"From → To", icon:"🔄", group:"OVERVIEW",
         content:{ type:"fromto",
           current:{
+            title:"Undifferentiated Inbound Routing",
             headline:"All inbound contacts — regardless of complexity — routed to human CSRs, creating avoidable queue pressure and inefficient use of skilled agent time",
             subpoints:[
-              {label:"Capacity Drain", text:"High-volume, low-complexity contacts (order status, standard orders) consume skilled CSR time at scale"},
-              {label:"Queue Pressure", text:"No automated triage layer means demand spikes translate directly into SLA misses and wait times"}
+              {label:"Bad demand", text:"Low-complexity automatable queries (status) consume skilled CSR time at scale"},
+              {label:"Bad demand", text:"No automated triage layer means results in demand spikes increased AHT"}
             ]
           },
           future:{
+            title:"Intelligent Contact Resolution",
             headline:"AI agents handle structured, repeatable inquiries end-to-end across voice and email, escalating only when complexity or risk thresholds are met",
             subpoints:[
-              {label:"Contact Deflection", text:"Routine order status and standard order inquiries resolved without CSR involvement, at any hour"},
-              {label:"Intelligent Escalation", text:"Edge cases and high-risk contacts routed seamlessly to human agents with full context preserved"}
+              {label:"Contact deflection", text:"Routine order status and standard order inquiries resolved without CSR involvement, at any hour"},
+              {label:"Intelligent escalation", text:"Edge cases and high-risk contacts routed seamlessly to human agents with full context preserved"}
             ]
           }
         }
@@ -1221,17 +1225,18 @@ const LEVERS = [
       { id:"fromto", label:"From → To", icon:"🔄", group:"OVERVIEW",
         content:{ type:"fromto",
           current:{
+            title:"Reactive by Design",
             headline:"Customers receive no proactive communication when order or invoice exceptions occur — issues are discovered reactively, generating avoidable inbound volume",
             subpoints:[
-              {label:"Reactive by Design", text:"No outbound trigger mechanism exists — every exception becomes an inbound contact initiated by the customer"},
-              {label:"Avoidable Queue Load", text:"Delay and shipment inquiry types represent high-frequency, fully resolvable contacts that consume disproportionate CSR time"}
+              {label:"Bad demand", text:"Low-complexity automatable queries (status) consume disproportionate CSR time"}
             ]
           },
           future:{
+            title:"Proactive Event-Driven Comms",
             headline:"Automated outbound notifications triggered by SAP and logistics events keep customers informed in real time, deflecting a material share of inbound inquiry volume",
             subpoints:[
-              {label:"Proactive Transparency", text:"Customers receive branded, timely notifications at key order lifecycle moments without needing to call"},
-              {label:"Structural Deflection", text:"Delay, shipment, and invoice inquiry types shift off CSR queues permanently as trigger coverage expands"}
+              {label:"Structural deflection", text:"Delay, shipment, and invoice inquiry types shift off CSR queues"},
+              {label:"Proactive transparency", text:"Customers receive branded, timely notifications at key order lifecycle moments"}
             ]
           }
         }
@@ -1334,17 +1339,19 @@ const LEVERS = [
       { id:"fromto", label:"From → To", icon:"🔄", group:"OVERVIEW",
         content:{ type:"fromto",
           current:{
+            title:"Inconsistent Agent Readiness",
             headline:"CSR capability profiles vary significantly across hubs — training is inconsistent, onboarding is lengthy, and agents are not systematically prepared for digital-first or AI-assisted ways of working",
             subpoints:[
-              {label:"Inconsistent Enablement", text:"Long ramp of new reps driven by unstructured onboarding and reliance on peer shadowing — proficiency timelines measured in months, not weeks"},
-              {label:"Automation Readiness Gap", text:"No standardized digital-first handling standards exist — agents are underprepared to work alongside AI tools as they roll out across the program"}
+              {label:"Inconsistent enablement", text:"Long ramp of new reps driven by unstructured onboarding and reliance on peer shadowing — proficiency timelines measured in months, not weeks"},
+              {label:"Automation readiness gap", text:"No standardized digital-first handling standards exist — agents are underprepared to work alongside AI tools as they roll out across the program"}
             ]
           },
           future:{
+            title:"Global Capability Standard",
             headline:"Globally consistent competency model defines what 'great' looks like at every CSR tier — structured onboarding, embedded digital guidance, and continuous upskilling prepare agents to work alongside AI tools from day one",
             subpoints:[
-              {label:"Agent Enablement", text:"Accelerated ramp with structured, role-specific content paths replacing tribal knowledge transfer and peer shadowing"},
-              {label:"Digital Readiness", text:"CSRs equipped and confident to operate AI-assisted workflows from day one, maximizing adoption and value realization across technology levers"}
+              {label:"Agent enablement", text:"Accelerated ramp with structured, role-specific content paths replacing tribal knowledge transfer and peer shadowing"},
+              {label:"Digital readiness", text:"CSRs equipped and confident to operate AI-assisted workflows from day one, maximizing adoption and value realization across technology levers"}
             ]
           }
         }
@@ -1661,21 +1668,25 @@ function buildSectionHTML(sec) {
     const cur = c.current;
     const fut = c.future;
     const buildStateText = (state, subLabel) => {
-      // Handle both old array format and new {headline, subpoints} format
       if (Array.isArray(state)) {
         return state.map((item, i) => i === 0
           ? `<div style="margin-bottom:${state.length > 1 ? '14px' : '0'};font-size:15px;font-weight:500;color:#1e293b;line-height:1.7">${item}</div>`
           : `<div style="margin-bottom:${i < state.length-1 ? '10px' : '0'};padding-left:16px;border-left:2px solid #e2e8f0;font-size:13px;font-style:italic;color:#64748b;line-height:1.6">${item}</div>`
         ).join("");
       }
-      // New format: {headline, subpoints:[{label,text}]}
-      let html = `<div style="font-size:15px;font-weight:500;color:#1e293b;line-height:1.7;margin-bottom:${state.subpoints?.length ? '14px' : '0'}">${state.headline}</div>`;
+      // title = short 2-3 word summary above the italic headline
+      let html = "";
+      if (state.title) {
+        html += `<div style="font-size:16px;font-weight:800;color:#1B3A8C;margin-bottom:6px">${state.title}</div>`;
+      }
+      // headline = italic visionary description
+      html += `<div style="font-size:15px;font-style:italic;font-weight:500;color:#475569;line-height:1.7;margin-bottom:${state.subpoints?.length ? '16px' : '0'}">${state.headline}</div>`;
       if (state.subpoints && state.subpoints.length) {
-        html += `<div style="font-size:10px;font-weight:800;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;padding-left:16px">${subLabel}</div>`;
+        html += `<div style="font-size:10px;font-weight:800;color:#94a3b8;letter-spacing:1.5px;margin-bottom:8px">${subLabel.toUpperCase()}:</div>`;
         state.subpoints.forEach((sp, i) => {
-          html += `<div style="padding-left:16px;border-left:3px solid #BFDBFE;margin-bottom:${i < state.subpoints.length-1 ? '12px' : '0'};line-height:1.5">
-            <div style="font-size:13px;font-weight:800;color:#1B3A8C;margin-bottom:2px">${sp.label}</div>
-            <div style="font-size:13px;color:#64748b;font-style:italic;line-height:1.5">${sp.text}</div>
+          html += `<div style="margin-bottom:${i < state.subpoints.length-1 ? '8px' : '0'};line-height:1.6;font-size:13px">
+            <span style="font-weight:700;color:#1e293b">• ${sp.label}:</span>
+            <span style="color:#475569"> ${sp.text}</span>
           </div>`;
         });
       }
