@@ -2800,9 +2800,21 @@ async function showDashboard() {
   document.getElementById("btn-back").style.display = "none";
   buildLeverCarousel();
   await Promise.all([loadDashboard(), loadParticipantFeedback()]);
-  // Auto-select first lever with submissions, or first lever
-  const lever1 = LEVERS.find(l => l.number === 1) || LEVERS.slice().sort((a,b)=>a.number-b.number)[0];
-  if (lever1) selectTakeawayLever(lever1.id);
+
+  if (currentTakeawayLeverId) {
+    // Returning to dashboard — restore cached content without re-generating
+    const lever = LEVERS.find(l => l.id === currentTakeawayLeverId);
+    const titleEl = document.getElementById("lever-dropdown-title");
+    if (titleEl && lever) titleEl.textContent = lever.icon + " Lever " + lever.number + " — " + lever.title + " ▾";
+    document.querySelectorAll(".lever-dropdown-item").forEach(b => b.classList.remove("active"));
+    const activeItem = document.getElementById("carousel-" + currentTakeawayLeverId);
+    if (activeItem) activeItem.classList.add("active");
+    loadTakeawayCache(currentTakeawayLeverId);
+  } else {
+    // First open — auto-select lever 1
+    const lever1 = LEVERS.find(l => l.number === 1) || LEVERS.slice().sort((a,b)=>a.number-b.number)[0];
+    if (lever1) selectTakeawayLever(lever1.id);
+  }
 }
 
 function switchDashTab(tab) {
