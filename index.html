@@ -216,6 +216,14 @@
   }
   .ratified-textarea:focus { border-color: #6366f1; background: #fff; }
   .ratified-saved { font-size: 11px; color: #10B981; font-weight: 600; margin-top: 4px; height: 14px; }
+  .btn-ratified-ai {
+    background: linear-gradient(135deg, #6366f1 0%, #8B5CF6 100%);
+    color: #fff; border: none; border-radius: 7px;
+    padding: 4px 10px; font-size: 11px; font-weight: 700; cursor: pointer;
+    font-family: inherit; transition: opacity 0.15s; margin-bottom: 6px;
+  }
+  .btn-ratified-ai:hover { opacity: 0.85; }
+  .btn-ratified-ai:disabled { opacity: 0.5; cursor: not-allowed; }
   /* Participant feedback */
   .pf-lever-block { margin-bottom: 28px; }
   .pf-lever-header {
@@ -3072,10 +3080,10 @@ function renderProposedChanges(text) {
         "<div style='flex:1;min-width:0'>" +
           (item.section ? "<div style='display:inline-block;background:#EDE9FE;color:#6D28D9;border:1px solid #C4B5FD;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:800;letter-spacing:0.3px;margin-bottom:6px' id='proposed-section-label-" + i + "'>" + item.section + "</div>" : "") +
           "<div class='proposed-item-title'>" + item.title + "</div>" +
-          "<textarea class='proposed-edit-textarea' id='proposed-ta-" + i + "' placeholder='Edit proposed change...'>" + (item.desc || "") + "</textarea>" +
+          "<textarea class='proposed-edit-textarea' id='proposed-ta-" + i + "' oninput='showProposedSaveBtn(" + i + ")' placeholder='Edit proposed change...'>" + (item.desc || "") + "</textarea>" +
           "<div class='proposed-save-row'>" +
             "<span class='proposed-save-indicator' id='proposed-saved-" + i + "'></span>" +
-            "<button class='btn-proposed-save' onclick='saveProposedItem(" + i + ")'>Save</button>" +
+            "<button class='btn-proposed-save' id='proposed-save-btn-" + i + "' onclick='saveProposedItem(" + i + ")' style='display:none'>Save</button>" +
           "</div>" +
         "</div>" +
       "</div>" +
@@ -3084,10 +3092,13 @@ function renderProposedChanges(text) {
 
   ratifiedCol.innerHTML = proposedItems.map((item, i) => {
     const key = "ratified__" + currentTakeawayLeverId + "__" + i;
+    const section = item.section || "";
+    const title = item.title || "";
     return "<div class='ratified-item'>" +
-      "<div class='ratified-connector'>↳ " + (item.section ? item.section + " · " : "") + item.title + "</div>" +
+      "<div class='ratified-connector'>↳ " + (section ? section + " · " : "") + title + "</div>" +
+      "<button class='btn-ratified-ai' id='ratified-ai-btn-" + i + "' onclick='draftRatifiedChange(" + i + ")' data-section='" + section.replace(/"/g, "&quot;") + "' data-title='" + title.replace(/"/g, "&quot;") + "''>✨ Draft revision</button>" +
       "<textarea class='ratified-textarea' id='ratified-ta-" + i + "' data-key='" + key + "' data-idx='" + i + "'" +
-      " placeholder='Agree, modify, or reject...' oninput='scheduleRatifiedItemSave(this)'></textarea>" +
+      " placeholder='Click ✨ Draft revision to generate, or type directly...' oninput='scheduleRatifiedItemSave(this)'></textarea>" +
       "<div class='ratified-saved' id='ratified-saved-" + i + "'></div>" +
     "</div>";
   }).join("");
@@ -3095,6 +3106,103 @@ function renderProposedChanges(text) {
 }
 
 // ── Proposed changes — save + add ────────────────────────────────────────────
+// ── Extract plain text from a section content object ─────────────────────────
+function extractSectionText(sec) {
+  if (!sec) return "";
+  const c = sec.content;
+  if (!c) return "";
+  const lines = [];
+  if (c.type === "bullets") {
+    if (c.title) lines.push(c.title);
+    if (c.header) lines.push(c.header);
+    (c.items || []).forEach(item => {
+      if (typeof item === "object") lines.push(item.label + ": " + item.text);
+      else lines.push(item);
+    });
+  } else if (c.type === "fromto") {
+    const cur = c.current;
+    const fut = c.future;
+    lines.push("CURRENT STATE: " + (cur.headline || (Array.isArray(cur) ? cur[0] : "")));
+    if (cur.subpoints) cur.subpoints.forEach(sp => lines.push("  - " + sp.label + ": " + sp.text));
+    lines.push("FUTURE STATE: " + (fut.headline || (Array.isArray(fut) ? fut[0] : "")));
+    if (fut.subpoints) fut.subpoints.forEach(sp => lines.push("  - " + sp.label + ": " + sp.text));
+  } else if (c.type === "impact") {
+    lines.push("Impact level: " + c.level);
+    (c.bullets || []).forEach(b => lines.push(b.label + ": " + b.text));
+  } else if (c.type === "interdep") {
+    (c.items || []).forEach(item => lines.push(item.system + " [" + item.level + "]: " + item.detail));
+  } else if (c.type === "execrisk") {
+    (c.risks || []).forEach(r => lines.push("[" + r.level + " Risk]: " + r.description));
+  } else if (c.type === "phasing") {
+    (c.phases || []).forEach(phase => {
+      lines.push(phase.label + ":");
+      (phase.items || []).forEach(item => {
+        if (typeof item === "object") lines.push("  - " + item.label + ": " + item.text + (item.date ? " (" + item.date + ")" : ""));
+        else lines.push("  - " + item);
+      });
+    });
+  } else if (c.type === "geo") {
+    (c.items || []).forEach(item => lines.push(item.scope + ": " + item.detail));
+  } else if (c.type === "resourcing") {
+    (c.categories || []).forEach(cat => lines.push(cat.title + ": " + cat.tags.join(", ")));
+  } else if (c.type === "owner") {
+    (c.owners || []).forEach(o => lines.push(o.role + ": " + o.name));
+    const ns = c.nextSteps || {};
+    (ns.quickWins || []).forEach(s => lines.push("Quick Win: " + s.label + " — " + s.desc));
+    (ns.steadyState || []).forEach(s => lines.push("Steady State: " + s.label + " — " + s.desc));
+  }
+  return lines.join("\n");
+}
+
+async function draftRatifiedChange(idx) {
+  const ta = document.getElementById("ratified-ta-" + idx);
+  const btn = document.getElementById("ratified-ai-btn-" + idx);
+  const proposedTa = document.getElementById("proposed-ta-" + idx);
+  const sectionName = btn ? (btn.dataset.section || "") : "";
+  const changeTitle = btn ? (btn.dataset.title || "") : "";
+  if (!ta || !currentTakeawayLeverId) return;
+
+  btn.disabled = true; btn.textContent = "⏳";
+  ta.value = ""; ta.placeholder = "Generating revision...";
+
+  const lever = LEVERS.find(l => l.id === currentTakeawayLeverId);
+  const sec = lever ? lever.sections.find(s => s.label === sectionName) : null;
+  const currentContent = extractSectionText(sec);
+  const proposedChange = proposedTa ? proposedTa.value.trim() : changeTitle;
+
+  const prompt = "You are helping refine the charter for JJMT MedTech CS lever: " + (lever ? lever.title : "") + ".\n\n" +
+    "CHARTER SECTION: " + sectionName + "\n" +
+    "CURRENT CONTENT:\n" + (currentContent || "(no content yet)") + "\n\n" +
+    "PROPOSED CHANGE:\n" + proposedChange + "\n\n" +
+    "Write a revised version of the " + sectionName + " section content that incorporates the proposed change. " +
+    "Keep the same structure and tone as the original. Be concise and direct. " +
+    "Output only the revised section text — no labels, no preamble.";
+
+  try {
+    const res = await fetch(SUPABASE_URL + "/functions/v1/ai-summary", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + SUPABASE_KEY },
+      body: JSON.stringify({ prompt })
+    });
+    const data = await res.json();
+    if (!data.choices || !data.choices[0]) throw new Error("No response");
+    ta.value = data.choices[0].message.content.trim();
+    ta.placeholder = "Click ✨ Draft revision to generate, or type directly...";
+    // Trigger autosave
+    scheduleRatifiedItemSave(ta);
+  } catch(e) {
+    ta.value = "";
+    ta.placeholder = "Error generating — type manually.";
+  } finally {
+    btn.disabled = false; btn.textContent = "✨ Draft revision";
+  }
+}
+
+function showProposedSaveBtn(idx) {
+  const btn = document.getElementById("proposed-save-btn-" + idx);
+  if (btn) btn.style.display = "inline-block";
+}
+
 async function saveProposedItem(idx) {
   const ta = document.getElementById("proposed-ta-" + idx);
   if (!ta || !currentTakeawayLeverId) return;
@@ -3109,6 +3217,9 @@ async function saveProposedItem(idx) {
   });
   const ind = document.getElementById("proposed-saved-" + idx);
   if (ind) { ind.textContent = "✓ Saved"; setTimeout(() => { ind.textContent = ""; }, 2000); }
+  // Hide save button until next edit
+  const btn = document.getElementById("proposed-save-btn-" + idx);
+  if (btn) btn.style.display = "none";
 }
 
 let _proposedCount = 0; // track total items including manually added
@@ -3137,10 +3248,10 @@ function addProposedItem() {
           CHARTER_SECTIONS.map(s => "<option value='" + s + "'>" + s + "</option>").join("") +
         "</select>" +
         "<input class='proposed-title-input' id='proposed-title-" + i + "' placeholder='2-3 word title...' />" +
-        "<textarea class='proposed-edit-textarea' id='proposed-ta-" + i + "' placeholder='Describe the proposed change (7-12 words)...'></textarea>" +
+        "<textarea class='proposed-edit-textarea' id='proposed-ta-" + i + "' oninput='showProposedSaveBtn(" + i + ")' placeholder='Describe the proposed change (7-12 words)...'></textarea>" +
         "<div class='proposed-save-row'>" +
           "<span class='proposed-save-indicator' id='proposed-saved-" + i + "'></span>" +
-          "<button class='btn-proposed-save' onclick='saveProposedItem(" + i + ")'>Save</button>" +
+          "<button class='btn-proposed-save' id='proposed-save-btn-" + i + "' onclick='saveProposedItem(" + i + ")' style='display:none'>Save</button>" +
         "</div>" +
       "</div>" +
     "</div>";
