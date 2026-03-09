@@ -40,6 +40,85 @@
 
   /* ── Dashboard ── */
   #dashboard-screen { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #f1f5f9; font-family: "Segoe UI", system-ui, sans-serif; overflow-y: auto; z-index: 100; }
+  /* Dashboard tabs */
+  .dash-tab-ribbon {
+    display: flex; gap: 0; border-bottom: 2px solid #e2e8f0;
+    margin-bottom: 28px; background: #fff;
+    margin-left: -28px; margin-right: -28px; padding: 0 28px;
+  }
+  .dash-tab {
+    padding: 14px 24px; font-size: 14px; font-weight: 700;
+    color: #64748b; cursor: pointer; border-bottom: 3px solid transparent;
+    margin-bottom: -2px; transition: all 0.15s; white-space: nowrap;
+  }
+  .dash-tab:hover { color: #1B3A8C; }
+  .dash-tab.active { color: #1B3A8C; border-bottom-color: #1B3A8C; }
+  /* Lever carousel */
+  .lever-carousel {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .lever-carousel-btn {
+    background: #fff; border: 1.5px solid #e2e8f0; border-radius: 20px;
+    padding: 6px 16px; font-size: 13px; font-weight: 600; color: #475569;
+    cursor: pointer; font-family: inherit; transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .lever-carousel-btn:hover { border-color: #1B3A8C; color: #1B3A8C; }
+  .lever-carousel-btn.active { background: #1B3A8C; color: #fff; border-color: #1B3A8C; }
+  /* Takeaway 3-col grid */
+  .takeaway-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; align-items: start;
+  }
+  .takeaway-col {
+    background: #fff; border-radius: 14px; border: 1.5px solid #e2e8f0;
+    padding: 22px 24px; min-height: 300px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .takeaway-col-title {
+    font-size: 13px; font-weight: 800; letter-spacing: 1px;
+    margin-bottom: 16px; display: flex; align-items: center;
+    justify-content: space-between; gap: 8px;
+  }
+  .takeaway-empty { color: #94a3b8; font-size: 13px; font-style: italic; }
+  .feedback-item {
+    padding: 12px 0; border-bottom: 1px solid #f1f5f9;
+    font-size: 14px; color: #334155; line-height: 1.5;
+  }
+  .feedback-item:last-child { border-bottom: none; }
+  .feedback-contributors {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;
+  }
+  .feedback-contributor {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 20px;
+    padding: 2px 8px; font-size: 11px; color: #64748b; font-weight: 600;
+  }
+  .ratified-textarea {
+    width: 100%; border: 1.5px solid #e2e8f0; border-radius: 10px;
+    padding: 12px; font-size: 13px; resize: vertical; min-height: 220px;
+    outline: none; line-height: 1.6; color: #334155; background: #f8fafc;
+    font-family: inherit; transition: border-color 0.2s, background 0.2s;
+    box-sizing: border-box;
+  }
+  .ratified-textarea:focus { border-color: #1B3A8C; background: #fff; }
+  .ratified-saved { font-size: 11px; color: #10B981; font-weight: 600; margin-top: 6px; height: 16px; }
+  /* Participant feedback */
+  .pf-lever-block { margin-bottom: 28px; }
+  .pf-lever-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0;
+  }
+  .pf-section-label {
+    font-size: 10px; font-weight: 800; letter-spacing: 1.5px;
+    color: #94a3b8; text-transform: uppercase; margin: 14px 0 8px;
+  }
+  .pf-comment-row {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 10px 0; border-bottom: 1px solid #f8fafc;
+    font-size: 13px; color: #334155; line-height: 1.5;
+  }
+  .pf-comment-row:last-child { border-bottom: none; }
   .dashboard-body { max-width: 1200px; margin: 0 auto; padding: 32px 28px; }
   .dashboard-cols { display: flex; flex-direction: column; gap: 24px; }
   .dashboard-col-header {
@@ -906,39 +985,82 @@
       <div class="top-bar-title">Facilitator Dashboard</div>
     </div>
     <div class="top-bar-actions">
-      <button class="btn-ghost" onclick="loadDashboard()" style="margin-right:4px">↻ Refresh</button>
       <button class="btn-ghost" onclick="showWordCloud()" style="margin-right:4px">☁️ Word Cloud</button>
       <button class="btn-ghost" onclick="hideDashboard()">← Back to Levers</button>
     </div>
   </div>
   <div class="dashboard-body">
 
-    <!-- Section 1: AI Discussion Topics (full width, top) -->
-    <div class="ai-summary-section" style="margin-bottom:24px">
-      <div class="ai-summary-header">
-        <div class="ai-summary-title">🗣️ AI-Generated Discussion Topics</div>
-        <button class="btn-generate-ai" id="btn-disc-topics" onclick="generateDiscussionTopics()">
-          ✨ Generate
-        </button>
-      </div>
-      <div style="font-size:13px;color:#94a3b8;margin-bottom:14px">Up to 5 topics per lever, each with a clear next step decision</div>
-      <!-- Lever filter -->
-      <div class="lever-filter-row" id="lever-filter-row" style="display:none"></div>
-      <div class="ai-thinking" id="disc-topics-loading" style="display:none">
-        <div class="ai-spinner" style="border-top-color:#8B5CF6"></div>
-        Generating discussion topics...
-      </div>
-      <div id="disc-topics-list"><div class="dash-empty">Click ✨ Generate to produce lever-specific discussion topics from all participant comments.</div></div>
+    <!-- Tab ribbon -->
+    <div class="dash-tab-ribbon">
+      <div class="dash-tab active" id="tab-takeaway" onclick="switchDashTab('takeaway')">📋 Takeaway Summary</div>
+      <div class="dash-tab" id="tab-participants" onclick="switchDashTab('participants')">💬 Participant Feedback</div>
+      <div class="dash-tab" id="tab-topics" onclick="switchDashTab('topics')">🗣️ Discussion Topics</div>
     </div>
 
-    <!-- Section 2: Comments (full width, below) -->
-    <div id="dash-loading" class="dash-loading">Loading submissions...</div>
-    <div id="dash-content" style="display:none">
-      <div class="dashboard-col-header" style="margin-bottom:16px">
-        💬 COMMENTS <span id="dash-qc-count" style="background:#e2e8f0;color:#475569;border-radius:10px;padding:1px 8px;font-size:11px;margin-left:6px"></span>
+    <!-- ── TAB 1: Takeaway Summary ── -->
+    <div id="dash-tab-takeaway">
+      <!-- Lever carousel -->
+      <div class="lever-carousel" id="takeaway-lever-carousel"></div>
+      <!-- Loading -->
+      <div class="dash-loading" id="takeaway-loading" style="display:none">
+        <div class="ai-spinner"></div> Generating summary...
       </div>
-      <div id="dash-qc-list"></div>
+      <!-- 3-col grid -->
+      <div class="takeaway-grid" id="takeaway-grid">
+        <div class="takeaway-col">
+          <div class="takeaway-col-title" style="color:#1B3A8C">
+            🧠 Key Feedback
+            <button onclick="refreshTakeaway()" style="background:none;border:none;font-size:12px;color:#94a3b8;cursor:pointer;font-family:inherit;font-weight:600">↻ Refresh</button>
+          </div>
+          <div id="takeaway-feedback"><div class="takeaway-empty">Select a lever to generate feedback summary.</div></div>
+        </div>
+        <div class="takeaway-col">
+          <div class="takeaway-col-title" style="color:#8B5CF6">💡 Proposed Changes</div>
+          <div id="takeaway-proposed"><div class="takeaway-empty">Generated from Key Feedback.</div></div>
+        </div>
+        <div class="takeaway-col">
+          <div class="takeaway-col-title" style="color:#10B981">
+            ✅ Ratified Changes
+            <span id="ratified-saved-indicator" class="ratified-saved"></span>
+          </div>
+          <textarea class="ratified-textarea" id="ratified-textarea"
+            placeholder="Record agreed changes here during the live session..."
+            oninput="scheduleRatifiedSave()"></textarea>
+        </div>
+      </div>
     </div>
+
+    <!-- ── TAB 2: Participant Feedback ── -->
+    <div id="dash-tab-participants" style="display:none">
+      <div id="pf-loading" class="dash-loading" style="display:none"><div class="ai-spinner"></div> Loading...</div>
+      <div id="pf-content"></div>
+    </div>
+
+    <!-- ── TAB 3: Discussion Topics (existing) ── -->
+    <div id="dash-tab-topics" style="display:none">
+      <div class="ai-summary-section" style="margin-bottom:24px">
+        <div class="ai-summary-header">
+          <div class="ai-summary-title">🗣️ AI-Generated Discussion Topics</div>
+          <button class="btn-generate-ai" id="btn-disc-topics" onclick="generateDiscussionTopics()">✨ Generate</button>
+        </div>
+        <div style="font-size:13px;color:#94a3b8;margin-bottom:14px">Up to 5 topics per lever, each with a clear next step decision</div>
+        <div class="lever-filter-row" id="lever-filter-row" style="display:none"></div>
+        <div class="ai-thinking" id="disc-topics-loading" style="display:none">
+          <div class="ai-spinner" style="border-top-color:#8B5CF6"></div>
+          Generating discussion topics...
+        </div>
+        <div id="disc-topics-list"><div class="dash-empty">Click ✨ Generate to produce lever-specific discussion topics from all participant comments.</div></div>
+      </div>
+      <div id="dash-loading" class="dash-loading">Loading submissions...</div>
+      <div id="dash-content" style="display:none">
+        <div class="dashboard-col-header" style="margin-bottom:16px">
+          💬 COMMENTS <span id="dash-qc-count" style="background:#e2e8f0;color:#475569;border-radius:10px;padding:1px 8px;font-size:11px;margin-left:6px"></span>
+        </div>
+        <div id="dash-qc-list"></div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -1602,11 +1724,34 @@ async function enterWorkshop() {
   </div>`;
   document.body.appendChild(overlay);
 
-  // Minimum 1s spinner so it never flashes
-  const [priorVotes] = await Promise.all([
-    sbReq("GET", "votes?user_name=eq." + enc(currentUser) + "&select=*", null).then(r => r || []),
-    new Promise(res => setTimeout(res, 1000))
-  ]);
+  // Try to fetch prior votes — fall through immediately on any error or timeout
+  let priorVotes = [];
+  try {
+    const fetchWithTimeout = Promise.race([
+      sbReq("GET", "votes?user_name=eq." + enc(currentUser) + "&select=*", null).then(r => r || []),
+      new Promise(res => setTimeout(() => res(null), 4000))
+    ]);
+    await new Promise(res => setTimeout(res, 1000)); // min 1s spinner
+    const result = await fetchWithTimeout;
+    priorVotes = result || [];
+  } catch(e) {
+    // No connection — skip straight in
+    overlay.remove();
+    document.getElementById("login-screen").style.display = "none";
+    document.getElementById("app-screen").style.display = "block";
+    document.getElementById("user-greeting").textContent = "Welcome, " + currentUser + "!";
+    renderLeverList();
+    return;
+  }
+
+  if (priorVotes === null) {
+    overlay.remove();
+    document.getElementById("login-screen").style.display = "none";
+    document.getElementById("app-screen").style.display = "block";
+    document.getElementById("user-greeting").textContent = "Welcome, " + currentUser + "!";
+    renderLeverList();
+    return;
+  }
 
   allVotes = priorVotes;
 
@@ -2562,12 +2707,256 @@ function showRapidComplete() {
 }
 
 // ── Dashboard ──────────────────────────────────────────────────────────────────
+// ── Dashboard tab state ───────────────────────────────────────────────────────
+let currentDashTab = "takeaway";
+let currentTakeawayLeverId = null;
+let ratifiedSaveTimer = null;
+let allVotesCache = [];
+
 async function showDashboard() {
   document.getElementById("lever-list").style.display = "none";
   document.getElementById("dashboard-screen").style.display = "block";
   document.getElementById("btn-dashboard").style.display = "none";
   document.getElementById("btn-back").style.display = "none";
-  await loadDashboard();
+  buildLeverCarousel();
+  await Promise.all([loadDashboard(), loadParticipantFeedback()]);
+  // Auto-select first lever with submissions, or first lever
+  const firstLever = LEVERS.slice().sort((a,b)=>a.number-b.number)[0];
+  if (firstLever) selectTakeawayLever(firstLever.id);
+}
+
+function switchDashTab(tab) {
+  currentDashTab = tab;
+  ["takeaway","participants","topics"].forEach(t => {
+    document.getElementById("dash-tab-" + t).style.display = t === tab ? "block" : "none";
+    document.getElementById("tab-" + t).classList.toggle("active", t === tab);
+  });
+}
+
+// ── Lever carousel ─────────────────────────────────────────────────────────────
+function buildLeverCarousel() {
+  const carousel = document.getElementById("takeaway-lever-carousel");
+  const sorted = [...LEVERS].sort((a,b) => a.number - b.number);
+  carousel.innerHTML = sorted.map(l =>
+    `<button class="lever-carousel-btn" id="carousel-${l.id}" onclick="selectTakeawayLever('${l.id}')">
+      ${l.icon} Lever ${l.number}
+    </button>`
+  ).join("");
+}
+
+async function selectTakeawayLever(leverId) {
+  currentTakeawayLeverId = leverId;
+  // Update carousel active state
+  document.querySelectorAll(".lever-carousel-btn").forEach(b => b.classList.remove("active"));
+  const btn = document.getElementById("carousel-" + leverId);
+  if (btn) { btn.classList.add("active"); btn.scrollIntoView({behavior:"smooth", block:"nearest", inline:"center"}); }
+  // Load ratified text for this lever
+  loadRatifiedText(leverId);
+  // Generate AI feedback
+  await generateTakeawayForLever(leverId);
+}
+
+async function refreshTakeaway() {
+  if (currentTakeawayLeverId) await generateTakeawayForLever(currentTakeawayLeverId);
+}
+
+// ── Takeaway AI generation ─────────────────────────────────────────────────────
+async function generateTakeawayForLever(leverId) {
+  const lever = LEVERS.find(l => l.id === leverId);
+  if (!lever) return;
+
+  document.getElementById("takeaway-loading").style.display = "flex";
+  document.getElementById("takeaway-feedback").innerHTML = "";
+  document.getElementById("takeaway-proposed").innerHTML = "";
+
+  // Fetch all votes with notes for this lever
+  const rows = await sbReq("GET", "votes?lever_id=eq." + encodeURIComponent(leverId) + "&note=not.is.null&select=*", null) || [];
+  const votes = rows.filter(v => v.note && v.note.trim());
+
+  if (votes.length === 0) {
+    document.getElementById("takeaway-loading").style.display = "none";
+    document.getElementById("takeaway-feedback").innerHTML = "<div class='takeaway-empty'>No comments yet for this lever.</div>";
+    document.getElementById("takeaway-proposed").innerHTML = "<div class='takeaway-empty'>No feedback to translate yet.</div>";
+    return;
+  }
+
+  // Build prompt
+  const commentLines = votes.map(v => {
+    const parts = (v.bullet_key || "").split("__");
+    const subKey = parts[1] || v.section_key || "";
+    const sec = lever.sections.find(s => subKey === s.id || subKey.startsWith(s.id));
+    const secLabel = sec ? sec.label : subKey;
+    const [al, dl] = getReactionLabels(subKey);
+    const scoreLabel = !isNaN(parseInt(v.reaction)) ? getLikertLabel(parseInt(v.reaction), al, dl) : "";
+    return v.user_name + " [" + secLabel + (scoreLabel ? ", " + scoreLabel : "") + "]: " + v.note;
+  }).join("\n");
+
+  const prompt = "You are summarising workshop feedback for the JJMT MedTech CS lever: " + lever.title + ".\n\n" +
+    "PARTICIPANT COMMENTS:\n" + commentLines + "\n\n" +
+    "Produce TWO sections:\n\n" +
+    "KEY FEEDBACK\n" +
+    "Condense into 4-5 distinct feedback themes. For each theme, list the contributor names in brackets.\n" +
+    "Format each as:\n" +
+    "THEME: [theme statement]\n" +
+    "CONTRIBUTORS: [name1, name2]\n\n" +
+    "PROPOSED CHANGES\n" +
+    "For each Key Feedback theme, write one concise proposed charter change (action verb, max 20 words).\n" +
+    "Format each as:\n" +
+    "CHANGE: [proposed change]\n\n" +
+    "No other text.";
+
+  try {
+    const res = await fetch(SUPABASE_URL + "/functions/v1/ai-summary", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + SUPABASE_KEY },
+      body: JSON.stringify({ prompt })
+    });
+    const data = await res.json();
+    if (!data.choices || !data.choices[0]) throw new Error("No response");
+    const text = data.choices[0].message.content;
+    renderTakeaway(text);
+  } catch(e) {
+    document.getElementById("takeaway-feedback").innerHTML = "<div class='ai-error'>⚠️ " + e.message + "</div>";
+  } finally {
+    document.getElementById("takeaway-loading").style.display = "none";
+  }
+}
+
+function renderTakeaway(text) {
+  const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
+  const feedbackItems = [], proposedItems = [];
+  let inKey = false, inProposed = false;
+  let currentTheme = null, currentContribs = "";
+
+  lines.forEach(line => {
+    if (line === "KEY FEEDBACK") { inKey = true; inProposed = false; return; }
+    if (line === "PROPOSED CHANGES") { inKey = false; inProposed = true; return; }
+    if (inKey) {
+      if (line.startsWith("THEME:")) {
+        if (currentTheme) feedbackItems.push({ theme: currentTheme, contribs: currentContribs });
+        currentTheme = line.replace("THEME:", "").trim();
+        currentContribs = "";
+      } else if (line.startsWith("CONTRIBUTORS:")) {
+        currentContribs = line.replace("CONTRIBUTORS:", "").trim();
+      }
+    }
+    if (inProposed && line.startsWith("CHANGE:")) {
+      proposedItems.push(line.replace("CHANGE:", "").trim());
+    }
+  });
+  if (currentTheme) feedbackItems.push({ theme: currentTheme, contribs: currentContribs });
+
+  document.getElementById("takeaway-feedback").innerHTML = feedbackItems.length === 0
+    ? "<div class='takeaway-empty'>No themes extracted.</div>"
+    : feedbackItems.map((item, i) => {
+        const names = item.contribs ? item.contribs.split(",").map(n => n.trim()).filter(Boolean) : [];
+        return "<div class='feedback-item'>" +
+          "<div style='font-size:14px;color:#1e293b;line-height:1.5;margin-bottom:6px'>" + boldMarkdown(item.theme) + "</div>" +
+          (names.length ? "<div class='feedback-contributors'>" + names.map(n =>
+            "<span class='feedback-contributor'><span class='dash-avatar' style='width:18px;height:18px;font-size:9px'>" + n[0].toUpperCase() + "</span>" + n + "</span>"
+          ).join("") + "</div>" : "") +
+          "</div>";
+      }).join("");
+
+  document.getElementById("takeaway-proposed").innerHTML = proposedItems.length === 0
+    ? "<div class='takeaway-empty'>No proposed changes extracted.</div>"
+    : proposedItems.map((item, i) =>
+        "<div class='feedback-item'>" +
+          "<div style='display:flex;align-items:flex-start;gap:10px'>" +
+            "<span style='flex-shrink:0;width:20px;height:20px;border-radius:50%;background:#8B5CF6;color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:2px'>" + (i+1) + "</span>" +
+            "<div style='font-size:14px;color:#334155;line-height:1.5'>" + boldMarkdown(item) + "</div>" +
+          "</div>" +
+        "</div>"
+      ).join("");
+}
+
+// ── Ratified changes — save to Supabase ───────────────────────────────────────
+function scheduleRatifiedSave() {
+  clearTimeout(ratifiedSaveTimer);
+  ratifiedSaveTimer = setTimeout(() => saveRatifiedText(), 1500);
+}
+
+async function saveRatifiedText() {
+  if (!currentTakeawayLeverId) return;
+  const text = document.getElementById("ratified-textarea").value;
+  const key = "ratified__" + currentTakeawayLeverId;
+  await upsertVote({
+    user_name: "FACILITATOR",
+    lever_id: currentTakeawayLeverId,
+    section_key: "ratified",
+    bullet_key: key,
+    reaction: "Ratified",
+    note: text
+  });
+  const ind = document.getElementById("ratified-saved-indicator");
+  if (ind) { ind.textContent = "✓ Saved"; setTimeout(() => { ind.textContent = ""; }, 2000); }
+}
+
+async function loadRatifiedText(leverId) {
+  const key = "ratified__" + leverId;
+  const rows = await sbReq("GET", "votes?user_name=eq.FACILITATOR&bullet_key=eq." + encodeURIComponent(key) + "&select=note", null);
+  const ta = document.getElementById("ratified-textarea");
+  if (ta) ta.value = (rows && rows[0] && rows[0].note) ? rows[0].note : "";
+}
+
+// ── Participant Feedback tab ───────────────────────────────────────────────────
+async function loadParticipantFeedback() {
+  const el = document.getElementById("pf-content");
+  document.getElementById("pf-loading").style.display = "flex";
+  el.innerHTML = "";
+
+  const rows = await sbReq("GET", "votes?note=not.is.null&select=*&order=created_at.asc", null) || [];
+  const votes = rows.filter(v => v.note && v.note.trim() && v.user_name !== "FACILITATOR");
+
+  document.getElementById("pf-loading").style.display = "none";
+
+  if (votes.length === 0) {
+    el.innerHTML = "<div class='takeaway-empty' style='padding:32px 0'>No participant comments yet.</div>";
+    return;
+  }
+
+  // Group by lever, then by section
+  const byLever = {};
+  votes.forEach(v => {
+    const lever = LEVERS.find(l => l.id === v.lever_id);
+    const leverKey = v.lever_id;
+    const leverTitle = lever ? "Lever " + lever.number + " — " + lever.title : v.lever_id;
+    if (!byLever[leverKey]) byLever[leverKey] = { title: leverTitle, number: lever ? lever.number : 99, sections: {} };
+    const parts = (v.bullet_key || "").split("__");
+    const subKey = parts[1] || v.section_key || "general";
+    const sec = lever ? lever.sections.find(s => subKey === s.id || subKey.startsWith(s.id)) : null;
+    const secLabel = sec ? sec.label : subKey;
+    if (!byLever[leverKey].sections[secLabel]) byLever[leverKey].sections[secLabel] = [];
+    byLever[leverKey].sections[secLabel].push(v);
+  });
+
+  const sorted = Object.values(byLever).sort((a,b) => a.number - b.number);
+  el.innerHTML = sorted.map(lev => {
+    const lever = LEVERS.find(l => l.number === lev.number);
+    const sectionsHTML = Object.entries(lev.sections).map(([secLabel, svotes]) => {
+      const rows = svotes.map(v => {
+        const scoreNum = parseInt(v.reaction);
+        const isLikert = !isNaN(scoreNum);
+        const [al, dl] = getReactionLabels(v.section_key || "");
+        const scoreStr = isLikert ? getLikertLabel(scoreNum, al, dl) + " (" + scoreNum + "/5)" : "";
+        return "<div class='pf-comment-row'>" +
+          "<span class='dash-avatar' style='flex-shrink:0'>" + (v.user_name||"?")[0].toUpperCase() + "</span>" +
+          "<div style='flex:1'>" +
+            "<div style='font-size:12px;font-weight:700;color:#475569;margin-bottom:2px'>" + v.user_name + (scoreStr ? " · <span style='color:" + getLikertColor(scoreNum) + "'>" + scoreStr + "</span>" : "") + "</div>" +
+            "<div>" + escHtml(v.note) + "</div>" +
+          "</div>" +
+        "</div>";
+      }).join("");
+      return "<div class='pf-section-label'>" + secLabel + "</div>" + rows;
+    }).join("");
+    return "<div class='pf-lever-block'>" +
+      "<div class='pf-lever-header'>" +
+        "<span style='font-size:20px'>" + (lever ? lever.icon : "📋") + "</span>" +
+        "<div style='font-size:16px;font-weight:800;color:#1e293b'>" + lev.title + "</div>" +
+      "</div>" +
+      sectionsHTML +
+    "</div>";
+  }).join("");
 }
 
 function hideDashboard() {
