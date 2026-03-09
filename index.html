@@ -2896,14 +2896,52 @@ async function selectTakeawayLever(leverId) {
   document.querySelectorAll(".lever-dropdown-item").forEach(b => b.classList.remove("active"));
   const item = document.getElementById("carousel-" + leverId);
   if (item) item.classList.add("active");
-  // Load ratified text for this lever
-  loadRatifiedText(leverId);
-  // Generate AI feedback
-  await generateTakeawayForLever(leverId);
+
+  // Try loading from cache first
+  const loaded = await loadTakeawayCache(leverId);
+  if (!loaded) {
+    // No cache — generate fresh
+    await generateTakeawayForLever(leverId);
+  }
+}
+
+async function loadTakeawayCache(leverId) {
+  document.getElementById("takeaway-loading").style.display = "flex";
+
+  // Fetch all cached rows for this lever in one call
+  const rows = await sbReq("GET",
+    "votes?user_name=eq.FACILITATOR&lever_id=eq." + encodeURIComponent(leverId) +
+    "&section_key=eq.takeaway_cache&select=bullet_key,note,reaction", null) || [];
+
+  const fbRow = rows.find(r => r.bullet_key === "feedback__" + leverId);
+  const prRow = rows.find(r => r.bullet_key === "proposed__cache__" + leverId);
+
+  document.getElementById("takeaway-loading").style.display = "none";
+
+  if (!fbRow) return false; // nothing cached
+
+  // Restore Key Feedback
+  renderKeyFeedback(fbRow.note);
+
+  // Restore Proposed Changes if cached
+  if (prRow) {
+    renderProposedChanges(prRow.note);
+  } else {
+    document.getElementById("takeaway-proposed").innerHTML =
+      "<div class='takeaway-empty'>Generate Key Feedback first, then click ✨ Generate.</div>";
+    document.getElementById("ratified-items-col").innerHTML =
+      "<div class='takeaway-empty'>No proposed changes yet.</div>";
+  }
+
+  return true;
 }
 
 async function refreshTakeaway() {
-  if (currentTakeawayLeverId) await generateTakeawayForLever(currentTakeawayLeverId);
+  if (!currentTakeawayLeverId) return;
+  // Clear cache so fresh content is saved
+  await sbReq("DELETE", "votes?user_name=eq.FACILITATOR&lever_id=eq." +
+    encodeURIComponent(currentTakeawayLeverId) + "&section_key=eq.takeaway_cache", null);
+  await generateTakeawayForLever(currentTakeawayLeverId);
 }
 
 // ── Takeaway AI generation ─────────────────────────────────────────────────────
@@ -3003,7 +3041,11 @@ async function generateProposedChanges() {
     });
     const data = await res.json();
     if (!data.choices || !data.choices[0]) throw new Error("No response");
-    renderProposedChanges(data.choices[0].message.content);
+    const rawProposed = data.choices[0].message.content;
+    renderProposedChanges(rawProposed);
+    // Cache to Supabase
+    upsertVote({ user_name:"FACILITATOR", lever_id:currentTakeawayLeverId, section_key:"takeaway_cache",
+      bullet_key:"proposed__cache__" + currentTakeawayLeverId, reaction:"Cache", note:rawProposed });
   } catch(e) {
     document.getElementById("takeaway-proposed").innerHTML = "<div class='ai-error'>⚠️ " + e.message + "</div>";
   } finally {
