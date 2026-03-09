@@ -101,19 +101,18 @@
   }
   .takeaway-right-cols {
     display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+    border: 1.5px solid #e2e8f0; border-radius: 14px; overflow: hidden;
   }
   .takeaway-col-feedback {
     background: #F0F4FF; border-radius: 14px; border: 1.5px solid #BFDBFE;
     padding: 22px 24px; min-height: 300px;
   }
   .takeaway-col-proposed {
-    background: #fff; border-radius: 14px 0 0 14px;
-    border: 1.5px solid #e2e8f0; border-right: none;
+    background: #fff; border-right: 1px dashed #c7d2fe;
     padding: 22px 20px; min-height: 300px;
   }
   .takeaway-col-ratified {
-    background: #fff; border-radius: 0 14px 14px 0;
-    border: 1.5px solid #e2e8f0; border-left: 1px dashed #c7d2fe;
+    background: #fff;
     padding: 22px 20px; min-height: 300px;
   }
   .takeaway-col-title {
@@ -147,6 +146,7 @@
   }
   .proposed-item {
     padding: 14px 0; border-bottom: 1px solid #f1f5f9;
+    min-height: 90px;
   }
   .proposed-item:last-child { border-bottom: none; }
   .proposed-item-title {
@@ -157,7 +157,7 @@
   }
   .ratified-item {
     padding: 14px 0; border-bottom: 1px solid #f1f5f9;
-    display: flex; flex-direction: column;
+    display: flex; flex-direction: column; min-height: 90px;
   }
   .ratified-item:last-child { border-bottom: none; }
   .ratified-connector {
@@ -2787,8 +2787,8 @@ async function showDashboard() {
   buildLeverCarousel();
   await Promise.all([loadDashboard(), loadParticipantFeedback()]);
   // Auto-select first lever with submissions, or first lever
-  const firstLever = LEVERS.slice().sort((a,b)=>a.number-b.number)[0];
-  if (firstLever) selectTakeawayLever(firstLever.id);
+  const lever1 = LEVERS.find(l => l.number === 1) || LEVERS.slice().sort((a,b)=>a.number-b.number)[0];
+  if (lever1) selectTakeawayLever(lever1.id);
 }
 
 function switchDashTab(tab) {
@@ -2886,11 +2886,11 @@ async function generateTakeawayForLever(leverId) {
 
   const prompt = "You are summarising workshop feedback for the JJMT MedTech CS lever: " + lever.title + ".\n\n" +
     "PARTICIPANT COMMENTS:\n" + commentLines + "\n\n" +
-    "Condense into 4-5 distinct feedback themes (max). For each, write a bold title and 2-3 sentence description summarising what participants said.\n" +
+    "Condense into 4-5 distinct feedback themes (max). Each theme needs a 3-5 word title and ONE concise sentence (max 20 words) summarising what participants said.\n" +
     "Format EXACTLY as:\n" +
     "KEY FEEDBACK\n" +
-    "THEME: [short bold title 3-5 words]\n" +
-    "DESC: [2-3 sentences summarising the feedback in detail]\n" +
+    "THEME: [3-5 word title]\n" +
+    "DESC: [one sentence, max 20 words]\n" +
     "CONTRIBUTORS: [name1, name2]\n" +
     "No other text. Max 5 themes.";
 
@@ -2926,14 +2926,21 @@ async function generateProposedChanges() {
   ).join("\n");
 
   const lever = LEVERS.find(l => l.id === currentTakeawayLeverId);
+  const CHARTER_SECTIONS = [
+    "Mission Statement", "From → To", "Impact", "Interdependencies", "Execution Risk",
+    "Deliverables & Milestones", "Geographic Responsibility", "Resourcing Categories", "Owner & Next Steps"
+  ];
+
   const prompt = "You are a management consultant helping JJMT MedTech refine their CS strategy lever: " + (lever ? lever.title : "") + ".\n\n" +
     "Based on these key feedback themes from workshop participants:\n" + feedbackText + "\n\n" +
     "For each theme, propose ONE specific change to the lever charter. Max 4 changes total.\n" +
-    "Each change needs: a bold title (2-3 words) and a description (7-12 words) that explicitly states what in the charter needs updating.\n" +
+    "Each change MUST reference the specific charter section it affects. The charter sections are:\n" +
+    CHARTER_SECTIONS.join(", ") + "\n\n" +
     "Format EXACTLY as:\n" +
+    "SECTION: [exact charter section name from the list above]\n" +
     "TITLE: [2-3 word change title]\n" +
     "DESC: [7-12 words — explicit charter change required]\n" +
-    "No other text. Max 4 changes.";
+    "No other text. Max 4 changes. Every change must have a SECTION.";
 
   try {
     const res = await fetch(SUPABASE_URL + "/functions/v1/ai-summary", {
@@ -2991,46 +2998,51 @@ function renderProposedChanges(text) {
   const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
   // Parse TITLE: / DESC: pairs
   const proposedItems = [];
-  let curTitle = null, curDesc = "";
+  let curSection = "", curTitle = null, curDesc = "";
   lines.forEach(line => {
-    if (line.startsWith("TITLE:")) {
-      if (curTitle) proposedItems.push({ title: curTitle, desc: curDesc });
-      curTitle = line.replace("TITLE:", "").trim(); curDesc = "";
+    if (line.startsWith("SECTION:")) {
+      curSection = line.replace("SECTION:", "").trim();
+    } else if (line.startsWith("TITLE:")) {
+      if (curTitle) proposedItems.push({ section: curSection, title: curTitle, desc: curDesc });
+      curTitle = line.replace("TITLE:", "").trim(); curDesc = ""; curSection = curSection;
     } else if (line.startsWith("DESC:")) {
       curDesc = line.replace("DESC:", "").trim();
     }
   });
-  if (curTitle) proposedItems.push({ title: curTitle, desc: curDesc });
+  if (curTitle) proposedItems.push({ section: curSection, title: curTitle, desc: curDesc });
 
-  document.getElementById("takeaway-proposed").innerHTML = proposedItems.length === 0
-    ? "<div class='takeaway-empty'>No proposed changes extracted.</div>"
-    : proposedItems.map((item, i) =>
-        "<div class='proposed-item'>" +
-          "<div style='display:flex;align-items:flex-start;gap:8px'>" +
-            "<span style='flex-shrink:0;width:18px;height:18px;border-radius:50%;background:#8B5CF6;color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:2px'>" + (i+1) + "</span>" +
-            "<div>" +
-              "<div class='proposed-item-title'>" + item.title + "</div>" +
-              (item.desc ? "<div class='proposed-item-desc'>" + item.desc + "</div>" : "") +
-            "</div>" +
-          "</div>" +
-        "</div>"
-      ).join("");
-
+  const proposedEl = document.getElementById("takeaway-proposed");
   const ratifiedCol = document.getElementById("ratified-items-col");
+
   if (proposedItems.length === 0) {
+    proposedEl.innerHTML = "<div class='takeaway-empty'>No proposed changes extracted.</div>";
     ratifiedCol.innerHTML = "<div class='takeaway-empty'>No proposed changes yet.</div>";
-  } else {
-    ratifiedCol.innerHTML = proposedItems.map((item, i) => {
-      const key = "ratified__" + currentTakeawayLeverId + "__" + i;
-      return "<div class='ratified-item'>" +
-        "<div class='ratified-connector'>↳ Change " + (i+1) + " — " + item.title + "</div>" +
-        "<textarea class='ratified-textarea' id='ratified-ta-" + i + "' data-key='" + key + "' data-idx='" + i + "'" +
-        " placeholder='Agree, modify, or reject this change...' oninput='scheduleRatifiedItemSave(this)'></textarea>" +
-        "<div class='ratified-saved' id='ratified-saved-" + i + "'></div>" +
-      "</div>";
-    }).join("");
-    loadRatifiedItems(currentTakeawayLeverId, proposedItems.length);
+    return;
   }
+
+  proposedEl.innerHTML = proposedItems.map((item, i) =>
+    "<div class='proposed-item'>" +
+      "<div style='display:flex;align-items:flex-start;gap:8px'>" +
+        "<span style='flex-shrink:0;width:18px;height:18px;border-radius:50%;background:#8B5CF6;color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:2px'>" + (i+1) + "</span>" +
+        "<div style='flex:1;min-width:0'>" +
+          (item.section ? "<div style='display:inline-block;background:#EDE9FE;color:#6D28D9;border:1px solid #C4B5FD;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:800;letter-spacing:0.3px;margin-bottom:5px'>" + item.section + "</div>" : "") +
+          "<div class='proposed-item-title'>" + item.title + "</div>" +
+          (item.desc ? "<div class='proposed-item-desc'>" + item.desc + "</div>" : "") +
+        "</div>" +
+      "</div>" +
+    "</div>"
+  ).join("");
+
+  ratifiedCol.innerHTML = proposedItems.map((item, i) => {
+    const key = "ratified__" + currentTakeawayLeverId + "__" + i;
+    return "<div class='ratified-item'>" +
+      "<div class='ratified-connector'>↳ " + (item.section ? item.section + " · " : "") + item.title + "</div>" +
+      "<textarea class='ratified-textarea' id='ratified-ta-" + i + "' data-key='" + key + "' data-idx='" + i + "'" +
+      " placeholder='Agree, modify, or reject...' oninput='scheduleRatifiedItemSave(this)'></textarea>" +
+      "<div class='ratified-saved' id='ratified-saved-" + i + "'></div>" +
+    "</div>";
+  }).join("");
+  loadRatifiedItems(currentTakeawayLeverId, proposedItems.length);
 }
 
 // ── Ratified changes — per-item save/load ────────────────────────────────────
