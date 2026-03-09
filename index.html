@@ -1401,14 +1401,10 @@ const LEVERS = [
           ],
           nextSteps:{
             quickWins:[
-              {label:"Initial Content Consolidation", desc:"Consolidation of top 50 SOPs and FAQ articles from existing sources (e.g., TruVault) into tagged / searchable KB", owner:"Digital Strategy & Innovation team"},
-              {label:"Interim AI UI Deployment", desc:"Deployment of MSFT Copilot as interim front-end for consolidated repository", owner:"Digital Strategy & Innovation team"}
+              {label:"Quick Wins", desc:"Complete detailed solution design & feasibility assessment for the KMS build", owner:"Digital Strategy & Innovation team"}
             ],
             steadyState:[
-              {label:"Content Scope Expansion", desc:"Expansion to full scope of agent knowledge assets globally (SOPs, FAQs, process guides, exception playbooks)", owner:"Digital Strategy & Innovation team"},
-              {label:"Content Lifecycle Management", desc:"Implementation of dynamic content lifecycle management (ownership rules, review cadences, retirement triggers)", owner:"Digital Strategy & Innovation team"},
-              {label:"Gap Identification", desc:"Deployment of AI-assisted content gap detection to surface missing or outdated articles automatically", owner:"Digital Strategy & Innovation team"},
-              {label:"Multilingual Launch", desc:"Launch of multilingual Knowledge Base with regional overlays maintained by regional KMS leads", owner:"Digital Strategy & Innovation team"}
+              {label:"Steady State", desc:"Complete detailed solution design & feasibility assessment for the KMS build", owner:"Digital Strategy & Innovation team"}
             ]
           }
         }
@@ -1421,7 +1417,6 @@ const LEVERS = [
         content:{ type:"bullets", title:"🤖 AI Agent Handling",
           items:[{label:"Lever Outline", text:"Build voice & email-based AI agents to resolve simple inquiry types (especially manual standard orders and order status checks) prior to CSR escalation"}], starFirst:true }
       },
-
       { id:"fromto", label:"From → To", icon:"🔄", group:"OVERVIEW",
         content:{ type:"fromto",
           current:{
@@ -1440,7 +1435,6 @@ const LEVERS = [
           }
         }
       },
-
       { id:"impact", label:"Impact", icon:"📊", group:"OVERVIEW",
         content:{ type:"impact", level:"High",
           bullets:[
@@ -1449,17 +1443,15 @@ const LEVERS = [
           ]
         }
       },
-
       { id:"interdep", label:"Interdependencies", icon:"🔗", group:"OVERVIEW",
         content:{ type:"interdep",
           items:[
-            {system:"Butterfly", level:"Moderate", detail:"Bot can operate via telephony layer first, but full resolution requires CRM write-backs in target taxonomy"},
+            {system:"Butterfly", level:"Moderate", detail:"Bot can operate via telephony layer first, but full resolution requires CRM 'write' capabilities"},
             {system:"TranSCend", level:"Moderate", detail:"Need authoritative data to \"read\" and ability to directly \"write\" to ERP; TranSCend stabilizes underlying SAP data"},
             {system:"Other Systems", level:"High", detail:"JJCC (can leverage APIs), Genesys bot/IVR integration, KMS, authentication, and escalation-to-agent handoff"}
           ]
         }
       },
-
       { id:"execrisk", label:"Execution Risk", icon:"⚠️", group:"OVERVIEW",
         content:{ type:"execrisk",
           risks:[
@@ -1467,7 +1459,6 @@ const LEVERS = [
           ]
         }
       },
-
       { id:"phasing", label:"Deliverables & Milestones", icon:"🗓️", group:"ACTION PLAN",
         content:{ type:"phasing",
           phases:[
@@ -1483,7 +1474,6 @@ const LEVERS = [
           ]
         }
       },
-
       { id:"geo", label:"Geographic Responsibility", icon:"🌍", group:"ACTION PLAN",
         content:{ type:"geo",
           items:[
@@ -1492,19 +1482,14 @@ const LEVERS = [
           ]
         }
       },
-
       { id:"resourcing", label:"Resourcing Categories", icon:"🤝", group:"ACTION PLAN",
         content:{ type:"resourcing",
           categories:[
-            {
-              title:"Labor",
-              question:"We believe this initiative will require the involvement of:",
-              tags:["Product Manager", "AI Engineers", "Data Architects", "Regional Biz. SMEs"]
-            }
+            { title:"Labor", question:"We believe this initiative will require the involvement of:",
+              tags:["Product Manager", "AI Engineers", "Data Architects", "Regional Biz. SMEs"] }
           ]
         }
       },
-
       { id:"owner", label:"Owner & Next Steps", icon:"🧑‍💼", group:"ACTION PLAN",
         content:{ type:"owner",
           owners:[
@@ -1513,17 +1498,14 @@ const LEVERS = [
           ],
           nextSteps:{
             quickWins:[
-              {label:"NA v1.0 AI Agent", desc:"Deploy on top of Genesys for order status inquiries & manual standard order creation only ('human-in-the-loop' for order modifications & new orders in ERP, pending TranSCend)", owner:"Digital Strategy & Innovation team"},
-              {label:"EMEA / LATAM v1.0 AI Agent", desc:"Deploy on top of Genesys for order status inquiries & manual standard order creation only ('human-in-the-loop' for order modifications & new orders in ERP, pending TranSCend)", owner:"Digital Strategy & Innovation team"}
+              {label:"Quick Wins", desc:"Complete detailed solution design & feasibility assessment for v1.0 agent", owner:"Digital Strategy & Innovation team"}
             ],
             steadyState:[
-              {label:"Simple Inquiry Coverage", desc:"Global voice and email AI agent with expanded coverage across simple inquiry types; 'read' ability from ERP, CRM, KMS", owner:"Digital Strategy & Innovation team"},
-              {label:"CRM Write Enablement", desc:"Full 'write' enablement to directly update case management without human involvement", owner:"Digital Strategy & Innovation team"},
-              {label:"ERP Write Enablement", desc:"Full 'write' enablement to directly update ERP without human involvement, rolling with TranSCend 2.0", owner:"Digital Strategy & Innovation team"}
+              {label:"Steady State", desc:"Complete detailed solution design & feasibility assessment for v1.0 agent", owner:"Digital Strategy & Innovation team"}
             ]
           }
         }
-      }
+      },
     ]
   },
   { id:"routing", number:4, title:"Dynamic Routing & Capacity", icon:"⚡", valueProvided:"High value", valueColor:"#10B981", sections:placeholderSections("Dynamic Routing & Capacity") },
@@ -1625,16 +1607,14 @@ const LEVERS = [
           ],
           nextSteps:{
             quickWins:[
-              {label:"Shipment Delay Pilot", desc:"North America / LATAM: activates outbound email notifications when shipment dispatch is delayed vs. confirmed promise date", owner:"Digital Strategy & Innovation team"},
-              {label:"Lifecycle Comms Standardization", desc:"Standardized lifecycle communication templates for order confirmation, delay alert, and shipment dispatch event types", owner:"Digital Strategy & Innovation team"}
+              {label:"Quick Wins", desc:"Complete detailed solution design & feasibility assessment for the Proactive Comms build", owner:"Digital Strategy & Innovation team"}
             ],
             steadyState:[
-              {label:"Multilingual Templates", desc:"Full template library in all primary market languages with local content governance", owner:"Digital Strategy & Innovation team"},
-              {label:"Full Lifecycle Coverage", desc:"Global outbound notification coverage across all order, shipment, and invoice event types across all regions", owner:"Digital Strategy & Innovation team"}
+              {label:"Steady State", desc:"Complete detailed solution design & feasibility assessment for the Proactive Comms build", owner:"Digital Strategy & Innovation team"}
             ]
           }
         }
-      }
+      },
     ]
   },
   { id:"desktop", number:5, title:"Unified Desktop w/ AI Assistant", icon:"🖥️", valueProvided:"High value", valueColor:"#10B981", sections:placeholderSections("Unified Desktop w/ AI Assistant") },
@@ -1741,17 +1721,14 @@ const LEVERS = [
           ],
           nextSteps:{
             quickWins:[
-              {label:"CSR Competency Model v1", desc:"Global competency model defined for traditional CSRs by role / work type, with new assessment & KPI rubric (incl. digital / self-service adoption behaviors)", owner:"US Regional Operations"},
-              {label:"Supervisor Competency Model v1", desc:"Global competency model defined for CSR supervisors with new assessment & KPI rubric (incl. coaching expectations)", owner:"US Regional Operations"}
+              {label:"Quick Wins", desc:"Complete detailed solution design & feasibility assessment for the Skillset program", owner:"US Regional Operations"}
             ],
             steadyState:[
-              {label:"Full Role Coverage", desc:"Expanded global competency model for all frontline CS roles, including Customer Collaboration", owner:"US Regional Operations"},
-              {label:"Global Onboarding Curriculum", desc:"Standard global onboarding curriculum with localized variants (role- and work-type segmented)", owner:"US Regional Operations"},
-              {label:"Upskilling & Coaching Program", desc:"Standard global upskilling & coaching program continuously updated to reflect latest CSR tooling releases & process updates", owner:"US Regional Operations"}
+              {label:"Steady State", desc:"Complete detailed solution design & feasibility assessment for the Skillset program", owner:"US Regional Operations"}
             ]
           }
         }
-      }
+      },
     ]
   },
   { id:"datalake", number:11, title:"Unified Data Lake", icon:"🗄️", valueProvided:"Enabler", valueColor:"#8B5CF6", sections:placeholderSections("Unified Data Lake") },
@@ -2250,31 +2227,14 @@ function buildSectionHTML(sec) {
       const ownerColor  = isBCG ? "#6D28D9"  : "#1B3A8C";
       const ownerBorder = isBCG ? "#DDD6FE"  : "#BFDBFE";
 
-      const bulletsHTML = items.map((item, i) => {
-        // Per-item owner if it differs from group default
-        const itemOwner = item.owner || "Digital Strategy & Innovation team";
-        const itemBCG = itemOwner === "BCG";
-        const iBg  = itemBCG ? "#F5F3FF" : "#EFF6FF";
-        const iCol = itemBCG ? "#6D28D9"  : "#1B3A8C";
-        const iBor = itemBCG ? "#DDD6FE"  : "#BFDBFE";
-        const ownerBadge = hasMixedOwners
-          ? `<span style="display:inline-flex;align-items:center;background:${iBg};color:${iCol};border:1px solid ${iBor};border-radius:6px;padding:2px 8px;font-size:10px;font-weight:700;white-space:nowrap;margin-left:8px">${itemBCG?"🟣":"🟠"} ${itemOwner}</span>`
-          : "";
-        return `<div style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:${i < items.length-1 ? "1px solid #f1f5f9" : "none"}">
-          <span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;background:#1B3A8C;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:2px">${i+1}</span>
-          <div style="flex:1;min-width:0">
-            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:${item.desc ? "3px" : "0"}">${item.label}${ownerBadge}</div>
-            ${item.desc ? `<div style="font-size:13px;color:#64748b;font-style:italic;line-height:1.5">${item.desc}</div>` : ""}
-          </div>
-        </div>`;
-      }).join("");
-
+      // Single item per group — title + subtext only
+      const item = items[0];
       const cardText = `<div>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
           <div style="font-size:15px;font-weight:700;color:#1e293b">${g.icon} ${g.label}</div>
           ${!hasMixedOwners ? `<span style="display:inline-flex;align-items:center;background:${ownerBg};color:${ownerColor};border:1px solid ${ownerBorder};border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;white-space:nowrap">${isBCG?"🟣":"🟠"} ${groupOwner}</span>` : ""}
         </div>
-        ${bulletsHTML}
+        ${item.desc ? `<div style="font-size:13px;color:#64748b;font-style:italic;line-height:1.5">${item.desc}</div>` : ""}
       </div>`;
       html += bulletCardHTML(sec.id+"_ns", gi, cardText);
     });
