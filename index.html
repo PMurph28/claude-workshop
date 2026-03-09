@@ -1589,76 +1589,74 @@ loginBtn.addEventListener("click", enterWorkshop);
 async function enterWorkshop() {
   currentUser = nameInput.value.trim();
   loginBtn.disabled = true;
-  loginBtn.textContent = "Loading...";
+  loginBtn.textContent = "Checking...";
 
-  // Show app shell immediately
-  document.getElementById("login-screen").style.display = "none";
-  document.getElementById("app-screen").style.display = "block";
-
-  // Show restore overlay while fetching
+  // Show spinner overlay on top of login screen
   const overlay = document.createElement("div");
   overlay.className = "restore-overlay";
   overlay.id = "restore-overlay";
   overlay.innerHTML = `<div class="restore-card">
     <div class="restore-spinner"></div>
-    <div class="restore-title">Loading your session...</div>
-    <div class="restore-sub">Checking for previous responses from <strong>${currentUser}</strong></div>
+    <div class="restore-title">Checking for your session...</div>
+    <div class="restore-sub">Looking up responses for <strong>${currentUser}</strong></div>
   </div>`;
   document.body.appendChild(overlay);
 
-  // Fetch ALL prior votes for this user across all levers
-  const priorVotes = await sbReq("GET", `votes?user_name=eq.${enc(currentUser)}&select=*`, null) || [];
+  // Minimum 1s spinner so it never flashes
+  const [priorVotes] = await Promise.all([
+    sbReq("GET", "votes?user_name=eq." + enc(currentUser) + "&select=*", null).then(r => r || []),
+    new Promise(res => setTimeout(res, 1000))
+  ]);
+
   allVotes = priorVotes;
 
-  // Reconstruct visitedLevers and visitedSections from prior votes
+  const proceedToApp = (greeting) => {
+    overlay.remove();
+    document.getElementById("login-screen").style.display = "none";
+    document.getElementById("app-screen").style.display = "block";
+    document.getElementById("user-greeting").textContent = greeting;
+    renderLeverList();
+  };
+
   if (priorVotes.length > 0) {
+    // Reconstruct visited state
     priorVotes.forEach(v => {
-      if (v.lever_id) {
-        visitedLevers.add(v.lever_id);
-        // Find which section index this vote belongs to
-        const lever = LEVERS.find(l => l.id === v.lever_id);
-        if (lever) {
-          const secIdx = lever.sections.findIndex(s => s.id === v.section_key);
-          if (secIdx > -1) {
-            if (!visitedSections[v.lever_id]) visitedSections[v.lever_id] = new Set();
-            visitedSections[v.lever_id].add(secIdx);
-          }
+      if (!v.lever_id) return;
+      visitedLevers.add(v.lever_id);
+      const lever = LEVERS.find(l => l.id === v.lever_id);
+      if (lever) {
+        const secIdx = lever.sections.findIndex(s => s.id === v.section_key);
+        if (secIdx > -1) {
+          if (!visitedSections[v.lever_id]) visitedSections[v.lever_id] = new Set();
+          visitedSections[v.lever_id].add(secIdx);
         }
       }
     });
 
-    // Count stats for the restore card
     const leversWithVotes = new Set(priorVotes.map(v => v.lever_id)).size;
     const totalRatings = priorVotes.filter(v => !isNaN(parseInt(v.reaction))).length;
 
-    // Update overlay to show what was restored
-    overlay.innerHTML = `<div class="restore-card">
-      <div style="font-size:36px;margin-bottom:12px">👋</div>
-      <div class="restore-title">Welcome back, ${currentUser}!</div>
-      <div class="restore-sub">We found your previous session and restored your responses.</div>
-      <div class="restore-stats">
-        <div class="restore-stat">
-          <div class="restore-stat-num">${leversWithVotes}</div>
-          <div class="restore-stat-lbl">Levers visited</div>
-        </div>
-        <div class="restore-stat">
-          <div class="restore-stat-num">${totalRatings}</div>
-          <div class="restore-stat-lbl">Ratings submitted</div>
-        </div>
-      </div>
-      <button class="restore-btn" onclick="document.getElementById('restore-overlay').remove(); renderLeverList();">
-        Continue where you left off →
-      </button>
-    </div>`;
-  } else {
-    // New user — skip overlay
-    overlay.remove();
-    document.getElementById("user-greeting").textContent = "Welcome, " + currentUser + "!";
-    renderLeverList();
-    return;
-  }
+    overlay.innerHTML = "<div class=\"restore-card\">" +
+      "<div style=\"font-size:40px;margin-bottom:14px\">\u{1F44B}</div>" +
+      "<div class=\"restore-title\">Welcome back, " + currentUser + "!</div>" +
+      "<div class=\"restore-sub\">Your previous responses have been restored.</div>" +
+      "<div class=\"restore-stats\">" +
+        "<div class=\"restore-stat\"><div class=\"restore-stat-num\">" + leversWithVotes + "</div><div class=\"restore-stat-lbl\">Levers visited</div></div>" +
+        "<div class=\"restore-stat\"><div class=\"restore-stat-num\">" + totalRatings + "</div><div class=\"restore-stat-lbl\">Ratings submitted</div></div>" +
+      "</div>" +
+      "<button class=\"restore-btn\" id=\"restore-continue-btn\">Continue where you left off \u2192</button>" +
+      "</div>";
+    document.getElementById("restore-continue-btn").addEventListener("click", () => proceedToApp("Welcome back, " + currentUser + "!"));
 
-  document.getElementById("user-greeting").textContent = "Welcome back, " + currentUser + "!";
+  } else {
+    overlay.innerHTML = "<div class=\"restore-card\">" +
+      "<div style=\"font-size:40px;margin-bottom:14px\">\u{1F389}</div>" +
+      "<div class=\"restore-title\">Welcome, " + currentUser + "!</div>" +
+      "<div class=\"restore-sub\">You\'re all set. Let\'s begin the initiative review.</div>" +
+      "<button class=\"restore-btn\" id=\"restore-new-btn\">Enter Workshop \u2192</button>" +
+      "</div>";
+    document.getElementById("restore-new-btn").addEventListener("click", () => proceedToApp("Welcome, " + currentUser + "!"));
+  }
 }
 
 function leverCompletionBar(leverId, total) {
