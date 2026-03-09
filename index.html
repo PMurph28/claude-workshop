@@ -284,6 +284,42 @@
     border-radius: 20px; padding: 5px 14px; font-size: 13px; font-weight: 600;
   }
 
+  /* ── Session Restore ── */
+  .restore-overlay {
+    position: fixed; inset: 0; background: rgba(10,22,40,0.85);
+    z-index: 800; display: flex; align-items: center; justify-content: center;
+    font-family: "Segoe UI", system-ui, sans-serif;
+  }
+  .restore-card {
+    background: #fff; border-radius: 20px; padding: 40px 48px;
+    text-align: center; max-width: 420px; width: 90%;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.3);
+    animation: celebratePop 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  }
+  .restore-spinner {
+    width: 40px; height: 40px; border: 3.5px solid #e2e8f0;
+    border-top-color: #1B3A8C; border-radius: 50%;
+    animation: spin 0.8s linear infinite; margin: 0 auto 20px;
+  }
+  .restore-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 8px; }
+  .restore-sub { font-size: 14px; color: #64748b; line-height: 1.5; }
+  .restore-stats {
+    display: flex; gap: 16px; justify-content: center; margin-top: 20px; flex-wrap: wrap;
+  }
+  .restore-stat {
+    background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;
+    padding: 10px 18px; text-align: center;
+  }
+  .restore-stat-num { font-size: 22px; font-weight: 800; color: #1B3A8C; }
+  .restore-stat-lbl { font-size: 11px; color: #64748b; font-weight: 600; }
+  .restore-btn {
+    margin-top: 24px; background: #1B3A8C; color: #fff; border: none;
+    border-radius: 12px; padding: 13px 36px; font-size: 15px; font-weight: 700;
+    cursor: pointer; font-family: inherit; width: 100%;
+    transition: background 0.15s;
+  }
+  .restore-btn:hover { background: #132d70; }
+
   /* ── Hype Screen ── */
   #hype-screen {
     display: flex; position: fixed; inset: 0; z-index: 1000;
@@ -414,6 +450,36 @@
   }
 
   /* ── Rapid Highlight ── */
+  /* Focus group */
+  .lever-grid-focus-label {
+    grid-column: 1 / -1;
+    display: flex; align-items: center; gap: 12px;
+    font-size: 11px; font-weight: 800; letter-spacing: 2px;
+    color: #1B3A8C; text-transform: uppercase; margin-bottom: -4px;
+  }
+  .lever-grid-focus-label::after {
+    content: ""; flex: 1; height: 1.5px; background: #1B3A8C; opacity: 0.15;
+  }
+  .lever-grid-section-label {
+    grid-column: 1 / -1;
+    display: flex; align-items: center; gap: 12px;
+    font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+    color: #94a3b8; text-transform: uppercase; margin-top: 8px; margin-bottom: -4px;
+  }
+  .lever-grid-section-label::after {
+    content: ""; flex: 1; height: 1px; background: #e2e8f0;
+  }
+  .lever-card.focus-lever {
+    border: 2px solid #1B3A8C !important;
+    box-shadow: 0 4px 20px rgba(27,58,140,0.12) !important;
+  }
+  .lever-card.greyed-out {
+    opacity: 0.5; filter: grayscale(0.3);
+  }
+  .lever-card.greyed-out:hover {
+    opacity: 0.75; filter: grayscale(0);
+  }
+
   .lever-card.rapid-current {
     border: 2.5px solid #F59E0B !important;
     box-shadow: 0 0 0 4px rgba(245,158,11,0.2), 0 8px 24px rgba(245,158,11,0.25) !important;
@@ -992,7 +1058,7 @@ function placeholderSections(title) {
 
 const LEVERS = [
   {
-    id:"kms", number:7, title:"Centralized Knowledge Base (KMS)", icon:"📚",
+    id:"kms", number:8, title:"Centralized Knowledge Base (KMS)", icon:"📚",
     valueProvided:"Moderate value", valueColor:"#F59E0B",
     sections:[
       // ── OVERVIEW ──
@@ -1045,8 +1111,7 @@ const LEVERS = [
       { id:"execrisk", label:"Execution Risk", icon:"⚠️", group:"OVERVIEW",
         content:{ type:"execrisk",
           risks:[
-            {level:"Low", description:"Platform selection risk is low given maturity of commercial KMS vendors (Guru, Bloomfire, Confluence) — off-the-shelf solutions reduce build complexity and timeline uncertainty"},
-            {level:"Moderate", description:"Content governance adoption is the primary execution risk — success depends on sustained JJMT ownership of content lifecycle, regional participation, and adherence to tagging standards across markets"}
+            {level:"Low", description:"Platform selection risk is low given maturity of commercial KMS vendors (Guru, Bloomfire, Confluence) — off-the-shelf solutions reduce build complexity and timeline uncertainty"}
           ]
         }
       },
@@ -1096,10 +1161,18 @@ const LEVERS = [
             {role:"JJMT Owner", name:"MedTech SC — Digital Strategy & Innovation"},
             {role:"External Support", name:"BCG"}
           ],
-          nextSteps:[
-            {label:"Full KMS Design", text:"Complete detailed solution design & feasibility assessment for full KMS"},
-            {label:"Quick Win Design", text:"In parallel, complete detailed solution design & feasibility assessment for MVP / quick win"}
-          ]
+          nextSteps:{
+            quickWins:[
+              {label:"Initial Content Consolidation", desc:"Consolidation of top 50 SOPs and FAQ articles from existing sources (e.g., TruVault) into tagged / searchable KB", owner:"Digital Strategy & Innovation team"},
+              {label:"Interim AI UI Deployment", desc:"Deployment of MSFT Copilot as interim front-end for consolidated repository", owner:"Digital Strategy & Innovation team"}
+            ],
+            steadyState:[
+              {label:"Content Scope Expansion", desc:"Expansion to full scope of agent knowledge assets globally (SOPs, FAQs, process guides, exception playbooks)", owner:"Digital Strategy & Innovation team"},
+              {label:"Content Lifecycle Management", desc:"Implementation of dynamic content lifecycle management (ownership rules, review cadences, retirement triggers)", owner:"Digital Strategy & Innovation team"},
+              {label:"Gap Identification", desc:"Deployment of AI-assisted content gap detection to surface missing or outdated articles automatically", owner:"Digital Strategy & Innovation team"},
+              {label:"Multilingual Launch", desc:"Launch of multilingual Knowledge Base with regional overlays maintained by regional KMS leads", owner:"Digital Strategy & Innovation team"}
+            ]
+          }
         }
       },
     ]
@@ -1114,19 +1187,17 @@ const LEVERS = [
       { id:"fromto", label:"From → To", icon:"🔄", group:"OVERVIEW",
         content:{ type:"fromto",
           current:{
-            title:"Undifferentiated Inbound Routing",
-            headline:"All inbound contacts — regardless of complexity — routed to human CSRs, creating avoidable queue pressure and inefficient use of skilled agent time",
+            title:"Automation Progress, Unresolved Demand",
+            headline:"Despite order automation & self-service progress, inbound customer queries are all routed to human CSRs — creating avoidable queue pressure and inefficient use of agent time",
             subpoints:[
-              {label:"Bad demand", text:"Low-complexity automatable queries (status) consume skilled CSR time at scale"},
-              {label:"Bad demand", text:"No automated triage layer means results in demand spikes increased AHT"}
+              {label:"Bad demand", text:"Extensive routine / avoidable agent effort (e.g., in NA, ~50% of manual orders are single-item; ~50% of order status inquiries are simple checks)"}
             ]
           },
           future:{
             title:"Intelligent Contact Resolution",
             headline:"AI agents handle structured, repeatable inquiries end-to-end across voice and email, escalating only when complexity or risk thresholds are met",
             subpoints:[
-              {label:"Contact deflection", text:"Routine order status and standard order inquiries resolved without CSR involvement, at any hour"},
-              {label:"Intelligent escalation", text:"Edge cases and high-risk contacts routed seamlessly to human agents with full context preserved"}
+              {label:"Contact deflection", text:"Routine order status and standard order inquiries resolved without CSR involvement, at any hour"}
             ]
           }
         }
@@ -1135,9 +1206,8 @@ const LEVERS = [
       { id:"impact", label:"Impact", icon:"📊", group:"OVERVIEW",
         content:{ type:"impact", level:"High",
           bullets:[
-            {label:"Contact Deflection", text:"Estimated 20–40% reduction in CSR-handled contacts on highest-frequency, lowest-complexity inquiry types (order status, standard order entry)"},
-            {label:"Capacity Relief", text:"Structural headcount avoidance as AI handles volume growth without proportional staffing increase"},
-            {label:"Critical Dependency", text:"Foundational to realizing full productivity gains from Unified Desktop (Lever 4) and Dynamic Routing (Lever 2) — AI triage reshapes inbound queue composition for all downstream levers"}
+            {label:"Contact Deflection", text:"~40–60% of inquiry volume in order status checks and manual standard orders serviced without human intervention"},
+            {label:"Capacity Relief", text:"CSR capacity relief on highest-volume queues, freeing time for complex case types (e.g., returns, disputes)"}
           ]
         }
       },
@@ -1146,8 +1216,8 @@ const LEVERS = [
         content:{ type:"interdep",
           items:[
             {system:"Butterfly", level:"Moderate", detail:"Bot can operate via telephony layer first, but full resolution requires CRM write-backs in target taxonomy"},
-            {system:"TranSCend", level:"Moderate", detail:"Bot needs authoritative data for workflows; TranSCend stabilizes the underlying SAP data"},
-            {system:"Other Systems", level:"High", detail:"Genesys bot/IVR integration, KMS, authentication, and escalation-to-agent handoff all required"}
+            {system:"TranSCend", level:"Moderate", detail:"Need authoritative data to \"read\" and ability to directly \"write\" to ERP; TranSCend stabilizes underlying SAP data"},
+            {system:"Other Systems", level:"High", detail:"JJCC (can leverage APIs), Genesys bot/IVR integration, KMS, authentication, and escalation-to-agent handoff"}
           ]
         }
       },
@@ -1155,8 +1225,7 @@ const LEVERS = [
       { id:"execrisk", label:"Execution Risk", icon:"⚠️", group:"OVERVIEW",
         content:{ type:"execrisk",
           risks:[
-            {level:"High", description:"AI agent deployment requires stable ERP data layer (TranSCend) and robust Genesys integration — both represent live dependencies that could delay or degrade MVP delivery"},
-            {level:"Moderate", description:"Intent taxonomy design and escalation logic are organizationally complex — requires alignment across CS, IT, and regional ops before deployment"}
+            {level:"Moderate", description:"— Concurrent execution against Butterfly, TranSCend, Osprey creates pressure on business / tech resources<br>— Limited AI build & deployment experience / resourcing (during period of underlying system changes [ERP, CM])"}
           ]
         }
       },
@@ -1165,14 +1234,13 @@ const LEVERS = [
         content:{ type:"phasing",
           phases:[
             {label:"Quick Wins", items:[
-              {label:"Order Status MVP", text:"Deploy AI agent for single highest-volume use case (order status inquiry) via Genesys voice channel", date:"Target Q2 2026, read-only ERP integration to limit dependency on TranSCend stabilization"},
-              {label:"Escalation Framework", text:"Define and deploy human-in-the-loop escalation logic for all edge cases", date:"Target Q2 2026, guardrails live across clinical/regulatory topics, high-value accounts, repeat failures"}
+              {label:"NA v1.0 AI Agent", text:"Deploy on top of Genesys for order status inquiries & manual standard order creation only ('human-in-the-loop' for order modifications & new orders in ERP, pending TranSCend)", date:"Target Q4 2026, co-launch with Butterfly go-live in North America"},
+              {label:"EMEA / LATAM v1.0 AI Agent", text:"Deploy on top of Genesys for order status inquiries & manual standard order creation only ('human-in-the-loop' for order modifications & new orders in ERP, pending TranSCend)", date:"Target Q2 2027, co-launch with Butterfly go-live in LATAM, UK, CH"}
             ]},
             {label:"Steady State", feature:true, items:[
-              {label:"Full Channel Coverage", text:"Voice and email AI agent coverage across top inquiry types (order status, standard order entry, shipment tracking)", date:"Target Q4 2026, all regions and channels onboarded"},
-              {label:"Write-Enabled ERP Integration", text:"Standard order creation via AI agent with full ERP write-back capability", date:"Target Q1 2027, dependent on TranSCend stabilization milestone"},
-              {label:"Dynamic Escalation Logic", text:"Account tier, topic, and failure pattern-based escalation routing live", date:"Target Q1 2027, integrated with Genesys ACD and CRM case creation"},
-              {label:"Multilingual Support", text:"AI agent handling in all primary languages across served markets", date:"Target Q2 2027, priority languages covering top 5 markets by contact volume"}
+              {label:"Simple Inquiry Coverage", text:"Global voice and email AI agent with expanded coverage across simple inquiry types (e.g., order status, standard order entry, pricing checks); 'read' ability from ERP, CRM, KMS", date:"Target Q3 2027, rolling global implementation"},
+              {label:"CRM Write Enablement", text:"Full 'write' enablement to directly update case management without human involvement", date:"Target Q3 2027, rolling implementation with Butterfly deployments globally"},
+              {label:"ERP Write Enablement", text:"Full 'write' enablement to directly update ERP without human involvement", date:"Target Q3 2028, rolling implementation with TranSCend 2.0 deployments globally"}
             ]}
           ]
         }
@@ -1181,8 +1249,8 @@ const LEVERS = [
       { id:"geo", label:"Geographic Responsibility", icon:"🌍", group:"ACTION PLAN",
         content:{ type:"geo",
           items:[
-            {scope:"Global Responsibility", detail:"Core AI agent platform and intent taxonomy centrally governed and deployed across all JJMT regions"},
-            {scope:"Local Responsibility", detail:"Regional leads own localization of language models, escalation thresholds, and regulatory guardrails by market"}
+            {scope:"Global Responsibility", detail:"Single central owner of JJMT CS agentic handling capability, regardless of future location or footprint decisions"},
+            {scope:"Local Responsibility", detail:"Region-specific nodes to identify & assist with integrations (with knowledge assets, data sources, systems)"}
           ]
         }
       },
@@ -1191,9 +1259,9 @@ const LEVERS = [
         content:{ type:"resourcing",
           categories:[
             {
-              title:"LABOR",
+              title:"Labor",
               question:"We believe this initiative will require the involvement of:",
-              tags:["AI/Bot Developer", "Genesys Engineer", "Business Analyst", "Tenured CSRs", "Regional Ops Lead", "IT Integration Lead"]
+              tags:["Product Manager", "AI Engineers", "Data Architects", "Regional Biz. SMEs"]
             }
           ]
         }
@@ -1205,17 +1273,23 @@ const LEVERS = [
             {role:"JJMT Owner", name:"MedTech SC — Digital Strategy & Innovation"},
             {role:"External Support", name:"BCG"}
           ],
-          nextSteps:[
-            {label:"Intent Taxonomy Design", text:"Define target use case scope and intent taxonomy for AI agent MVP"},
-            {label:"Platform Selection", text:"Complete Genesys integration architecture assessment and bot platform vendor selection"},
-            {label:"MVP Scoping", text:"Support business case refinement and MVP scoping workshop", owner:"BCG"}
-          ]
+          nextSteps:{
+            quickWins:[
+              {label:"NA v1.0 AI Agent", desc:"Deploy on top of Genesys for order status inquiries & manual standard order creation only ('human-in-the-loop' for order modifications & new orders in ERP, pending TranSCend)", owner:"Digital Strategy & Innovation team"},
+              {label:"EMEA / LATAM v1.0 AI Agent", desc:"Deploy on top of Genesys for order status inquiries & manual standard order creation only ('human-in-the-loop' for order modifications & new orders in ERP, pending TranSCend)", owner:"Digital Strategy & Innovation team"}
+            ],
+            steadyState:[
+              {label:"Simple Inquiry Coverage", desc:"Global voice and email AI agent with expanded coverage across simple inquiry types; 'read' ability from ERP, CRM, KMS", owner:"Digital Strategy & Innovation team"},
+              {label:"CRM Write Enablement", desc:"Full 'write' enablement to directly update case management without human involvement", owner:"Digital Strategy & Innovation team"},
+              {label:"ERP Write Enablement", desc:"Full 'write' enablement to directly update ERP without human involvement, rolling with TranSCend 2.0", owner:"Digital Strategy & Innovation team"}
+            ]
+          }
         }
       }
     ]
   },
-  { id:"routing", number:2, title:"Dynamic Routing & Capacity", icon:"⚡", valueProvided:"High value", valueColor:"#10B981", sections:placeholderSections("Dynamic Routing & Capacity") },
-  { id:"proactive", number:3, title:"Proactive Comms", icon:"📣", valueProvided:"High value", valueColor:"#10B981",
+  { id:"routing", number:4, title:"Dynamic Routing & Capacity", icon:"⚡", valueProvided:"High value", valueColor:"#10B981", sections:placeholderSections("Dynamic Routing & Capacity") },
+  { id:"proactive", number:2, title:"Proactive Comms", icon:"📣", valueProvided:"High value", valueColor:"#10B981",
     sections:[
       { id:"overview", label:"Mission Statement", icon:"🗺️", group:"OVERVIEW",
         content:{ type:"bullets", title:"📣 Proactive Communications",
@@ -1226,17 +1300,16 @@ const LEVERS = [
         content:{ type:"fromto",
           current:{
             title:"Reactive by Design",
-            headline:"Customers receive no proactive communication when order or invoice exceptions occur — issues are discovered reactively, generating avoidable inbound volume",
+            headline:"Customers not proactively updated for orders or invoice-related delays — issues discovered reactively and result in manual servicing by CSRs",
             subpoints:[
-              {label:"Bad demand", text:"Low-complexity automatable queries (status) consume disproportionate CSR time"}
+              {label:"Bad demand", text:"Significant CSR time on inquiries stemming from lack of customer visibility (e.g., average ~10% of CSR time on order status across regions)"}
             ]
           },
           future:{
             title:"Proactive Event-Driven Comms",
-            headline:"Automated outbound notifications triggered by SAP and logistics events keep customers informed in real time, deflecting a material share of inbound inquiry volume",
+            headline:"Automated outbound notifications triggered by SAP and logistics events keep customers informed in real time, reducing inbound inquiry volume",
             subpoints:[
-              {label:"Structural deflection", text:"Delay, shipment, and invoice inquiry types shift off CSR queues"},
-              {label:"Proactive transparency", text:"Customers receive branded, timely notifications at key order lifecycle moments"}
+              {label:"Contact deflection", text:"Customers receive notifications at key order lifecycle moments without need for outreach"}
             ]
           }
         }
@@ -1245,9 +1318,9 @@ const LEVERS = [
       { id:"impact", label:"Impact", icon:"📊", group:"OVERVIEW",
         content:{ type:"impact", level:"High",
           bullets:[
-            {label:"Inbound Deflection", text:"Estimated 15–30% reduction in avoidable inbound contacts on delay, shipment, and invoice inquiry types as trigger coverage scales"},
-            {label:"Customer Experience", text:"Measurable improvement in proactive resolution rate — customers informed before they identify an issue, reducing escalation likelihood"},
-            {label:"Lever Multiplier", text:"Reduces raw inbound demand handled by AI agent (Lever 1) and CSR desktop (Lever 4) — amplifying efficiency gains across the program"}
+            {label:"Inbound Deflection", text:"~20–40% reduction in avoidable inbound contacts on inquiry types related to delays, shipments, and invoices"},
+            {label:"Customer Experience", text:"Improved customer experience — customers informed proactively before issue or concern is raised"},
+            {label:"Capacity Relief", text:"CSR capacity relief on highest-volume queues, freeing time for complex case types (e.g., returns, disputes)"}
           ]
         }
       },
@@ -1255,9 +1328,9 @@ const LEVERS = [
       { id:"interdep", label:"Interdependencies", icon:"🔗", group:"OVERVIEW",
         content:{ type:"interdep",
           items:[
-            {system:"Butterfly", level:"Moderate", detail:"Outbound orchestration logic must align to future CRM workflow design and case ownership model in Butterfly"},
-            {system:"TranSCend", level:"Moderate", detail:"Core event triggers originate in SAP and logistics execution layer — TranSCend stabilization improves reliability and timeliness of triggers"},
-            {system:"Other Systems", level:"Moderate", detail:"Email and SMS delivery platforms, eventing/middleware layer, and consent management tooling required"}
+            {system:"Butterfly", level:"Moderate", detail:"Outbound comms orchestration + case updates should align to future CRM workflow"},
+            {system:"TranSCend", level:"Moderate", detail:"Need to \"read\" accurate order / shipment / event data from ERPs; can leverage existing integrations in interim (incl. JJCC APIs)"},
+            {system:"Other Systems", level:"Moderate", detail:"Must integrate w/ email & chat, Genesys, eventing/middleware, customer master (incl. preference mgmt./consent)"}
           ]
         }
       },
@@ -1265,8 +1338,7 @@ const LEVERS = [
       { id:"execrisk", label:"Execution Risk", icon:"⚠️", group:"OVERVIEW",
         content:{ type:"execrisk",
           risks:[
-            {level:"Moderate", description:"Event trigger reliability is dependent on TranSCend stabilization — incomplete SAP data quality will generate false or delayed notifications, eroding customer trust if deployed prematurely"},
-            {level:"Low", description:"Template governance and consent management are operationally straightforward but require coordinated market-level onboarding to ensure language compliance and opt-out handling are live before go-live"}
+            {level:"Moderate", description:"Concurrent execution against Butterfly, TranSCend, Osprey creates pressure on resourcing"}
           ]
         }
       },
@@ -1275,14 +1347,12 @@ const LEVERS = [
         content:{ type:"phasing",
           phases:[
             {label:"Quick Wins", items:[
-              {label:"Shipment Delay Pilot", text:"Activate outbound email notifications for single highest-volume exception type (shipment delay) in one pilot market", date:"Target Q2 2026, manual trigger review in place before full automation"},
-              {label:"Template Library v1", text:"Standardize lifecycle communication templates for order confirmation, delay alert, and shipment dispatch event types", date:"Target Q2 2026, globally governed template set with market-level language variants"}
+              {label:"Shipment Delay Pilot", text:"North America / LATAM: activates outbound email notifications when shipment dispatch is delayed vs. confirmed promise date", date:"Target Q3 2026"},
+              {label:"Lifecycle Comms Standardization", text:"Standardized lifecycle communication templates for order confirmation, delay alert, and shipment dispatch event types", date:"Target Q2 2026, with continual refinement until 2027"}
             ]},
             {label:"Steady State", feature:true, items:[
-              {label:"Full Lifecycle Coverage", text:"Outbound notification coverage across all order, shipment, and invoice event types", date:"Target Q4 2026, all regions live with real-time SAP/logistics triggers"},
-              {label:"Full Automation", text:"Real-time event triggers with no manual intervention across all active notification types", date:"Target Q4 2026, middleware integration complete and monitoring live"},
-              {label:"Multilingual Templates", text:"Full template library in all primary market languages with local content governance", date:"Target Q1 2027, priority languages covering top 5 markets by contact volume"},
-              {label:"Closed-Loop Measurement", text:"Deflection tracking connecting notification send events to inbound contact reduction", date:"Target Q1 2027, integrated into KPI reporting layer (Lever 6)"}
+              {label:"Multilingual Templates", text:"Full template library in all primary market languages with local content governance", date:"Target Q1 2027, priority languages covering top markets by contact volume"},
+              {label:"Full Lifecycle Coverage", text:"Global outbound notification coverage across all order, shipment, and invoice event types", date:"Target Q2 2027, all regions live with real-time SAP/logistics triggers"}
             ]}
           ]
         }
@@ -1291,8 +1361,8 @@ const LEVERS = [
       { id:"geo", label:"Geographic Responsibility", icon:"🌍", group:"ACTION PLAN",
         content:{ type:"geo",
           items:[
-            {scope:"Global Responsibility", detail:"Centrally governed template library, event trigger framework, and notification standards owned by JJMT"},
-            {scope:"Local Responsibility", detail:"Market-level leads own communication content, language compliance, consent management, and opt-out handling"}
+            {scope:"Global Responsibility", detail:"Single global owner to own centrally governed template library, event trigger framework, and notification standards"},
+            {scope:"Local Responsibility", detail:"Regional nodes to own communication content, language compliance, consent management, and opt-out handling"}
           ]
         }
       },
@@ -1301,9 +1371,9 @@ const LEVERS = [
         content:{ type:"resourcing",
           categories:[
             {
-              title:"LABOR",
+              title:"Labor",
               question:"We believe this initiative will require the involvement of:",
-              tags:["Integration Engineer", "Business Analyst", "CRM/Comms Architect", "Regional Ops Lead", "Content & Localization Lead"]
+              tags:["Product Manager", "Back-end Engineers", "Business Analyst(s)"]
             }
           ]
         }
@@ -1315,21 +1385,26 @@ const LEVERS = [
             {role:"JJMT Owner", name:"MedTech SC — Digital Strategy & Innovation"},
             {role:"External Support", name:"BCG"}
           ],
-          nextSteps:[
-            {label:"Event Trigger Mapping", text:"Map top inbound contact drivers to triggerable SAP/logistics events and prioritize MVP notification type"},
-            {label:"Platform Audit", text:"Audit existing CRM workflow and email/SMS delivery capability against requirements"},
-            {label:"Pilot Design", text:"Support event trigger architecture design and pilot market selection for MVP rollout", owner:"BCG"}
-          ]
+          nextSteps:{
+            quickWins:[
+              {label:"Shipment Delay Pilot", desc:"North America / LATAM: activates outbound email notifications when shipment dispatch is delayed vs. confirmed promise date", owner:"Digital Strategy & Innovation team"},
+              {label:"Lifecycle Comms Standardization", desc:"Standardized lifecycle communication templates for order confirmation, delay alert, and shipment dispatch event types", owner:"Digital Strategy & Innovation team"}
+            ],
+            steadyState:[
+              {label:"Multilingual Templates", desc:"Full template library in all primary market languages with local content governance", owner:"Digital Strategy & Innovation team"},
+              {label:"Full Lifecycle Coverage", desc:"Global outbound notification coverage across all order, shipment, and invoice event types across all regions", owner:"Digital Strategy & Innovation team"}
+            ]
+          }
         }
       }
     ]
   },
-  { id:"desktop", number:4, title:"Unified Desktop w/ AI Assistant", icon:"🖥️", valueProvided:"High value", valueColor:"#10B981", sections:placeholderSections("Unified Desktop w/ AI Assistant") },
-  { id:"oti", number:5, title:"OTI Fixes", icon:"🔧", valueProvided:"Moderate value", valueColor:"#F59E0B", sections:placeholderSections("OTI Fixes") },
-  { id:"kpi", number:6, title:"KPI-Oriented Perf. Mgmt.", icon:"📈", valueProvided:"Moderate value", valueColor:"#F59E0B", sections:placeholderSections("KPI-Oriented Perf. Mgmt.") },
-  { id:"selfdef", number:8, title:"Improved Cust. Self-Deflection", icon:"🙋", valueProvided:"Moderate value", valueColor:"#F59E0B", sections:placeholderSections("Improved Cust. Self-Deflection") },
-  { id:"process", number:9, title:"Process Optimization", icon:"⚙️", valueProvided:"Incremental value", valueColor:"#6B7280", sections:placeholderSections("Process Optimization") },
-  { id:"skillset", number:10, title:"Skillset of the Future", icon:"🎓", valueProvided:"Incremental value", valueColor:"#6B7280",
+  { id:"desktop", number:5, title:"Unified Desktop w/ AI Assistant", icon:"🖥️", valueProvided:"High value", valueColor:"#10B981", sections:placeholderSections("Unified Desktop w/ AI Assistant") },
+  { id:"oti", number:6, title:"OTI Fixes", icon:"🔧", valueProvided:"Moderate value", valueColor:"#F59E0B", sections:placeholderSections("OTI Fixes") },
+  { id:"kpi", number:7, title:"KPI-Oriented Perf. Mgmt.", icon:"📈", valueProvided:"Moderate value", valueColor:"#F59E0B", sections:placeholderSections("KPI-Oriented Perf. Mgmt.") },
+  { id:"selfdef", number:9, title:"Improved Cust. Self-Deflection", icon:"🙋", valueProvided:"Moderate value", valueColor:"#F59E0B", sections:placeholderSections("Improved Cust. Self-Deflection") },
+  { id:"process", number:10, title:"Process Optimization", icon:"⚙️", valueProvided:"Incremental value", valueColor:"#6B7280", sections:placeholderSections("Process Optimization") },
+  { id:"skillset", number:3, title:"Skillset of the Future", icon:"🎓", valueProvided:"Incremental → Enabler", valueColor:"#8B5CF6",
     sections:[
       { id:"overview", label:"Mission Statement", icon:"🗺️", group:"OVERVIEW",
         content:{ type:"bullets", title:"🎓 Skillset of the Future",
@@ -1339,30 +1414,28 @@ const LEVERS = [
       { id:"fromto", label:"From → To", icon:"🔄", group:"OVERVIEW",
         content:{ type:"fromto",
           current:{
-            title:"Inconsistent Agent Readiness",
-            headline:"CSR capability profiles vary significantly across hubs — training is inconsistent, onboarding is lengthy, and agents are not systematically prepared for digital-first or AI-assisted ways of working",
+            title:"Variable Capability, Missed Self-Service",
+            headline:"Variable CSR capability levels within regions, long ramp-up time for new agents, and missed opportunities to drive customer adoption of self-service (e.g., JJCC)",
             subpoints:[
-              {label:"Inconsistent enablement", text:"Long ramp of new reps driven by unstructured onboarding and reliance on peer shadowing — proficiency timelines measured in months, not weeks"},
-              {label:"Automation readiness gap", text:"No standardized digital-first handling standards exist — agents are underprepared to work alongside AI tools as they roll out across the program"}
+              {label:"Inconsistent enablement", text:"Variations in CSR ability (e.g., >100% variance in AHT across select inquiry types in NA); long ramp-up for new agents"}
             ]
           },
           future:{
             title:"Global Capability Standard",
-            headline:"Globally consistent competency model defines what 'great' looks like at every CSR tier — structured onboarding, embedded digital guidance, and continuous upskilling prepare agents to work alongside AI tools from day one",
+            headline:"Globally consistent competency model defining what 'great' looks like, with standardized onboarding and continuous upskilling",
             subpoints:[
-              {label:"Agent enablement", text:"Accelerated ramp with structured, role-specific content paths replacing tribal knowledge transfer and peer shadowing"},
-              {label:"Digital readiness", text:"CSRs equipped and confident to operate AI-assisted workflows from day one, maximizing adoption and value realization across technology levers"}
+              {label:"Agent enablement", text:"Accelerated agent ramp and continuous upskilling — including readiness for new digital & AI tooling"}
             ]
           }
         }
       },
 
       { id:"impact", label:"Impact", icon:"📊", group:"OVERVIEW",
-        content:{ type:"impact", level:"Incremental",
+        content:{ type:"impact", level:"Incremental → Enabler",
           bullets:[
-            {label:"Time-to-Proficiency", text:"Estimated 20–35% reduction in new agent ramp time through standardized onboarding curriculum and embedded competency assessments"},
-            {label:"Adoption Multiplier", text:"Accelerates effective use of high-value technology levers (Levers 1, 4, 7) — capability gaps are a leading cause of underrealization on technology investments"},
-            {label:"Quality Consistency", text:"Reduces performance variation across hubs by anchoring handling standards to a globally consistent competency framework"}
+            {label:"Time-to-Proficiency", text:"Reduction in new agent ramp time through standardized onboarding curriculum and embedded competency assessments"},
+            {label:"Adoption Multiplier", text:"More effective use of high-value technology levers (e.g., unified desktop with AI agent) — capability gaps are a leading cause of underrealization on technology investments"},
+            {label:"Self-Service Penetration", text:"Greater penetration of self-service and automation due to agent-driven adoption behaviors embedded in competency model"}
           ]
         }
       },
@@ -1372,7 +1445,7 @@ const LEVERS = [
           items:[
             {system:"Butterfly", level:"Low", detail:"Competency model and handling standards must align to new CRM workflow definitions as Butterfly rolls out — training content will need versioning to track platform changes"},
             {system:"TranSCend", level:"Low", detail:"Alignment to future SAP process templates required for ERP-related handling standards — not a hard blocker for capability model design"},
-            {system:"Other Systems", level:"Low", detail:"JCC adoption, Genesys scripting, and AI assistant tooling inform training content but do not block capability model development"}
+            {system:"Other Systems", level:"Low", detail:"Alignment to future SAP process templates required for ERP-related handling standards"}
           ]
         }
       },
@@ -1380,8 +1453,7 @@ const LEVERS = [
       { id:"execrisk", label:"Execution Risk", icon:"⚠️", group:"OVERVIEW",
         content:{ type:"execrisk",
           risks:[
-            {level:"Moderate", description:"Cross-hub adoption is the primary execution risk — globally consistent standards require sustained hub lead engagement and local champion ownership to prevent reversion to legacy training patterns"},
-            {level:"Low", description:"Content design and LMS delivery are technically straightforward — the risk is organizational, not technical. Sequencing the curriculum rollout to align with technology lever deployment (Levers 1, 4, 7) is critical to maximizing adoption multiplier effect"}
+            {level:"Low", description:"Concurrent execution against Butterfly, TranSCend, Osprey creates pressure on resourcing"}
           ]
         }
       },
@@ -1390,16 +1462,13 @@ const LEVERS = [
         content:{ type:"phasing",
           phases:[
             {label:"Quick Wins", items:[
-              {label:"Competency Model v1", text:"Define global competency model for core CSR tier with assessment rubric", date:"Target Q2 2026, aligned across all hub leads with sign-off from Digital Strategy & Innovation"},
-              {label:"Pilot Onboarding Curriculum", text:"Develop and deploy standardized onboarding curriculum for highest-volume hub as pilot", date:"Target Q3 2026, structured curriculum replacing unstructured shadowing for all new hires at pilot hub"},
-              {label:"Embedded Handling Standards", text:"Embed top 10 handling standard checklists and macros in CRM for immediate CSR use", date:"Target Q3 2026, live in CRM across all active hubs"}
+              {label:"CSR Competency Model v1", text:"Global competency model defined for traditional CSRs by role / work type, with new assessment & KPI rubric (incl. digital / self-service adoption behaviors)", date:"Target Q2 2026, with continual refinement through 2027"},
+              {label:"Supervisor Competency Model v1", text:"Global competency model defined for CSR supervisors with new assessment & KPI rubric (incl. coaching expectations)", date:"Target Q2 2026, with continual refinement through 2027"}
             ]},
             {label:"Steady State", feature:true, items:[
-              {label:"Full Competency Coverage", text:"Competency model coverage across all CSR tiers and specialty roles globally", date:"Target Q4 2026, all hubs operating against globally consistent competency standards"},
-              {label:"Global Curriculum Rollout", text:"Standardized onboarding curriculum deployed across all hubs with localized content variants", date:"Target Q1 2027, language-adapted content live for top 5 markets by headcount"},
-              {label:"Continuous Upskilling Program", text:"Modular micro-learning curriculum aligned to technology lever rollout — updated as tools evolve", date:"Target Q1 2027, integrated into LMS with lever-sequenced release cadence"},
-              {label:"Performance Integration", text:"Competency assessment embedded into performance management and career progression frameworks", date:"Target Q2 2027, live across all hubs with manager coaching guidance"},
-              {label:"AI-Assisted Coaching", text:"Supervisor coaching recommendations surfaced based on individual CSR performance data", date:"Target Q2 2027, integrated into unified desktop (Lever 4) post steady-state rollout"}
+              {label:"Full Role Coverage", text:"Expanded global competency model for all frontline CS roles, including Customer Collaboration", date:"Target Q3 2026, future global function to maintain and update curriculum going forward"},
+              {label:"Global Onboarding Curriculum", text:"Standard global onboarding curriculum with localized variants (role- and work-type segmented)", date:"Target Q4 2026, future global function to maintain and update curriculum going forward"},
+              {label:"Upskilling & Coaching Program", text:"Standard global upskilling & coaching program continuously updated to reflect latest CSR tooling releases & process updates", date:"Target Q4 2026, future global function to maintain and update curriculum going forward"}
             ]}
           ]
         }
@@ -1408,8 +1477,8 @@ const LEVERS = [
       { id:"geo", label:"Geographic Responsibility", icon:"🌍", group:"ACTION PLAN",
         content:{ type:"geo",
           items:[
-            {scope:"Global Responsibility", detail:"Centrally governed competency model, onboarding curriculum, and handling standards owned by JJMT"},
-            {scope:"Local Responsibility", detail:"Hub-level leads own training delivery, language-adapted content, and regional process nuances within global framework guardrails"}
+            {scope:"Global Responsibility", detail:"Centrally governed competency model, onboarding curriculum, and KPI rubric"},
+            {scope:"Local Responsibility", detail:"Region and hub-level nodes own training delivery, language-adapted content, and regional process nuances within global framework guardrails"}
           ]
         }
       },
@@ -1418,9 +1487,9 @@ const LEVERS = [
         content:{ type:"resourcing",
           categories:[
             {
-              title:"LABOR",
+              title:"Labor",
               question:"We believe this initiative will require the involvement of:",
-              tags:["L&D Program Manager", "Business Analyst", "Tenured CSRs", "Hub Leads", "LMS Administrator", "Regional Ops Support"]
+              tags:["Program Manager", "Regional L&D Delegates", "Dedicated HR Support"]
             }
           ]
         }
@@ -1429,14 +1498,20 @@ const LEVERS = [
       { id:"owner", label:"Owner & Next Steps", icon:"🧑‍💼", group:"ACTION PLAN",
         content:{ type:"owner",
           owners:[
-            {role:"JJMT Owner", name:"MedTech SC — Digital Strategy & Innovation"},
+            {role:"JJMT Owner", name:"US Regional Operations"},
             {role:"External Support", name:"BCG"}
           ],
-          nextSteps:[
-            {label:"Baseline Assessment", text:"Audit current onboarding and training approaches across hubs to baseline variation and identify quick wins"},
-            {label:"LMS Audit", text:"Assess existing LMS capability and identify gaps versus requirements for global curriculum delivery"},
-            {label:"Competency Framework Design", text:"Design global competency model framework and facilitate cross-hub alignment on handling standards", owner:"BCG"}
-          ]
+          nextSteps:{
+            quickWins:[
+              {label:"CSR Competency Model v1", desc:"Global competency model defined for traditional CSRs by role / work type, with new assessment & KPI rubric (incl. digital / self-service adoption behaviors)", owner:"US Regional Operations"},
+              {label:"Supervisor Competency Model v1", desc:"Global competency model defined for CSR supervisors with new assessment & KPI rubric (incl. coaching expectations)", owner:"US Regional Operations"}
+            ],
+            steadyState:[
+              {label:"Full Role Coverage", desc:"Expanded global competency model for all frontline CS roles, including Customer Collaboration", owner:"US Regional Operations"},
+              {label:"Global Onboarding Curriculum", desc:"Standard global onboarding curriculum with localized variants (role- and work-type segmented)", owner:"US Regional Operations"},
+              {label:"Upskilling & Coaching Program", desc:"Standard global upskilling & coaching program continuously updated to reflect latest CSR tooling releases & process updates", owner:"US Regional Operations"}
+            ]
+          }
         }
       }
     ]
@@ -1467,7 +1542,7 @@ const SECTION_REACTIONS = {
   "execrisk":    ["Agree with this risk assessment",             "Do not agree with this risk assessment"],
   "resourcing":  ["Agree with this resourcing requirement",      "Do not agree with this resourcing requirement"],
   "owner_own":   ["Agree with this ownership assignment",       "Do not agree with this ownership assignment"],
-  "owner":       ["Agree with this next step",                  "Do not agree with this next step"],
+  "owner":       ["Agree with these next steps",                 "Do not agree with these next steps"],
   "phasing_timeline": ["Agree with this timeline",             "Do not agree with this timeline"],
 };
 function getReactionLabels(subKey) {
@@ -1511,12 +1586,79 @@ nameInput.addEventListener("input", () => { loginBtn.disabled = !nameInput.value
 nameInput.addEventListener("keydown", e => { if (e.key === "Enter" && nameInput.value.trim()) enterWorkshop(); });
 loginBtn.addEventListener("click", enterWorkshop);
 
-function enterWorkshop() {
+async function enterWorkshop() {
   currentUser = nameInput.value.trim();
+  loginBtn.disabled = true;
+  loginBtn.textContent = "Loading...";
+
+  // Show app shell immediately
   document.getElementById("login-screen").style.display = "none";
   document.getElementById("app-screen").style.display = "block";
-  document.getElementById("user-greeting").textContent = "Welcome, " + currentUser + "!";
-  renderLeverList();
+
+  // Show restore overlay while fetching
+  const overlay = document.createElement("div");
+  overlay.className = "restore-overlay";
+  overlay.id = "restore-overlay";
+  overlay.innerHTML = `<div class="restore-card">
+    <div class="restore-spinner"></div>
+    <div class="restore-title">Loading your session...</div>
+    <div class="restore-sub">Checking for previous responses from <strong>${currentUser}</strong></div>
+  </div>`;
+  document.body.appendChild(overlay);
+
+  // Fetch ALL prior votes for this user across all levers
+  const priorVotes = await sbReq("GET", `votes?user_name=eq.${enc(currentUser)}&select=*`, null) || [];
+  allVotes = priorVotes;
+
+  // Reconstruct visitedLevers and visitedSections from prior votes
+  if (priorVotes.length > 0) {
+    priorVotes.forEach(v => {
+      if (v.lever_id) {
+        visitedLevers.add(v.lever_id);
+        // Find which section index this vote belongs to
+        const lever = LEVERS.find(l => l.id === v.lever_id);
+        if (lever) {
+          const secIdx = lever.sections.findIndex(s => s.id === v.section_key);
+          if (secIdx > -1) {
+            if (!visitedSections[v.lever_id]) visitedSections[v.lever_id] = new Set();
+            visitedSections[v.lever_id].add(secIdx);
+          }
+        }
+      }
+    });
+
+    // Count stats for the restore card
+    const leversWithVotes = new Set(priorVotes.map(v => v.lever_id)).size;
+    const totalRatings = priorVotes.filter(v => !isNaN(parseInt(v.reaction))).length;
+
+    // Update overlay to show what was restored
+    overlay.innerHTML = `<div class="restore-card">
+      <div style="font-size:36px;margin-bottom:12px">👋</div>
+      <div class="restore-title">Welcome back, ${currentUser}!</div>
+      <div class="restore-sub">We found your previous session and restored your responses.</div>
+      <div class="restore-stats">
+        <div class="restore-stat">
+          <div class="restore-stat-num">${leversWithVotes}</div>
+          <div class="restore-stat-lbl">Levers visited</div>
+        </div>
+        <div class="restore-stat">
+          <div class="restore-stat-num">${totalRatings}</div>
+          <div class="restore-stat-lbl">Ratings submitted</div>
+        </div>
+      </div>
+      <button class="restore-btn" onclick="document.getElementById('restore-overlay').remove(); renderLeverList();">
+        Continue where you left off →
+      </button>
+    </div>`;
+  } else {
+    // New user — skip overlay
+    overlay.remove();
+    document.getElementById("user-greeting").textContent = "Welcome, " + currentUser + "!";
+    renderLeverList();
+    return;
+  }
+
+  document.getElementById("user-greeting").textContent = "Welcome back, " + currentUser + "!";
 }
 
 function leverCompletionBar(leverId, total) {
@@ -1546,13 +1688,26 @@ function renderLeverList() {
 
   const grid = document.getElementById("lever-grid");
   grid.innerHTML = "";
-  [...LEVERS].sort((a,b) => a.number - b.number).forEach(lever => {
+
+  const FOCUS_IDS = new Set(["ai-agent", "proactive", "skillset"]);
+  const sorted = [...LEVERS].sort((a,b) => a.number - b.number);
+
+  // Focus group label
+  const focusLabel = document.createElement("div");
+  focusLabel.className = "lever-grid-focus-label";
+  focusLabel.innerHTML = `<span>🎯 Session Focus — Today's Levers</span>`;
+  grid.appendChild(focusLabel);
+
+  // Render focus levers first (1-3), then remaining
+  const focusLevers = sorted.filter(l => FOCUS_IDS.has(l.id));
+  const otherLevers = sorted.filter(l => !FOCUS_IDS.has(l.id));
+
+  const makeCard = (lever, isFocus) => {
     const card = document.createElement("div");
-    card.className = "lever-card";
-    const voteCount = allVotes.filter(v => v.lever_id === lever.id).length;
     const isReviewed = visitedLevers.has(lever.id);
     const isRapidCurrent = rapidMode && RAPID_ORDER[rapidLeverIdx]?.id === lever.id;
-    card.className = "lever-card " + (isRapidCurrent ? "rapid-current" : isReviewed ? "is-reviewed" : "needs-review");
+    const focusClass = isFocus ? "focus-lever" : "greyed-out";
+    card.className = "lever-card " + (isRapidCurrent ? "rapid-current" : focusClass + (isReviewed ? " is-reviewed" : " needs-review"));
     const statusBadge = isReviewed
       ? `<span class="reviewed-badge">✓ Reviewed</span>`
       : `<span class="review-badge">● Review needed</span>`;
@@ -1570,8 +1725,18 @@ function renderLeverList() {
         </div>
       </div>`;
     card.addEventListener("click", () => openLever(lever));
-    grid.appendChild(card);
-  });
+    return card;
+  };
+
+  focusLevers.forEach(lever => grid.appendChild(makeCard(lever, true)));
+
+  // Remaining levers label
+  const restLabel = document.createElement("div");
+  restLabel.className = "lever-grid-section-label";
+  restLabel.innerHTML = `<span>Remaining Levers</span>`;
+  grid.appendChild(restLabel);
+
+  otherLevers.forEach(lever => grid.appendChild(makeCard(lever, false)));
 }
 
 document.getElementById("btn-back").addEventListener("click", renderLeverList);
@@ -1654,7 +1819,7 @@ function buildSectionHTML(sec) {
 
   if (c.type === "bullets") {
     let html = c.title ? `<div style="font-size:28px;font-weight:800;color:#1B3A8C;margin-bottom:20px;display:flex;align-items:center;gap:12px">${c.title}</div>` : "";
-    html += c.header ? `<div class="section-subheader" style="color:#1B3A8C">${c.header}</div>` : "";
+    html += c.header ? `<div class="section-subheader" style="color:#1B3A8C">🛒 ${c.header}</div><hr class="section-divider">` : (c.title ? "" : `<div class="section-subheader" style="color:#1B3A8C">📋 Overview</div><hr class="section-divider">`);
     c.items.forEach((item, i) => {
       const text = typeof item === "object"
         ? `<span style="font-weight:700;color:#1B3A8C">${item.label}</span><br><span style="font-weight:400">${item.text}</span>`
@@ -1694,14 +1859,17 @@ function buildSectionHTML(sec) {
     };
     const currentText = buildStateText(cur, "Pain Points");
     const futureText = buildStateText(fut, "Target Experiences");
-    let html = `<div class="section-subheader" style="color:#DC2626">Current State ❌</div><hr class="section-divider">`;
+    let html = `<div class="section-subheader" style="color:#DC2626">❌ Current State</div><hr class="section-divider">`;
     html += bulletCardHTML(sec.id+"_cur", 0, currentText);
-    html += `<div class="section-subheader" style="color:#059669;margin-top:16px">Future State ✅</div><hr class="section-divider">`;
+    html += `<div class="section-subheader" style="color:#059669;margin-top:24px">✅ Future State</div><hr class="section-divider">`;
     html += bulletCardHTML(sec.id+"_fut", 0, futureText);
     return html;
   }
   if (c.type === "impact") {
-    let html = `<div class="impact-badge">${c.level}</div>`;
+    let html = `<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px">
+      <div class="section-subheader" style="color:#1B3A8C;margin-bottom:0">📊 Value Drivers</div>
+      <div class="impact-badge" style="margin-bottom:0">${c.level} Impact</div>
+    </div><hr class="section-divider">`;
     c.bullets.forEach((item, i) => {
       const text = typeof item === "object"
         ? `<span style="font-weight:700;color:#1B3A8C">${item.label}</span><br><span style="font-weight:400">${item.text}</span>`
@@ -1711,14 +1879,14 @@ function buildSectionHTML(sec) {
     return html;
   }
   if (c.type === "geo") {
-    let html = "";
+    let html = `<div style="display:flex;align-items:center;margin-top:4px;margin-bottom:14px"><div class="section-subheader" style="color:#1B3A8C;margin-bottom:0">🗺️ Geographic Scope</div><span class="focus-badge" style="margin:0 0 0 10px;font-size:11px;padding:3px 10px">🎯 Focus for Live Discussion</span></div><hr class="section-divider">`;
     c.items.forEach((item, i) => {
       html += bulletCardHTML(sec.id, i, `<span style="font-weight:700;color:#1B3A8C">${item.scope}</span><br><span style="font-weight:400">${item.detail}</span>`);
     });
     return html;
   }
   if (c.type === "interdep") {
-    let html = "";
+    let html = `<div class="section-subheader" style="color:#1B3A8C">🔗 System Dependencies</div><hr class="section-divider">`;
     c.items.forEach((item, i) => {
       const col = item.level==="Low"?"#10B981":item.level==="High"?"#EF4444":"#F59E0B";
       const label = `<span style="font-weight:700;color:#1B3A8C">${item.system}</span> <span style="background:${col}20;color:${col};border-radius:12px;padding:2px 10px;font-size:12px;font-weight:700;margin-left:6px">${item.level}</span><br><span style="font-weight:400">${item.detail}</span>`;
@@ -1727,9 +1895,9 @@ function buildSectionHTML(sec) {
     return html;
   }
   if (c.type === "phasing") {
-    const focusBadge = `<div class="focus-badge">🎯 Focus for Live Discussion</div>`;
+    const focusBadge = "";
     return focusBadge + c.phases.map((phase, pi) => {
-      let html = `<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px"><div class="phase-header" style="margin-bottom:0">${pi===0?"⚡":"🏗️"} ${phase.label}</div></div>`;
+      let html = `<div style="display:flex;align-items:center;gap:0;flex-wrap:wrap;margin-bottom:14px"><div class="phase-header" style="margin-bottom:0">${pi===0?"⚡":"🏗️"} ${phase.label}</div><span class="focus-badge" style="margin:0 0 0 10px;font-size:11px;padding:3px 10px">🎯 Focus for Live Discussion</span></div>`;
       phase.items.forEach((item, i) => {
         const resolvedItem = typeof item === "object"
           ? `<span style="font-weight:700;color:#1B3A8C">${item.label}</span><br><span style="font-weight:400">${item.text}</span>` +
@@ -1771,24 +1939,26 @@ function buildSectionHTML(sec) {
     return html;
   }
   if (c.type === "execrisk") {
-    let html = "";
+    let html = `<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px">
+      <div class="section-subheader" style="color:#DC2626;margin-bottom:0">⚠️ Risk Level</div>
+      ${c.risks.map(r => {
+        const cls = r.level==="Low"?"risk-low":r.level==="Moderate"?"risk-med":"risk-high";
+        return `<span class="risk-level-badge ${cls}">${r.level} Risk</span>`;
+      }).join("")}
+    </div><hr class="section-divider">`;
     c.risks.forEach((risk, i) => {
-      const levelClass = risk.level === "Low" ? "risk-low" : risk.level === "Moderate" ? "risk-med" : "risk-high";
-      const riskText = `<div>
-        <span class="risk-level-badge ${levelClass}">${risk.level} Risk</span>
-        <div class="risk-desc">${risk.description}</div>
-      </div>`;
+      const riskText = `<div style="font-size:14px;color:#334155;line-height:1.6">${risk.description}</div>`;
       html += bulletCardHTML(sec.id, i, riskText);
     });
     return html;
   }
 
   if (c.type === "resourcing") {
-    let html = "";
+    let html = `<div style="display:flex;align-items:center;margin-top:4px;margin-bottom:14px"><div class="section-subheader" style="color:#1B3A8C;margin-bottom:0">👥 Resourcing Requirements</div><span class="focus-badge" style="margin:0 0 0 10px;font-size:11px;padding:3px 10px">🎯 Focus for Live Discussion</span></div><hr class="section-divider">`;
     c.categories.forEach((cat, ci) => {
       const tagsHTML = cat.tags.map(t => `<span class="resource-tag">${t}</span>`).join("");
       const catText = `<div>
-        <div class="resource-title">${cat.title}</div>
+        <div class="resource-title" style="text-transform:none">${cat.title}</div>
         <div class="resource-question">${cat.question}</div>
         <div class="resource-tags">${tagsHTML}</div>
       </div>`;
@@ -1798,26 +1968,54 @@ function buildSectionHTML(sec) {
   }
 
   if (c.type === "owner") {
-    let html = `<div class="focus-badge">🎯 Focus for Live Discussion</div><div class="section-label-sm" style="margin-top:16px">OWNERS</div>`;
+    let html = `<div style="display:flex;align-items:center;margin-top:4px;margin-bottom:14px"><div class="section-subheader" style="color:#1B3A8C;margin-bottom:0">🧑‍💼 Owners</div><span class="focus-badge" style="margin:0 0 0 10px;font-size:11px;padding:3px 10px">🎯 Focus for Live Discussion</span></div><hr class="section-divider">`;
     c.owners.forEach((o, i) => {
       const label = `<span style="font-weight:700;color:#1B3A8C">${o.role}</span><br><span style="font-weight:400">${o.name}</span>`;
       html += bulletCardHTML(sec.id+"_own", i, label);
     });
-    html += `<div class="section-label-sm" style="margin-top:20px">NEXT STEPS</div>`;
-    c.nextSteps.forEach((step, i) => {
-      const stepOwner = step.owner || "Digital Strategy & Innovation team";
-      const ownerIsBCG = stepOwner === "BCG";
-      const ownerBg = ownerIsBCG ? "#F5F3FF" : "#EFF6FF";
-      const ownerColor = ownerIsBCG ? "#6D28D9" : "#1B3A8C";
-      const ownerBorder = ownerIsBCG ? "#DDD6FE" : "#BFDBFE";
-      const text = typeof step === "object"
-        ? `<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px">
-            <span style="font-weight:700;color:#1B3A8C">${step.label}</span>
-            <span style="display:inline-flex;align-items:center;background:${ownerBg};color:${ownerColor};border:1px solid ${ownerBorder};border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;white-space:nowrap">${ownerIsBCG ? "🟣" : "🟠"} Owner: ${stepOwner}</span>
+    html += `<div style="display:flex;align-items:center;margin-top:28px;margin-bottom:14px"><div class="section-subheader" style="color:#1B3A8C;margin-bottom:0">🗺️ Next Steps</div><span class="focus-badge" style="margin:0 0 0 10px;font-size:11px;padding:3px 10px">🎯 Focus for Live Discussion</span></div><hr class="section-divider">`;
+    const groups = [
+      { key: "quickWins",   label: "Quick Wins",   icon: "⚡" },
+      { key: "steadyState", label: "Steady State", icon: "🏗️" }
+    ];
+    groups.forEach((g, gi) => {
+      const items = c.nextSteps[g.key] || [];
+      if (!items.length) return;
+      // Determine single owner for this group (use first item's owner or default)
+      const groupOwner = items[0]?.owner || "Digital Strategy & Innovation team";
+      const hasMixedOwners = items.some(it => (it.owner || "Digital Strategy & Innovation team") !== groupOwner);
+      const isBCG = groupOwner === "BCG";
+      const ownerBg     = isBCG ? "#F5F3FF" : "#EFF6FF";
+      const ownerColor  = isBCG ? "#6D28D9"  : "#1B3A8C";
+      const ownerBorder = isBCG ? "#DDD6FE"  : "#BFDBFE";
+
+      const bulletsHTML = items.map((item, i) => {
+        // Per-item owner if it differs from group default
+        const itemOwner = item.owner || "Digital Strategy & Innovation team";
+        const itemBCG = itemOwner === "BCG";
+        const iBg  = itemBCG ? "#F5F3FF" : "#EFF6FF";
+        const iCol = itemBCG ? "#6D28D9"  : "#1B3A8C";
+        const iBor = itemBCG ? "#DDD6FE"  : "#BFDBFE";
+        const ownerBadge = hasMixedOwners
+          ? `<span style="display:inline-flex;align-items:center;background:${iBg};color:${iCol};border:1px solid ${iBor};border-radius:6px;padding:2px 8px;font-size:10px;font-weight:700;white-space:nowrap;margin-left:8px">${itemBCG?"🟣":"🟠"} ${itemOwner}</span>`
+          : "";
+        return `<div style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:${i < items.length-1 ? "1px solid #f1f5f9" : "none"}">
+          <span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;background:#1B3A8C;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:2px">${i+1}</span>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:${item.desc ? "3px" : "0"}">${item.label}${ownerBadge}</div>
+            ${item.desc ? `<div style="font-size:13px;color:#64748b;font-style:italic;line-height:1.5">${item.desc}</div>` : ""}
           </div>
-          <span style="font-weight:400;color:#334155">${step.text}</span>`
-        : step;
-      html += bulletCardHTML(sec.id, i, text);
+        </div>`;
+      }).join("");
+
+      const cardText = `<div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div style="font-size:15px;font-weight:700;color:#1e293b">${g.icon} ${g.label}</div>
+          ${!hasMixedOwners ? `<span style="display:inline-flex;align-items:center;background:${ownerBg};color:${ownerColor};border:1px solid ${ownerBorder};border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;white-space:nowrap">${isBCG?"🟣":"🟠"} ${groupOwner}</span>` : ""}
+        </div>
+        ${bulletsHTML}
+      </div>`;
+      html += bulletCardHTML(sec.id+"_ns", gi, cardText);
     });
     return html;
   }
@@ -2785,7 +2983,6 @@ function showLogin() {
     const login = document.getElementById("login-screen");
     login.style.display = "flex";
     document.getElementById("name-input").focus();
-    playClickSound(660, 0.08, "sine");
   }, 500);
 }
 
