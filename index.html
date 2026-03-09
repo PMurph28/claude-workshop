@@ -2790,6 +2790,7 @@ let currentDashTab = "takeaway";
 let currentTakeawayLeverId = null;
 let ratifiedSaveTimer = null;
 let _lastFeedbackItems = []; // cache for proposed changes call
+const _takeawayCache = {}; // in-memory: { leverId: { feedback: rawText, proposed: rawText } }
 let allVotesCache = [];
 
 async function showDashboard() {
@@ -2857,35 +2858,24 @@ async function selectTakeawayLever(leverId) {
   const item = document.getElementById("carousel-" + leverId);
   if (item) item.classList.add("active");
 
-  // Try loading from cache first
-  const loaded = await loadTakeawayCache(leverId);
+  // Try loading from memory cache first
+  const loaded = loadTakeawayCache(leverId);
   if (!loaded) {
     // No cache — generate fresh
     await generateTakeawayForLever(leverId);
   }
 }
 
-async function loadTakeawayCache(leverId) {
-  document.getElementById("takeaway-loading").style.display = "flex";
+function loadTakeawayCache(leverId) {
+  const cached = _takeawayCache[leverId];
+  if (!cached || !cached.feedback) return false;
 
-  // Fetch all cached rows for this lever in one call
-  const rows = await sbReq("GET",
-    "votes?user_name=eq.FACILITATOR&lever_id=eq." + encodeURIComponent(leverId) +
-    "&section_key=eq.takeaway_cache&select=bullet_key,note,reaction", null) || [];
-
-  const fbRow = rows.find(r => r.bullet_key === "feedback__" + leverId);
-  const prRow = rows.find(r => r.bullet_key === "proposed__cache__" + leverId);
-
-  document.getElementById("takeaway-loading").style.display = "none";
-
-  if (!fbRow) return false; // nothing cached
-
-  // Restore Key Feedback
-  renderKeyFeedback(fbRow.note);
+  // Restore Key Feedback from memory
+  renderKeyFeedback(cached.feedback);
 
   // Restore Proposed Changes if cached
-  if (prRow) {
-    renderProposedChanges(prRow.note);
+  if (cached.proposed) {
+    renderProposedChanges(cached.proposed);
   } else {
     document.getElementById("takeaway-proposed").innerHTML =
       "<div class='takeaway-empty'>Generate Key Feedback first, then click ✨ Generate.</div>";
@@ -2898,9 +2888,8 @@ async function loadTakeawayCache(leverId) {
 
 async function refreshTakeaway() {
   if (!currentTakeawayLeverId) return;
-  // Clear cache so fresh content is saved
-  await sbReq("DELETE", "votes?user_name=eq.FACILITATOR&lever_id=eq." +
-    encodeURIComponent(currentTakeawayLeverId) + "&section_key=eq.takeaway_cache", null);
+  // Clear memory cache for this lever so it regenerates fresh
+  delete _takeawayCache[currentTakeawayLeverId];
   await generateTakeawayForLever(currentTakeawayLeverId);
 }
 
@@ -3003,9 +2992,9 @@ async function generateProposedChanges() {
     if (!data.choices || !data.choices[0]) throw new Error("No response");
     const rawProposed = data.choices[0].message.content;
     renderProposedChanges(rawProposed);
-    // Cache to Supabase
-    upsertVote({ user_name:"FACILITATOR", lever_id:currentTakeawayLeverId, section_key:"takeaway_cache",
-      bullet_key:"proposed__cache__" + currentTakeawayLeverId, reaction:"Cache", note:rawProposed });
+    // Save to in-memory cache
+    if (!_takeawayCache[currentTakeawayLeverId]) _takeawayCache[currentTakeawayLeverId] = {};
+    _takeawayCache[currentTakeawayLeverId].proposed = rawProposed;
   } catch(e) {
     document.getElementById("takeaway-proposed").innerHTML = "<div class='ai-error'>⚠️ " + e.message + "</div>";
   } finally {
