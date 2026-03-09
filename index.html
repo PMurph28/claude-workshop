@@ -150,11 +150,20 @@
   }
   .proposed-item:last-child { border-bottom: none; }
   .proposed-item-title {
-    font-size: 14px; font-weight: 800; color: #1e293b; margin-bottom: 4px;
+    font-size: 11px; font-weight: 800; color: #6D28D9; letter-spacing: 0.5px;
+    text-transform: uppercase; margin-bottom: 4px;
   }
   .proposed-item-desc {
     font-size: 13px; color: #64748b; line-height: 1.5;
   }
+  .proposed-edit-textarea {
+    width: 100%; border: 1.5px solid #e2e8f0; border-radius: 8px;
+    padding: 8px 10px; font-size: 13px; resize: vertical; min-height: 60px;
+    outline: none; line-height: 1.5; color: #1e293b; background: #fafafa;
+    font-family: inherit; transition: border-color 0.2s, background 0.2s;
+    box-sizing: border-box; font-weight: 600;
+  }
+  .proposed-edit-textarea:focus { border-color: #8B5CF6; background: #fff; }
   .ratified-item {
     padding: 14px 0; border-bottom: 1px solid #f1f5f9;
     display: flex; flex-direction: column; min-height: 90px;
@@ -3025,9 +3034,9 @@ function renderProposedChanges(text) {
       "<div style='display:flex;align-items:flex-start;gap:8px'>" +
         "<span style='flex-shrink:0;width:18px;height:18px;border-radius:50%;background:#8B5CF6;color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:2px'>" + (i+1) + "</span>" +
         "<div style='flex:1;min-width:0'>" +
-          (item.section ? "<div style='display:inline-block;background:#EDE9FE;color:#6D28D9;border:1px solid #C4B5FD;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:800;letter-spacing:0.3px;margin-bottom:5px'>" + item.section + "</div>" : "") +
+          (item.section ? "<div style='display:inline-block;background:#EDE9FE;color:#6D28D9;border:1px solid #C4B5FD;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:800;letter-spacing:0.3px;margin-bottom:6px'>" + item.section + "</div>" : "") +
           "<div class='proposed-item-title'>" + item.title + "</div>" +
-          (item.desc ? "<div class='proposed-item-desc'>" + item.desc + "</div>" : "") +
+          "<textarea class='proposed-edit-textarea' id='proposed-ta-" + i + "' placeholder='Edit proposed change...'>" + (item.desc || "") + "</textarea>" +
         "</div>" +
       "</div>" +
     "</div>"
