@@ -164,6 +164,39 @@
     box-sizing: border-box; font-weight: 600;
   }
   .proposed-edit-textarea:focus { border-color: #8B5CF6; background: #fff; }
+  .proposed-save-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 8px;
+  }
+  .proposed-save-indicator { font-size: 11px; color: #10B981; font-weight: 600; height: 14px; }
+  .btn-proposed-save {
+    background: #8B5CF6; color: #fff; border: none; border-radius: 7px;
+    padding: 5px 12px; font-size: 11px; font-weight: 700; cursor: pointer;
+    font-family: inherit; transition: opacity 0.15s;
+  }
+  .btn-proposed-save:hover { opacity: 0.85; }
+  .btn-add-proposed {
+    display: flex; align-items: center; gap: 6px;
+    background: none; border: 1.5px dashed #c4b5fd; border-radius: 10px;
+    padding: 10px 16px; font-size: 13px; font-weight: 700; color: #8B5CF6;
+    cursor: pointer; font-family: inherit; width: 100%; margin-top: 12px;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .btn-add-proposed:hover { background: #faf5ff; border-color: #8B5CF6; }
+  .proposed-section-select {
+    width: 100%; border: 1.5px solid #e2e8f0; border-radius: 8px;
+    padding: 7px 10px; font-size: 12px; font-weight: 600; color: #475569;
+    background: #fafafa; font-family: inherit; outline: none; margin-bottom: 6px;
+    transition: border-color 0.2s;
+  }
+  .proposed-section-select:focus { border-color: #8B5CF6; }
+  .proposed-title-input {
+    width: 100%; border: 1.5px solid #e2e8f0; border-radius: 8px;
+    padding: 7px 10px; font-size: 13px; font-weight: 700; color: #1e293b;
+    background: #fafafa; font-family: inherit; outline: none; margin-bottom: 6px;
+    box-sizing: border-box; transition: border-color 0.2s;
+  }
+  .proposed-title-input:focus { border-color: #8B5CF6; background: #fff; }
   .ratified-item {
     padding: 14px 0; border-bottom: 1px solid #f1f5f9;
     display: flex; flex-direction: column; min-height: 90px;
@@ -1114,6 +1147,7 @@
               <button onclick="generateProposedChanges()" class="btn-generate-ai" id="btn-proposed" style="font-size:12px;padding:6px 14px">✨ Generate</button>
             </div>
             <div id="takeaway-proposed"><div class="takeaway-empty">Generate Key Feedback first, then click ✨ Generate.</div></div>
+            <button class="btn-add-proposed" onclick="addProposedItem()">＋ Add proposed change</button>
           </div>
           <div class="takeaway-col-ratified">
             <div class="takeaway-col-title" style="color:#10B981">
@@ -1718,6 +1752,7 @@ const LEVERS = [
 
 // ── State ──────────────────────────────────────────────────────────────────────
 let currentUser = "";
+let isFacilitator = false;
 let currentLever = null;
 let currentSectionIdx = 0;
 let allVotes = [];
@@ -1784,6 +1819,7 @@ loginBtn.addEventListener("click", enterWorkshop);
 
 async function enterWorkshop() {
   currentUser = nameInput.value.trim();
+  isFacilitator = currentUser.trim().endsWith("(FR)");
   loginBtn.disabled = true;
   loginBtn.textContent = "Checking...";
 
@@ -1813,7 +1849,7 @@ async function enterWorkshop() {
     overlay.remove();
     document.getElementById("login-screen").style.display = "none";
     document.getElementById("app-screen").style.display = "block";
-    document.getElementById("user-greeting").textContent = "Welcome, " + currentUser + "!";
+    document.getElementById("user-greeting").textContent = "Welcome, " + currentUser + "!" + (isFacilitator ? " 🎛️ Facilitator mode active." : "");
     renderLeverList();
     return;
   }
@@ -1822,7 +1858,7 @@ async function enterWorkshop() {
     overlay.remove();
     document.getElementById("login-screen").style.display = "none";
     document.getElementById("app-screen").style.display = "block";
-    document.getElementById("user-greeting").textContent = "Welcome, " + currentUser + "!";
+    document.getElementById("user-greeting").textContent = "Welcome, " + currentUser + "!" + (isFacilitator ? " 🎛️ Facilitator mode active." : "");
     renderLeverList();
     return;
   }
@@ -1899,7 +1935,7 @@ function renderLeverList() {
   document.getElementById("btn-dashboard").style.display = "none";
   document.getElementById("btn-rapid-start").style.display = "none";
   clearInterval(pollInterval); currentLever = null;
-  document.getElementById("btn-dashboard").style.display = "inline-flex";
+  document.getElementById("btn-dashboard").style.display = isFacilitator ? "inline-flex" : "none";
   document.getElementById("btn-rapid-start").style.display = "inline-flex";
   updateRapidStartBtn();
 
@@ -3030,13 +3066,17 @@ function renderProposedChanges(text) {
   }
 
   proposedEl.innerHTML = proposedItems.map((item, i) =>
-    "<div class='proposed-item'>" +
+    "<div class='proposed-item' id='proposed-item-" + i + "'>" +
       "<div style='display:flex;align-items:flex-start;gap:8px'>" +
         "<span style='flex-shrink:0;width:18px;height:18px;border-radius:50%;background:#8B5CF6;color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:2px'>" + (i+1) + "</span>" +
         "<div style='flex:1;min-width:0'>" +
-          (item.section ? "<div style='display:inline-block;background:#EDE9FE;color:#6D28D9;border:1px solid #C4B5FD;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:800;letter-spacing:0.3px;margin-bottom:6px'>" + item.section + "</div>" : "") +
+          (item.section ? "<div style='display:inline-block;background:#EDE9FE;color:#6D28D9;border:1px solid #C4B5FD;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:800;letter-spacing:0.3px;margin-bottom:6px' id='proposed-section-label-" + i + "'>" + item.section + "</div>" : "") +
           "<div class='proposed-item-title'>" + item.title + "</div>" +
           "<textarea class='proposed-edit-textarea' id='proposed-ta-" + i + "' placeholder='Edit proposed change...'>" + (item.desc || "") + "</textarea>" +
+          "<div class='proposed-save-row'>" +
+            "<span class='proposed-save-indicator' id='proposed-saved-" + i + "'></span>" +
+            "<button class='btn-proposed-save' onclick='saveProposedItem(" + i + ")'>Save</button>" +
+          "</div>" +
         "</div>" +
       "</div>" +
     "</div>"
@@ -3052,6 +3092,71 @@ function renderProposedChanges(text) {
     "</div>";
   }).join("");
   loadRatifiedItems(currentTakeawayLeverId, proposedItems.length);
+}
+
+// ── Proposed changes — save + add ────────────────────────────────────────────
+async function saveProposedItem(idx) {
+  const ta = document.getElementById("proposed-ta-" + idx);
+  if (!ta || !currentTakeawayLeverId) return;
+  const key = "proposed__" + currentTakeawayLeverId + "__" + idx;
+  await upsertVote({
+    user_name: "FACILITATOR",
+    lever_id: currentTakeawayLeverId,
+    section_key: "proposed",
+    bullet_key: key,
+    reaction: "Proposed",
+    note: ta.value
+  });
+  const ind = document.getElementById("proposed-saved-" + idx);
+  if (ind) { ind.textContent = "✓ Saved"; setTimeout(() => { ind.textContent = ""; }, 2000); }
+}
+
+let _proposedCount = 0; // track total items including manually added
+
+function addProposedItem() {
+  const proposedEl = document.getElementById("takeaway-proposed");
+  const ratifiedCol = document.getElementById("ratified-items-col");
+  const i = proposedEl.querySelectorAll(".proposed-item").length;
+  _proposedCount = i + 1;
+
+  const CHARTER_SECTIONS = [
+    "Mission Statement","From → To","Impact","Interdependencies","Execution Risk",
+    "Deliverables & Milestones","Geographic Responsibility","Resourcing Categories","Owner & Next Steps"
+  ];
+
+  // Add proposed item
+  const div = document.createElement("div");
+  div.className = "proposed-item";
+  div.id = "proposed-item-" + i;
+  div.innerHTML =
+    "<div style='display:flex;align-items:flex-start;gap:8px'>" +
+      "<span style='flex-shrink:0;width:18px;height:18px;border-radius:50%;background:#8B5CF6;color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:2px'>" + (i+1) + "</span>" +
+      "<div style='flex:1;min-width:0'>" +
+        "<select class='proposed-section-select' id='proposed-sec-" + i + "'>" +
+          "<option value=''>— Select charter section —</option>" +
+          CHARTER_SECTIONS.map(s => "<option value='" + s + "'>" + s + "</option>").join("") +
+        "</select>" +
+        "<input class='proposed-title-input' id='proposed-title-" + i + "' placeholder='2-3 word title...' />" +
+        "<textarea class='proposed-edit-textarea' id='proposed-ta-" + i + "' placeholder='Describe the proposed change (7-12 words)...'></textarea>" +
+        "<div class='proposed-save-row'>" +
+          "<span class='proposed-save-indicator' id='proposed-saved-" + i + "'></span>" +
+          "<button class='btn-proposed-save' onclick='saveProposedItem(" + i + ")'>Save</button>" +
+        "</div>" +
+      "</div>" +
+    "</div>";
+  proposedEl.appendChild(div);
+
+  // Add matching ratified textarea
+  const ratDiv = document.createElement("div");
+  ratDiv.className = "ratified-item";
+  ratDiv.id = "ratified-item-" + i;
+  const key = "ratified__" + currentTakeawayLeverId + "__" + i;
+  ratDiv.innerHTML =
+    "<div class='ratified-connector'>↳ New Change " + (i+1) + "</div>" +
+    "<textarea class='ratified-textarea' id='ratified-ta-" + i + "' data-key='" + key + "' data-idx='" + i + "'" +
+    " placeholder='Agree, modify, or reject...' oninput='scheduleRatifiedItemSave(this)'></textarea>" +
+    "<div class='ratified-saved' id='ratified-saved-" + i + "'></div>";
+  ratifiedCol.appendChild(ratDiv);
 }
 
 // ── Ratified changes — per-item save/load ────────────────────────────────────
