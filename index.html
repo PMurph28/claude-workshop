@@ -56,25 +56,30 @@
   /* Lever carousel */
   /* Lever dropdown */
   .lever-dropdown-wrap {
-    position: relative; margin-bottom: 24px; display: inline-block;
+    position: relative; margin-bottom: 24px; display: block;
   }
   .lever-dropdown-trigger {
-    display: flex; align-items: center; gap: 10px;
+    display: flex; align-items: center; justify-content: space-between;
     cursor: pointer; user-select: none;
+    background: #fff; border: 1.5px solid #e2e8f0; border-radius: 12px;
+    padding: 12px 18px; transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .lever-dropdown-trigger:hover {
+    border-color: #1B3A8C; box-shadow: 0 2px 8px rgba(27,58,140,0.08);
   }
   .lever-dropdown-title {
-    font-size: 22px; font-weight: 800; color: #1e293b;
+    font-size: 18px; font-weight: 800; color: #1e293b;
   }
   .lever-dropdown-caret {
-    font-size: 13px; color: #1B3A8C; transition: transform 0.2s;
-    display: inline-block;
+    font-size: 16px; color: #1B3A8C; transition: transform 0.2s;
+    display: inline-block; flex-shrink: 0;
   }
   .lever-dropdown-caret.open { transform: rotate(180deg); }
   .lever-dropdown-menu {
-    position: absolute; top: calc(100% + 8px); left: 0;
+    position: absolute; top: calc(100% + 6px); left: 0; right: 0;
     background: #fff; border: 1.5px solid #e2e8f0; border-radius: 14px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.12); z-index: 200;
-    min-width: 320px; max-height: 400px; overflow-y: auto;
+    max-height: 400px; overflow-y: auto;
     display: none; padding: 8px;
   }
   .lever-dropdown-menu.open { display: block; }
@@ -1123,7 +1128,7 @@
       <!-- Lever dropdown -->
       <div class="lever-dropdown-wrap" id="lever-dropdown-wrap">
         <div class="lever-dropdown-trigger" onclick="toggleLeverDropdown()">
-          <div class="lever-dropdown-title" id="lever-dropdown-title">Select a Lever ▾</div>
+          <div class="lever-dropdown-title" id="lever-dropdown-title">Select a Lever</div>
           <span class="lever-dropdown-caret" id="lever-dropdown-caret">▾</span>
         </div>
         <div class="lever-dropdown-menu" id="lever-dropdown-menu"></div>
@@ -1159,7 +1164,7 @@
           </div>
           <div class="takeaway-col-ratified">
             <div class="takeaway-col-title" style="color:#10B981">
-              ✅ Ratified Changes
+              📝 Notes
               <span id="ratified-saved-indicator" class="ratified-saved"></span>
             </div>
             <div id="ratified-items-col"><div class="takeaway-empty">Generated from Proposed Changes.</div></div>
@@ -2811,9 +2816,18 @@ async function showDashboard() {
     if (activeItem) activeItem.classList.add("active");
     loadTakeawayCache(currentTakeawayLeverId);
   } else {
-    // First open — auto-select lever 1
+    // First open — select lever 1 but don't auto-generate
     const lever1 = LEVERS.find(l => l.number === 1) || LEVERS.slice().sort((a,b)=>a.number-b.number)[0];
-    if (lever1) selectTakeawayLever(lever1.id);
+    if (lever1) {
+      currentTakeawayLeverId = lever1.id;
+      const lever = lever1;
+      const titleEl = document.getElementById("lever-dropdown-title");
+      if (titleEl) titleEl.textContent = lever.icon + " Lever " + lever.number + " — " + lever.title + " ▾";
+      document.querySelectorAll(".lever-dropdown-item").forEach(b => b.classList.remove("active"));
+      const activeItem = document.getElementById("carousel-" + lever1.id);
+      if (activeItem) activeItem.classList.add("active");
+      loadTakeawayCache(lever1.id); // show cache if exists, otherwise empty state
+    }
   }
 }
 
@@ -2864,17 +2878,19 @@ async function selectTakeawayLever(leverId) {
   // Update dropdown title
   const lever = LEVERS.find(l => l.id === leverId);
   const title = document.getElementById("lever-dropdown-title");
-  if (title && lever) title.textContent = lever.icon + " Lever " + lever.number + " — " + lever.title + " ▾";
+  if (title && lever) title.textContent = lever.icon + " Lever " + lever.number + " — " + lever.title;
   // Update active state in menu
   document.querySelectorAll(".lever-dropdown-item").forEach(b => b.classList.remove("active"));
   const item = document.getElementById("carousel-" + leverId);
   if (item) item.classList.add("active");
 
-  // Try loading from memory cache first
+  // Restore from cache if available, otherwise show empty state with prompt to generate
   const loaded = loadTakeawayCache(leverId);
   if (!loaded) {
-    // No cache — generate fresh
-    await generateTakeawayForLever(leverId);
+    _lastFeedbackItems = [];
+    document.getElementById("takeaway-feedback").innerHTML = "<div class='takeaway-empty'>Click ✨ Refresh to generate Key Feedback for this lever.</div>";
+    document.getElementById("takeaway-proposed").innerHTML = "<div class='takeaway-empty'>Generate Key Feedback first, then click ✨ Generate.</div>";
+    document.getElementById("ratified-items-col").innerHTML = "<div class='takeaway-empty'>No proposed changes yet.</div>";
   }
 }
 
@@ -2882,12 +2898,15 @@ function loadTakeawayCache(leverId) {
   const cached = _takeawayCache[leverId];
   if (!cached || !cached.feedback) return false;
 
-  // Restore Key Feedback from memory
+  // Restore Key Feedback from memory (also restores _lastFeedbackItems via renderKeyFeedback)
   renderKeyFeedback(cached.feedback);
 
   // Restore Proposed Changes if cached
   if (cached.proposed) {
     renderProposedChanges(cached.proposed);
+    // Restore saved ratified texts from Supabase after rendering the textareas
+    const count = (cached.proposed.match(/^TITLE:/gm) || []).length;
+    if (count > 0) loadRatifiedItems(leverId, count);
   } else {
     document.getElementById("takeaway-proposed").innerHTML =
       "<div class='takeaway-empty'>Generate Key Feedback first, then click ✨ Generate.</div>";
@@ -2920,11 +2939,7 @@ async function generateTakeawayForLever(leverId) {
   const rows = await sbReq("GET", "votes?lever_id=eq." + encodeURIComponent(leverId) + "&note=not.is.null&select=*", null) || [];
   const votes = rows.filter(v => v.note && v.note.trim());
 
-  if (votes.length === 0) {
-    document.getElementById("takeaway-loading").style.display = "none";
-    document.getElementById("takeaway-feedback").innerHTML = "<div class='takeaway-empty'>No comments yet for this lever.</div>";
-    return;
-  }
+  // Allow generation even with no comments — prompt handles this gracefully
 
   const commentLines = votes.map(v => {
     const parts = (v.bullet_key || "").split("__");
@@ -2936,14 +2951,22 @@ async function generateTakeawayForLever(leverId) {
     return v.user_name + " [" + secLabel + (scoreLabel ? ", " + scoreLabel : "") + "]: " + v.note;
   }).join("\n");
 
+  const hasComments = votes.length > 0;
+  const commentBlock = hasComments
+    ? "PARTICIPANT COMMENTS:\n" + commentLines + "\n\n"
+    : "No written comments were submitted for this lever.\n\n";
+
   const prompt = "You are summarising workshop feedback for the JJMT MedTech CS lever: " + lever.title + ".\n\n" +
-    "PARTICIPANT COMMENTS:\n" + commentLines + "\n\n" +
-    "Condense into 4-5 distinct feedback themes (max). Each theme needs a 3-5 word title and ONE concise sentence (max 20 words) summarising what participants said.\n" +
+    commentBlock +
+    "Produce 3-5 balanced feedback themes that represent the FULL range of sentiment — both areas of agreement/alignment AND areas of concern or suggested improvement. " +
+    "Do NOT skew towards negativity; if comments are mixed or absent, lead with positive themes about areas of alignment. " +
+    (hasComments ? "" : "Since no comments were submitted, generate 2-3 plausible observations based on what a typical workshop participant might note about this lever type. ") +
+    "Each theme needs a 3-5 word title and ONE concise sentence (max 20 words).\n" +
     "Format EXACTLY as:\n" +
     "KEY FEEDBACK\n" +
     "THEME: [3-5 word title]\n" +
     "DESC: [one sentence, max 20 words]\n" +
-    "CONTRIBUTORS: [name1, name2]\n" +
+    "CONTRIBUTORS: [name1, name2 — or 'General' if no specific contributors]\n" +
     "No other text. Max 5 themes.";
 
   try {
@@ -2954,7 +2977,10 @@ async function generateTakeawayForLever(leverId) {
     });
     const data = await res.json();
     if (!data.choices || !data.choices[0]) throw new Error("No response");
-    renderKeyFeedback(data.choices[0].message.content);
+    const _rawFb = data.choices[0].message.content;
+    renderKeyFeedback(_rawFb);
+    if (!_takeawayCache[leverId]) _takeawayCache[leverId] = {};
+    _takeawayCache[leverId].feedback = _rawFb;
   } catch(e) {
     document.getElementById("takeaway-feedback").innerHTML = "<div class='ai-error'>⚠️ " + e.message + "</div>";
   } finally {
@@ -2985,14 +3011,15 @@ async function generateProposedChanges() {
 
   const prompt = "You are a management consultant helping JJMT MedTech refine their CS strategy lever: " + (lever ? lever.title : "") + ".\n\n" +
     "Based on these key feedback themes from workshop participants:\n" + feedbackText + "\n\n" +
-    "For each theme, propose ONE specific change to the lever charter. Max 4 changes total.\n" +
-    "Each change MUST reference the specific charter section it affects. The charter sections are:\n" +
-    CHARTER_SECTIONS.join(", ") + "\n\n" +
+    "Propose up to 4 specific changes to the lever charter. Each proposed change MUST:\n" +
+    "1. Map directly to one of these charter sections: " + CHARTER_SECTIONS.join(", ") + "\n" +
+    "2. Address something WITHIN that section's subject matter (e.g. a change to 'Impact' must be about impact sizing, value drivers, or metrics — not about resourcing)\n" +
+    "3. Be directly traceable to the feedback theme it responds to\n" +
     "Format EXACTLY as:\n" +
     "SECTION: [exact charter section name from the list above]\n" +
-    "TITLE: [2-3 word change title]\n" +
-    "DESC: [7-12 words — explicit charter change required]\n" +
-    "No other text. Max 4 changes. Every change must have a SECTION.";
+    "TITLE: [2-3 word change title directly related to that section]\n" +
+    "DESC: [7-12 words stating what specifically changes in that section]\n" +
+    "No other text. Max 4 changes. Every change must be on-topic for its section.";
 
   try {
     const res = await fetch(SUPABASE_URL + "/functions/v1/ai-summary", {
