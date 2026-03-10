@@ -3154,7 +3154,8 @@ async function generateProposedChanges() {
 
   const btn = document.getElementById("btn-proposed");
   if (btn) { btn.disabled = true; btn.textContent = "⏳"; }
-  document.getElementById("takeaway-proposed").innerHTML = "<div class='ai-thinking' style='display:flex'><div class='ai-spinner'></div> Generating...</div>";
+  const _genContainer = document.getElementById("paired-rows-container");
+  if (_genContainer) _genContainer.innerHTML = "<div class='ai-thinking' style='display:flex'><div class='ai-spinner'></div> Generating...</div>";
 
   const feedbackText = _lastFeedbackItems.map((item, i) =>
     (i+1) + ". " + item.theme + " (Contributors: " + item.contribs + ")"
