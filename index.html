@@ -2234,7 +2234,7 @@ function buildSectionHTML(sec) {
     let html = `<div class="section-subheader" style="color:#DC2626">❌ Current State</div><hr class="section-divider">`;
     html += bulletCardHTML(sec.id+"_cur", 0, currentText);
     html += `<div class="section-subheader" style="color:#059669;margin-top:24px">✅ Future State</div><hr class="section-divider">`;
-    html += bulletCardHTML(sec.id+"_fut", 0, futureText);
+    html += bulletCardHTML(sec.id+"_fut", 1, futureText);
     return html;
   }
   if (c.type === "impact") {
@@ -2320,7 +2320,7 @@ function buildSectionHTML(sec) {
     </div><hr class="section-divider">`;
     c.risks.forEach((risk, i) => {
       const riskText = `<div style="font-size:14px;color:#334155;line-height:1.6">${risk.description}</div>`;
-      html += bulletCardHTML(sec.id, i, riskText);
+      html += bulletCardHTML(sec.id, i, riskText, true);
     });
     return html;
   }
@@ -2370,7 +2370,7 @@ function buildSectionHTML(sec) {
         </div>
         ${item.desc ? `<div style="font-size:13px;color:#64748b;font-style:italic;line-height:1.5">${item.desc}</div>` : ""}
       </div>`;
-      html += bulletCardHTML(sec.id+"_ns", gi, cardText);
+      html += bulletCardHTML(sec.id+"_ns", gi + 2, cardText);
     });
     return html;
   }
