@@ -3025,16 +3025,34 @@ async function generateProposedChanges() {
   ];
 
   const SECTION_DEFINITIONS =
-    "SECTION DEFINITIONS — each proposed change must stay strictly within its section's scope:\n" +
-    "• Mission Statement: The lever's core purpose, problem it solves, and strategic rationale. Changes here are about how the lever is framed or positioned.\n" +
-    "• From → To: Description of current-state pain points vs. target future state. Changes here are about how the before/after narrative is described.\n" +
-    "• Impact: Quantified or directional value the lever delivers (deflection %, capacity relief, adoption lift). Changes here are about impact sizing, metrics, or which value drivers are claimed.\n" +
-    "• Interdependencies: System or programme dependencies (e.g. Butterfly, TranSCend, Genesys). Changes here are about which systems are listed, their risk level, or dependency descriptions.\n" +
-    "• Execution Risk: Risks that could prevent successful delivery. Changes here are about risk level, risk descriptions, or mitigation considerations.\n" +
-    "• Deliverables & Milestones: Specific deliverables, phasing (Quick Wins vs Steady State), and target dates. Changes here are about what gets built, when, and in what sequence.\n" +
-    "• Geographic Responsibility: Which regions own global vs local accountability. Changes here are about ownership split, regional scope, or governance model.\n" +
-    "• Resourcing Categories: Types of people or capabilities required. Changes here are about roles, team composition, or resource types.\n" +
-    "• Owner & Next Steps: Who owns the lever and what the immediate next actions are. Changes here are about ownership assignment or next step descriptions.\n";
+    "SECTION DEFINITIONS — use these to pick the correct section AND verify your TITLE and DESC belong there:\n\n" +
+    "• Mission Statement: The one-line strategic purpose of the lever — what problem it solves and why it matters to JJMT CS. " +
+    "VALID: reframing the lever's stated objective or scope. " +
+    "INVALID: anything about timelines, resources, risks, or systems.\n\n" +
+    "• From → To: A before/after narrative describing the current pain state and the target future experience. " +
+    "VALID: rewording how the current state is characterised, or adjusting what the future state promises. " +
+    "INVALID: anything about how to get there — that belongs in Deliverables & Milestones.\n\n" +
+    "• Impact: The business value this lever delivers, expressed as metrics or directional outcomes (e.g. deflection %, AHT reduction, capacity freed). " +
+    "VALID: adjusting claimed impact ranges, adding or removing a value driver, clarifying what gets measured. " +
+    "INVALID: anything about timeline, who owns it, or what gets built — those belong elsewhere.\n\n" +
+    "• Interdependencies: Other programmes or systems this lever depends on or affects (e.g. Butterfly CRM, TranSCend ERP, Genesys, KMS). " +
+    "VALID: adding a missing dependency, changing a risk rating (Low/Moderate/High), clarifying what the dependency means. " +
+    "INVALID: anything about internal team resourcing, milestone dates, or risk of delivery failure — that is Execution Risk.\n\n" +
+    "• Execution Risk: Specific risks that could prevent or degrade delivery of this lever — technical, organisational, or sequencing risks. " +
+    "VALID: adding a risk, changing a risk level, clarifying what makes something risky. " +
+    "INVALID: listing system dependencies (that is Interdependencies) or describing what gets built (that is Deliverables).\n\n" +
+    "• Deliverables & Milestones: The specific outputs of this lever, split into Quick Wins and Steady State phases, each with a target date. " +
+    "VALID: changing a deliverable label, adjusting a target date, adding or removing a phase item, clarifying scope of a milestone. " +
+    "INVALID: anything about who funds it (Resourcing), who owns it (Owner), or what systems it depends on (Interdependencies).\n\n" +
+    "• Geographic Responsibility: Which markets or regions are in scope and what is governed centrally vs locally. " +
+    "VALID: changing which regions are listed, clarifying what is global vs regional accountability, adjusting the governance split. " +
+    "INVALID: anything about internal team roles or headcount — that is Resourcing.\n\n" +
+    "• Resourcing Categories: The types of people, skills, or capabilities needed to deliver this lever (e.g. Product Manager, AI Engineers, Regional SMEs). " +
+    "VALID: adding or removing a role type, relabelling a capability category. " +
+    "INVALID: anything about milestone dates, regional scope, or system dependencies.\n\n" +
+    "• Owner & Next Steps: The named JJMT owner of this lever and the concrete immediate next actions required to move it forward. " +
+    "VALID: changing the owner role, updating a next step label or description, adding a next action. " +
+    "INVALID: anything about long-term deliverables (that is Deliverables & Milestones) or organisational structure (that is Geographic Responsibility).\n";
 
   const prompt = "You are a management consultant helping JJMT MedTech refine the charter for their CS strategy lever: " + (lever ? lever.title : "") + ".\n\n" +
     SECTION_DEFINITIONS + "\n" +
