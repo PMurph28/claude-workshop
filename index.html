@@ -1163,11 +1163,7 @@
             <button class="btn-add-proposed" onclick="addProposedItem()">＋ Add proposed change</button>
           </div>
           <div class="takeaway-col-ratified">
-            <div class="takeaway-col-title" style="color:#10B981">
-              📝 Notes
-              <span id="ratified-saved-indicator" class="ratified-saved"></span>
-            </div>
-            <div id="ratified-items-col"><div class="takeaway-empty">Generated from Proposed Changes.</div></div>
+            <div id="ratified-items-col" style="padding-top:4px"><div class="takeaway-empty">Generated from Proposed Changes.</div></div>
           </div>
         </div>
 
@@ -3062,7 +3058,8 @@ async function generateProposedChanges() {
     "2. The TITLE and DESC must only reference concepts that belong to that section per the definitions above — no cross-section mixing\n" +
     "3. If feedback is about milestones or timing, assign to 'Deliverables & Milestones' — never to Resourcing or Impact\n" +
     "4. If feedback is about who is responsible, assign to 'Owner & Next Steps' or 'Geographic Responsibility' — never to Impact or Execution Risk\n" +
-    "5. Be directly traceable to the feedback theme\n" +
+    "5. Geographic Responsibility and Deliverables & Milestones are NEVER linked — geographic scope is never about timelines or deliverables, and milestone changes are never about regional ownership\n" +
+    "6. Be directly traceable to the feedback theme\n" +
     "Format EXACTLY as:\n" +
     "SECTION: [exact section name]\n" +
     "TITLE: [2-3 word title — must be about that section's topic only]\n" +
@@ -3176,7 +3173,6 @@ function renderProposedChanges(text) {
     const section = item.section || "";
     const title = item.title || "";
     return "<div class='ratified-item'>" +
-      "<div class='ratified-connector'>↳ " + (section ? section + " · " : "") + title + "</div>" +
       "<textarea class='ratified-textarea' id='ratified-ta-" + i + "' data-key='" + key + "' data-idx='" + i + "'" +
       " placeholder='Add notes...' oninput='scheduleRatifiedItemSave(this)'></textarea>" +
       "<div class='ratified-saved' id='ratified-saved-" + i + "'></div>" +
