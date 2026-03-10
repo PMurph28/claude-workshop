@@ -2334,7 +2334,7 @@ function buildSectionHTML(sec) {
         <div class="resource-question">${cat.question}</div>
         <div class="resource-tags">${tagsHTML}</div>
       </div>`;
-      html += bulletCardHTML(sec.id, ci, catText);
+      html += bulletCardHTML(sec.id, ci, catText, true);
     });
     return html;
   }
