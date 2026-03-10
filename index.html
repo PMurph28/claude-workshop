@@ -2904,9 +2904,24 @@ function loadTakeawayCache(leverId) {
   // Restore Proposed Changes if cached
   if (cached.proposed) {
     renderProposedChanges(cached.proposed);
-    // Restore saved ratified texts from Supabase after rendering the textareas
+    // Restore saved edits for both proposed and ratified textareas
     const count = (cached.proposed.match(/^TITLE:/gm) || []).length;
-    if (count > 0) loadRatifiedItems(leverId, count);
+    if (count > 0) {
+      loadRatifiedItems(leverId, count);
+      loadSavedProposedEdits(leverId, count);
+      // Also restore any in-memory edits not yet in Supabase
+      const edited = cached.editedProposed || {};
+      Object.entries(edited).forEach(([i, val]) => {
+        let parsed = null;
+        try { parsed = JSON.parse(val); } catch(e) { parsed = { desc: val }; }
+        const ta = document.getElementById("proposed-ta-" + i);
+        const secEl = document.getElementById("proposed-sec-" + i);
+        const titleEl = document.getElementById("proposed-title-" + i);
+        if (ta && parsed.desc !== undefined) ta.value = parsed.desc;
+        if (secEl && parsed.section) secEl.value = parsed.section;
+        if (titleEl && parsed.title !== undefined) titleEl.value = parsed.title;
+      });
+    }
   } else {
     document.getElementById("takeaway-proposed").innerHTML =
       "<div class='takeaway-empty'>Generate Key Feedback first, then click ✨ Generate.</div>";
@@ -3009,17 +3024,32 @@ async function generateProposedChanges() {
     "Deliverables & Milestones", "Geographic Responsibility", "Resourcing Categories", "Owner & Next Steps"
   ];
 
-  const prompt = "You are a management consultant helping JJMT MedTech refine their CS strategy lever: " + (lever ? lever.title : "") + ".\n\n" +
-    "Based on these key feedback themes from workshop participants:\n" + feedbackText + "\n\n" +
-    "Propose up to 4 specific changes to the lever charter. Each proposed change MUST:\n" +
-    "1. Map directly to one of these charter sections: " + CHARTER_SECTIONS.join(", ") + "\n" +
-    "2. Address something WITHIN that section's subject matter (e.g. a change to 'Impact' must be about impact sizing, value drivers, or metrics — not about resourcing)\n" +
-    "3. Be directly traceable to the feedback theme it responds to\n" +
+  const SECTION_DEFINITIONS =
+    "SECTION DEFINITIONS — each proposed change must stay strictly within its section's scope:\n" +
+    "• Mission Statement: The lever's core purpose, problem it solves, and strategic rationale. Changes here are about how the lever is framed or positioned.\n" +
+    "• From → To: Description of current-state pain points vs. target future state. Changes here are about how the before/after narrative is described.\n" +
+    "• Impact: Quantified or directional value the lever delivers (deflection %, capacity relief, adoption lift). Changes here are about impact sizing, metrics, or which value drivers are claimed.\n" +
+    "• Interdependencies: System or programme dependencies (e.g. Butterfly, TranSCend, Genesys). Changes here are about which systems are listed, their risk level, or dependency descriptions.\n" +
+    "• Execution Risk: Risks that could prevent successful delivery. Changes here are about risk level, risk descriptions, or mitigation considerations.\n" +
+    "• Deliverables & Milestones: Specific deliverables, phasing (Quick Wins vs Steady State), and target dates. Changes here are about what gets built, when, and in what sequence.\n" +
+    "• Geographic Responsibility: Which regions own global vs local accountability. Changes here are about ownership split, regional scope, or governance model.\n" +
+    "• Resourcing Categories: Types of people or capabilities required. Changes here are about roles, team composition, or resource types.\n" +
+    "• Owner & Next Steps: Who owns the lever and what the immediate next actions are. Changes here are about ownership assignment or next step descriptions.\n";
+
+  const prompt = "You are a management consultant helping JJMT MedTech refine the charter for their CS strategy lever: " + (lever ? lever.title : "") + ".\n\n" +
+    SECTION_DEFINITIONS + "\n" +
+    "Based on these key feedback themes:\n" + feedbackText + "\n\n" +
+    "Propose up to 4 charter changes. STRICT RULES:\n" +
+    "1. Each change must be assigned to exactly one section from the list above\n" +
+    "2. The TITLE and DESC must only reference concepts that belong to that section per the definitions above — no cross-section mixing\n" +
+    "3. If feedback is about milestones or timing, assign to 'Deliverables & Milestones' — never to Resourcing or Impact\n" +
+    "4. If feedback is about who is responsible, assign to 'Owner & Next Steps' or 'Geographic Responsibility' — never to Impact or Execution Risk\n" +
+    "5. Be directly traceable to the feedback theme\n" +
     "Format EXACTLY as:\n" +
-    "SECTION: [exact charter section name from the list above]\n" +
-    "TITLE: [2-3 word change title directly related to that section]\n" +
-    "DESC: [7-12 words stating what specifically changes in that section]\n" +
-    "No other text. Max 4 changes. Every change must be on-topic for its section.";
+    "SECTION: [exact section name]\n" +
+    "TITLE: [2-3 word title — must be about that section's topic only]\n" +
+    "DESC: [7-12 words — must describe a change within that section's scope]\n" +
+    "No other text. Max 4 changes.";
 
   try {
     const res = await fetch(SUPABASE_URL + "/functions/v1/ai-summary", {
@@ -3103,13 +3133,16 @@ function renderProposedChanges(text) {
     return;
   }
 
+  const CHARTER_SECS = ["Mission Statement","From → To","Impact","Interdependencies","Execution Risk","Deliverables & Milestones","Geographic Responsibility","Resourcing Categories","Owner & Next Steps"];
   proposedEl.innerHTML = proposedItems.map((item, i) =>
     "<div class='proposed-item' id='proposed-item-" + i + "'>" +
       "<div style='display:flex;align-items:flex-start;gap:8px'>" +
         "<span style='flex-shrink:0;width:18px;height:18px;border-radius:50%;background:#8B5CF6;color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:2px'>" + (i+1) + "</span>" +
         "<div style='flex:1;min-width:0'>" +
-          (item.section ? "<div style='display:inline-block;background:#EDE9FE;color:#6D28D9;border:1px solid #C4B5FD;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:800;letter-spacing:0.3px;margin-bottom:6px' id='proposed-section-label-" + i + "'>" + item.section + "</div>" : "") +
-          "<div class='proposed-item-title'>" + item.title + "</div>" +
+          "<select class='proposed-section-select' id='proposed-sec-" + i + "' oninput='showProposedSaveBtn(" + i + ")'>" +
+            CHARTER_SECS.map(s => "<option value='" + s + "'" + (s === item.section ? " selected" : "") + ">" + s + "</option>").join("") +
+          "</select>" +
+          "<input class='proposed-title-input' id='proposed-title-" + i + "' value='" + (item.title || "").replace(/'/g,"&#39;") + "' placeholder='2-3 word title...' oninput='showProposedSaveBtn(" + i + ")' />" +
           "<textarea class='proposed-edit-textarea' id='proposed-ta-" + i + "' oninput='showProposedSaveBtn(" + i + ")' placeholder='Edit proposed change...'>" + (item.desc || "") + "</textarea>" +
           "<div class='proposed-save-row'>" +
             "<span class='proposed-save-indicator' id='proposed-saved-" + i + "'></span>" +
@@ -3126,13 +3159,13 @@ function renderProposedChanges(text) {
     const title = item.title || "";
     return "<div class='ratified-item'>" +
       "<div class='ratified-connector'>↳ " + (section ? section + " · " : "") + title + "</div>" +
-      "<button class='btn-ratified-ai' id='ratified-ai-btn-" + i + "' onclick='draftRatifiedChange(" + i + ")' data-section='" + section.replace(/"/g, "&quot;") + "' data-title='" + title.replace(/"/g, "&quot;") + "''>✨ Draft revision</button>" +
       "<textarea class='ratified-textarea' id='ratified-ta-" + i + "' data-key='" + key + "' data-idx='" + i + "'" +
-      " placeholder='Click ✨ Draft revision to generate, or type directly...' oninput='scheduleRatifiedItemSave(this)'></textarea>" +
+      " placeholder='Add notes...' oninput='scheduleRatifiedItemSave(this)'></textarea>" +
       "<div class='ratified-saved' id='ratified-saved-" + i + "'></div>" +
     "</div>";
   }).join("");
   loadRatifiedItems(currentTakeawayLeverId, proposedItems.length);
+  loadSavedProposedEdits(currentTakeawayLeverId, proposedItems.length);
 }
 
 // ── Proposed changes — save + add ────────────────────────────────────────────
@@ -3236,6 +3269,12 @@ function showProposedSaveBtn(idx) {
 async function saveProposedItem(idx) {
   const ta = document.getElementById("proposed-ta-" + idx);
   if (!ta || !currentTakeawayLeverId) return;
+  const secEl = document.getElementById("proposed-sec-" + idx);
+  const titleEl = document.getElementById("proposed-title-" + idx);
+  const section = secEl ? secEl.value : "";
+  const title = titleEl ? titleEl.value : "";
+  // Store section + title + desc as JSON so we can restore all three fields
+  const noteData = JSON.stringify({ section, title, desc: ta.value });
   const key = "proposed__" + currentTakeawayLeverId + "__" + idx;
   await upsertVote({
     user_name: "FACILITATOR",
@@ -3243,11 +3282,16 @@ async function saveProposedItem(idx) {
     section_key: "proposed",
     bullet_key: key,
     reaction: "Proposed",
-    note: ta.value
+    note: noteData
   });
+  // Patch the memory cache so restore uses the edited text
+  if (!_takeawayCache[currentTakeawayLeverId]) _takeawayCache[currentTakeawayLeverId] = {};
+  if (!_takeawayCache[currentTakeawayLeverId].editedProposed)
+    _takeawayCache[currentTakeawayLeverId].editedProposed = {};
+  _takeawayCache[currentTakeawayLeverId].editedProposed[idx] = noteData;
+
   const ind = document.getElementById("proposed-saved-" + idx);
   if (ind) { ind.textContent = "✓ Saved"; setTimeout(() => { ind.textContent = ""; }, 2000); }
-  // Hide save button until next edit
   const btn = document.getElementById("proposed-save-btn-" + idx);
   if (btn) btn.style.display = "none";
 }
@@ -3326,6 +3370,30 @@ async function saveRatifiedItem(ta) {
   if (ind) { ind.textContent = "✓ Saved"; setTimeout(() => { ind.textContent = ""; }, 2000); }
   const header = document.getElementById("ratified-saved-indicator");
   if (header) { header.textContent = "✓ Saved"; setTimeout(() => { header.textContent = ""; }, 2000); }
+}
+
+async function loadSavedProposedEdits(leverId, count) {
+  // Fetch any saved edits to proposed change textareas from Supabase
+  const rows = await sbReq("GET", "votes?user_name=eq.FACILITATOR&lever_id=eq." + encodeURIComponent(leverId) + "&section_key=eq.proposed&select=bullet_key,note", null) || [];
+  const byKey = {};
+  rows.forEach(r => { byKey[r.bullet_key] = r.note; });
+  for (let i = 0; i < count; i++) {
+    const key = "proposed__" + leverId + "__" + i;
+    if (byKey[key]) {
+      let parsed = null;
+      try { parsed = JSON.parse(byKey[key]); } catch(e) { parsed = { desc: byKey[key] }; }
+      const ta = document.getElementById("proposed-ta-" + i);
+      const secEl = document.getElementById("proposed-sec-" + i);
+      const titleEl = document.getElementById("proposed-title-" + i);
+      if (ta && parsed.desc !== undefined) ta.value = parsed.desc;
+      if (secEl && parsed.section) secEl.value = parsed.section;
+      if (titleEl && parsed.title !== undefined) titleEl.value = parsed.title;
+      // Also patch memory cache
+      if (!_takeawayCache[leverId]) _takeawayCache[leverId] = {};
+      if (!_takeawayCache[leverId].editedProposed) _takeawayCache[leverId].editedProposed = {};
+      _takeawayCache[leverId].editedProposed[i] = byKey[key];
+    }
+  }
 }
 
 async function loadRatifiedItems(leverId, count) {
