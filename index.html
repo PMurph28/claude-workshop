@@ -1226,7 +1226,7 @@
               💡 Proposed Changes
               <button onclick="generateProposedChanges()" class="btn-generate-ai" id="btn-proposed" style="font-size:11px;padding:4px 10px">✨ Generate</button>
             </div>
-            <div style="font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#10B981;padding-left:20px">📝 Notes</div>
+
           </div>
           <!-- Paired rows -->
           <div id="paired-rows-container">
@@ -3553,6 +3553,55 @@ async function loadRatifiedItems(leverId, count) {
 async function loadRatifiedText(leverId) {}
 
 // ── Participant Feedback tab ───────────────────────────────────────────────────
+// ── Resolve breadcrumb from bullet_key ────────────────────────────────────────
+function resolveBreadcrumb(v) {
+  const lever = LEVERS.find(l => l.id === v.lever_id);
+  if (!lever) return null;
+
+  const parts = (v.bullet_key || "").split("__");
+  // parts: [leverId, subKey, idx]  (subKey may have _0, _1 suffix for phasing)
+  const rawSubKey = parts[1] || v.section_key || "";
+  const itemIdx   = parseInt(parts[2]);
+
+  // Find the section this subKey belongs to
+  const sec = lever.sections.find(s =>
+    rawSubKey === s.id ||
+    rawSubKey.startsWith(s.id + "_") ||
+    rawSubKey === s.id + "_own" ||
+    rawSubKey === s.id + "_ns"
+  );
+  if (!sec) return null;
+
+  const secLabel = sec.label; // e.g. "Deliverables & Milestones"
+
+  // For phasing sections, decode the phase and question number
+  if (sec.content && sec.content.type === "phasing") {
+    // subKey is sec.id + "_0" (Quick Wins) or sec.id + "_1" (Steady State)
+    const phaseSuffix = rawSubKey.replace(sec.id, "").replace(/^_/, "");
+    const phaseIdx = parseInt(phaseSuffix);
+    const phase = sec.content.phases && sec.content.phases[phaseIdx];
+    const phaseLabel = phase ? phase.label : (phaseIdx === 0 ? "Quick Wins" : "Steady State");
+    const qNum = isNaN(itemIdx) ? null : itemIdx + 1;
+    return secLabel + " → " + phaseLabel + (qNum ? " → Q" + qNum : "");
+  }
+
+  // For owner next steps
+  if (rawSubKey.endsWith("_ns")) {
+    const phaseIdx = isNaN(itemIdx) ? 0 : itemIdx;
+    const phaseLabel = phaseIdx === 0 ? "Quick Wins" : "Steady State";
+    return secLabel + " → Next Steps → " + phaseLabel;
+  }
+
+  // For owners
+  if (rawSubKey.endsWith("_own")) {
+    return secLabel + " → Owners";
+  }
+
+  // Default: section + question number
+  const qNum = isNaN(itemIdx) ? null : itemIdx + 1;
+  return secLabel + (qNum ? " → Q" + qNum : "");
+}
+
 async function loadParticipantFeedback() {
   const el = document.getElementById("pf-content");
   document.getElementById("pf-loading").style.display = "flex";
@@ -3592,10 +3641,12 @@ async function loadParticipantFeedback() {
         const isLikert = !isNaN(scoreNum);
         const [al, dl] = getReactionLabels(v.section_key || "");
         const scoreStr = isLikert ? getLikertLabel(scoreNum, al, dl) + " (" + scoreNum + "/5)" : "";
+        const breadcrumb = resolveBreadcrumb(v);
         return "<div class='pf-comment-row'>" +
           "<span class='dash-avatar' style='flex-shrink:0'>" + (v.user_name||"?")[0].toUpperCase() + "</span>" +
           "<div style='flex:1'>" +
             "<div style='font-size:12px;font-weight:700;color:#475569;margin-bottom:2px'>" + v.user_name + (scoreStr ? " · <span style='color:" + getLikertColor(scoreNum) + "'>" + scoreStr + "</span>" : "") + "</div>" +
+            (breadcrumb ? "<div style='font-size:11px;color:#94a3b8;font-weight:600;margin-bottom:3px;letter-spacing:0.2px'>📍 " + breadcrumb + "</div>" : "") +
             "<div>" + escHtml(v.note) + "</div>" +
           "</div>" +
         "</div>";
