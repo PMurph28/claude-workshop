@@ -105,21 +105,16 @@
     background: #e2e8f0; border-radius: 2px; min-height: 400px; margin: 0 20px;
   }
   .takeaway-right-cols {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+    display: block;
     border: 1.5px solid #e2e8f0; border-radius: 14px; overflow: hidden;
+    background: #fff;
   }
   .takeaway-col-feedback {
     background: #F0F4FF; border-radius: 14px; border: 1.5px solid #BFDBFE;
     padding: 22px 24px; min-height: 300px;
   }
-  .takeaway-col-proposed {
-    background: #fff; border-right: 1px dashed #c7d2fe;
-    padding: 22px 20px; min-height: 300px;
-  }
-  .takeaway-col-ratified {
-    background: #fff;
-    padding: 22px 20px; min-height: 300px;
-  }
+  .takeaway-col-proposed { display: none; }
+  .takeaway-col-ratified { display: none; }
   .takeaway-col-title {
     font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
     margin-bottom: 16px; display: flex; align-items: center;
@@ -186,10 +181,10 @@
   }
   .btn-add-proposed:hover { background: #faf5ff; border-color: #8B5CF6; }
   .proposed-section-select {
-    width: 100%; border: 1.5px solid #e2e8f0; border-radius: 8px;
+    width: 100%; max-width: 100%; border: 1.5px solid #e2e8f0; border-radius: 8px;
     padding: 7px 10px; font-size: 12px; font-weight: 600; color: #475569;
     background: #fafafa; font-family: inherit; outline: none; margin-bottom: 6px;
-    transition: border-color 0.2s;
+    box-sizing: border-box; transition: border-color 0.2s;
   }
   .proposed-section-select:focus { border-color: #8B5CF6; }
   .proposed-title-input {
