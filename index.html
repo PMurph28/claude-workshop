@@ -2105,36 +2105,17 @@ const OTHER_INITIATIVES = {
 function openOtherInitiative(id) {
   const init = OTHER_INITIATIVES[id];
   if (!init) return;
-  // Show lever-detail panel with placeholder content
-  document.getElementById("lever-list").style.display = "none";
-  document.getElementById("lever-detail").style.display = "flex";
-  document.getElementById("lever-detail").style.flexDirection = "column";
-  document.getElementById("top-bar-title").textContent = init.title;
-  document.getElementById("view-dropdown-wrap").style.display = "none";
-  document.getElementById("btn-back").style.display = "inline-flex";
-  document.getElementById("btn-dashboard").style.display = "none";
-  document.getElementById("btn-rapid-start").style.display = "none";
-
-  // Build placeholder sidebar + content
-  const sidebar = document.getElementById("section-sidebar");
-  const area = document.getElementById("section-content-area");
-  const titleEl = document.getElementById("section-title-text");
-  const counterEl = document.getElementById("section-counter");
-  if (titleEl) titleEl.textContent = "Overview";
-  if (counterEl) counterEl.textContent = "";
-
-  if (sidebar) sidebar.innerHTML = `
-    <div class="sidebar-group-label">OVERVIEW</div>
-    <div class="sidebar-item active-section">
-      <span>${init.icon}</span><span style="flex:1">Overview</span>
-    </div>`;
-
-  if (area) area.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:60px 40px;text-align:center;color:#94a3b8">
-      <div style="font-size:52px;margin-bottom:16px">${init.icon}</div>
-      <div style="font-size:22px;font-weight:800;color:#1e293b;margin-bottom:10px">${init.title}</div>
-      <div style="font-size:15px;color:#64748b;max-width:400px;line-height:1.6">Content for this initiative area is coming soon.<br>Check back after the next update.</div>
-    </div>`;
+  // Build a fake lever with placeholderSections and open it normally
+  const fakeLever = {
+    id: "other__" + id,
+    number: null,
+    title: init.title,
+    icon: init.icon,
+    valueProvided: "Initiative Area",
+    valueColor: "#64748b",
+    sections: placeholderSections(init.title)
+  };
+  openLever(fakeLever);
 }
 
 // ── Open lever ─────────────────────────────────────────────────────────────────
@@ -2959,29 +2940,10 @@ async function showDashboard() {
   buildLeverCarousel();
   await Promise.all([loadDashboard(), loadParticipantFeedback()]);
 
-  if (currentTakeawayLeverId) {
-    // Returning to dashboard — restore cached content without re-generating
-    const lever = LEVERS.find(l => l.id === currentTakeawayLeverId);
-    const titleEl = document.getElementById("lever-dropdown-title");
-    if (titleEl && lever) titleEl.textContent = lever.icon + " Lever " + lever.number + " — " + lever.title + " ▾";
-    document.querySelectorAll(".lever-dropdown-item").forEach(b => b.classList.remove("active"));
-    const activeItem = document.getElementById("carousel-" + currentTakeawayLeverId);
-    if (activeItem) activeItem.classList.add("active");
-    loadTakeawayCache(currentTakeawayLeverId);
-  } else {
-    // First open — select lever 1 but don't auto-generate
-    const lever1 = LEVERS.find(l => l.number === 1) || LEVERS.slice().sort((a,b)=>a.number-b.number)[0];
-    if (lever1) {
-      currentTakeawayLeverId = lever1.id;
-      const lever = lever1;
-      const titleEl = document.getElementById("lever-dropdown-title");
-      if (titleEl) titleEl.textContent = lever.icon + " Lever " + lever.number + " — " + lever.title + " ▾";
-      document.querySelectorAll(".lever-dropdown-item").forEach(b => b.classList.remove("active"));
-      const activeItem = document.getElementById("carousel-" + lever1.id);
-      if (activeItem) activeItem.classList.add("active");
-      loadTakeawayCache(lever1.id); // show cache if exists, otherwise empty state
-    }
-  }
+  // Always select a lever — previously selected one or default to lever 1
+  const targetId = currentTakeawayLeverId ||
+    (LEVERS.find(l => l.number === 1) || LEVERS.slice().sort((a,b)=>a.number-b.number)[0])?.id;
+  if (targetId) selectTakeawayLever(targetId);
 }
 
 function switchDashTab(tab) {
