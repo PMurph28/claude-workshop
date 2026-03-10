@@ -2711,6 +2711,7 @@ async function showSummaryScreen() {
 
 // ── Rapid Review Mode ────────────────────────────────────────────────────────
 let rapidMode = false;
+let rapidVisitedLevers = new Set(); // only levers visited during rapid mode
 let rapidLeverIdx = 0;
 let rapidStartTime = null;
 let rapidTimerInterval = null;
@@ -2734,7 +2735,8 @@ function getRapidResumePoint() {
 }
 
 function hasRapidProgress() {
-  return RAPID_ORDER.some(lever => visitedLevers.has(lever.id));
+  // Only show Resume if rapid mode was actually started and has progress
+  return rapidVisitedLevers.size > 0 && !rapidMode;
 }
 
 function startRapidMode(resume) {
@@ -2749,6 +2751,7 @@ function startRapidMode(resume) {
   // Timer: fresh start resets, resume just restarts the interval from where we paused
   if (!resume) {
     rapidElapsedBeforePause = 0;
+    rapidVisitedLevers.clear();
   }
   rapidStartTime = Date.now(); // always mark current segment start
 
@@ -2793,6 +2796,10 @@ function playClickSound(freq, vol, type) {
 function updateRapidStartBtn() {
   const btn = document.getElementById("btn-rapid-start");
   if (!btn) return;
+  // Hide entirely while rapid mode is active
+  if (rapidMode) { btn.style.display = "none"; return; }
+  // Only show on lever list
+  btn.style.display = "inline-flex";
   if (hasRapidProgress()) {
     btn.innerHTML = `<span style="font-size:15px;line-height:1">▶</span> Resume Rapid Review`;
     btn.onclick = () => startRapidMode(true);
@@ -2807,6 +2814,7 @@ function exitRapidMode() {
     rapidElapsedBeforePause += Math.floor((Date.now() - rapidStartTime) / 1000);
   }
   rapidMode = false;
+  updateRapidStartBtn();
   rapidStreak = 0;
   clearInterval(rapidTimerInterval);
   document.getElementById("rapid-bar").classList.remove("active");
@@ -2817,6 +2825,7 @@ function exitRapidMode() {
 }
 
 function rapidNextLever() {
+  if (currentLever) rapidVisitedLevers.add(currentLever.id);
   rapidStreak++;
   rapidLeverIdx++;
   if (rapidLeverIdx >= RAPID_ORDER.length) {
