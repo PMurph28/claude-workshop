@@ -3043,10 +3043,8 @@ function loadTakeawayCache(leverId) {
       });
     }
   } else {
-    document.getElementById("takeaway-proposed").innerHTML =
-      "<div class='takeaway-empty'>Generate Key Feedback first, then click ✨ Generate.</div>";
-    document.getElementById("ratified-items-col").innerHTML =
-      "<div class='takeaway-empty'>No proposed changes yet.</div>";
+    const _c = document.getElementById("paired-rows-container");
+    if (_c) _c.innerHTML = "<div style='padding:24px;color:#94a3b8;font-size:13px;font-style:italic'>Generate Key Feedback first, then click ✨ Generate.</div>";
   }
 
   return true;
@@ -3059,6 +3057,35 @@ async function refreshTakeaway() {
   await generateTakeawayForLever(currentTakeawayLeverId);
 }
 
+// ── AI fetch helper with timeout ─────────────────────────────────────────────
+async function callAI(prompt) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 45000); // 45s timeout
+  try {
+    const res = await fetch(SUPABASE_URL + "/functions/v1/ai-summary", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + SUPABASE_KEY },
+      body: JSON.stringify({ prompt }),
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error("HTTP " + res.status + ": " + errText.slice(0, 200));
+    }
+    const data = await res.json();
+    if (!data.choices || !data.choices[0]) {
+      console.error("AI response:", JSON.stringify(data));
+      throw new Error("Unexpected response format — check Edge Function logs");
+    }
+    return data.choices[0].message.content;
+  } catch(e) {
+    clearTimeout(timeout);
+    if (e.name === "AbortError") throw new Error("Request timed out after 45s — Edge Function may be down");
+    throw e;
+  }
+}
+
 // ── Takeaway AI generation ─────────────────────────────────────────────────────
 async function generateTakeawayForLever(leverId) {
   const lever = LEVERS.find(l => l.id === leverId);
@@ -3068,8 +3095,8 @@ async function generateTakeawayForLever(leverId) {
   _lastFeedbackItems = [];
   document.getElementById("takeaway-loading").style.display = "flex";
   document.getElementById("takeaway-feedback").innerHTML = "";
-  document.getElementById("takeaway-proposed").innerHTML = "<div class='takeaway-empty'>Generate Key Feedback first, then click ✨ Generate.</div>";
-  document.getElementById("ratified-items-col").innerHTML = "<div class='takeaway-empty'>No proposed changes yet.</div>";
+  const _container = document.getElementById("paired-rows-container");
+  if (_container) _container.innerHTML = "<div style='padding:24px;color:#94a3b8;font-size:13px;font-style:italic'>Generate Key Feedback first, then click ✨ Generate.</div>";
 
   const rows = await sbReq("GET", "votes?lever_id=eq." + encodeURIComponent(leverId) + "&note=not.is.null&select=*", null) || [];
   const votes = rows.filter(v => v.note && v.note.trim());
@@ -3105,18 +3132,12 @@ async function generateTakeawayForLever(leverId) {
     "No other text. Max 5 themes.";
 
   try {
-    const res = await fetch(SUPABASE_URL + "/functions/v1/ai-summary", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + SUPABASE_KEY },
-      body: JSON.stringify({ prompt })
-    });
-    const data = await res.json();
-    if (!data.choices || !data.choices[0]) throw new Error("No response");
-    const _rawFb = data.choices[0].message.content;
+    const _rawFb = await callAI(prompt);
     renderKeyFeedback(_rawFb);
     if (!_takeawayCache[leverId]) _takeawayCache[leverId] = {};
     _takeawayCache[leverId].feedback = _rawFb;
   } catch(e) {
+    console.error("Key Feedback error:", e);
     document.getElementById("takeaway-feedback").innerHTML = "<div class='ai-error'>⚠️ " + e.message + "</div>";
   } finally {
     document.getElementById("takeaway-loading").style.display = "none";
@@ -3126,7 +3147,8 @@ async function generateTakeawayForLever(leverId) {
 async function generateProposedChanges() {
   if (!currentTakeawayLeverId) return;
   if (_lastFeedbackItems.length === 0) {
-    document.getElementById("takeaway-proposed").innerHTML = "<div class='takeaway-empty'>Please generate Key Feedback first.</div>";
+    const _pc = document.getElementById("paired-rows-container");
+    if (_pc) _pc.innerHTML = "<div style='padding:24px;color:#94a3b8;font-size:13px;font-style:italic'>Please generate Key Feedback first, then click ✨ Generate.</div>";
     return;
   }
 
@@ -3192,20 +3214,14 @@ async function generateProposedChanges() {
     "No other text. Max 4 changes.";
 
   try {
-    const res = await fetch(SUPABASE_URL + "/functions/v1/ai-summary", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + SUPABASE_KEY },
-      body: JSON.stringify({ prompt })
-    });
-    const data = await res.json();
-    if (!data.choices || !data.choices[0]) throw new Error("No response");
-    const rawProposed = data.choices[0].message.content;
+    const rawProposed = await callAI(prompt);
     renderProposedChanges(rawProposed);
-    // Save to in-memory cache
     if (!_takeawayCache[currentTakeawayLeverId]) _takeawayCache[currentTakeawayLeverId] = {};
     _takeawayCache[currentTakeawayLeverId].proposed = rawProposed;
   } catch(e) {
-    document.getElementById("takeaway-proposed").innerHTML = "<div class='ai-error'>⚠️ " + e.message + "</div>";
+    console.error("Proposed Changes error:", e);
+    const _pe = document.getElementById("paired-rows-container");
+    if (_pe) _pe.innerHTML = "<div class='ai-error'>⚠️ " + e.message + "</div>";
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = "✨ Generate"; }
   }
@@ -3377,20 +3393,14 @@ async function draftRatifiedChange(idx) {
     "Output only the revised section text — no labels, no preamble.";
 
   try {
-    const res = await fetch(SUPABASE_URL + "/functions/v1/ai-summary", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + SUPABASE_KEY },
-      body: JSON.stringify({ prompt })
-    });
-    const data = await res.json();
-    if (!data.choices || !data.choices[0]) throw new Error("No response");
-    ta.value = data.choices[0].message.content.trim();
+    const result = await callAI(prompt);
+    ta.value = result.trim();
     ta.placeholder = "Click ✨ Draft revision to generate, or type directly...";
-    // Trigger autosave
     scheduleRatifiedItemSave(ta);
   } catch(e) {
+    console.error("Draft revision error:", e);
     ta.value = "";
-    ta.placeholder = "Error generating — type manually.";
+    ta.placeholder = "⚠️ " + e.message;
   } finally {
     btn.disabled = false; btn.textContent = "✨ Draft revision";
   }
@@ -3434,8 +3444,8 @@ async function saveProposedItem(idx) {
 let _proposedCount = 0; // track total items including manually added
 
 function addProposedItem() {
-  const proposedEl = document.getElementById("takeaway-proposed");
-  const ratifiedCol = document.getElementById("ratified-items-col");
+  const proposedEl = document.getElementById("paired-rows-container");
+  const ratifiedCol = null; // merged into paired-rows-container
   const i = proposedEl.querySelectorAll(".proposed-item").length;
   _proposedCount = i + 1;
 
