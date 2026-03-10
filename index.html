@@ -149,10 +149,7 @@
   .pr-pair-row {
     display: contents;
   }
-  .proposed-item {
-    padding: 14px 0; border-bottom: 1px solid #f1f5f9;
-    min-height: 90px;
-  }
+  .proposed-item { flex: 1; }
   .proposed-item:last-child { border-bottom: none; }
   .proposed-item-title {
     font-size: 11px; font-weight: 800; color: #6D28D9; letter-spacing: 0.5px;
@@ -202,11 +199,7 @@
     box-sizing: border-box; transition: border-color 0.2s;
   }
   .proposed-title-input:focus { border-color: #8B5CF6; background: #fff; }
-  .ratified-item {
-    padding: 14px 0; border-bottom: 1px solid #f1f5f9;
-    display: flex; flex-direction: column; min-height: 90px;
-  }
-  .ratified-item:last-child { border-bottom: none; }
+  .ratified-item { flex: 1; display: flex; flex-direction: column; justify-content: center; }
   .ratified-connector {
     display: flex; align-items: center; gap: 6px;
     font-size: 10px; font-weight: 700; color: #818cf8; letter-spacing: 0.5px;
@@ -335,6 +328,37 @@
 
   /* ── Lever list ── */
   #lever-list { padding: 32px 24px; max-width: 1100px; margin: 0 auto; }
+  /* View toggle */
+  .view-toggle-bar {
+    display: inline-flex; align-items: center; gap: 0;
+    background: rgba(255,255,255,0.12); border-radius: 10px;
+    padding: 3px; margin-left: 16px;
+  }
+  .view-toggle-btn {
+    padding: 6px 16px; border-radius: 8px; font-size: 13px; font-weight: 700;
+    color: rgba(255,255,255,0.7); cursor: pointer; border: none;
+    background: none; font-family: inherit; transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .view-toggle-btn.active { background: #fff; color: #1B3A8C; }
+  .view-toggle-btn:not(.active):hover { color: #fff; }
+  /* Other initiatives grid */
+  .other-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+    margin-top: 16px;
+  }
+  .other-grid-bottom { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .other-card {
+    background: #fff; border-radius: 14px; padding: 24px;
+    border: 1.5px solid #e2e8f0; cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    transition: box-shadow 0.15s, transform 0.15s;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .other-card:hover { box-shadow: 0 8px 24px rgba(27,58,140,0.15); transform: translateY(-2px); }
+  .other-card-icon { font-size: 28px; }
+  .other-card-title { font-size: 16px; font-weight: 800; color: #1e293b; }
+  .other-card-badge { display: inline-block; background: #f1f5f9; color: #64748b; border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 700; }
   .lever-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 16px; }
   .lever-card { background: #fff; border-radius: 14px; padding: 20px; border: 1.5px solid #e2e8f0; cursor: pointer; transition: box-shadow 0.15s, transform 0.15s; box-shadow: 0 2px 8px rgba(0,0,0,0.04); position: relative; }
   .lever-card:hover { box-shadow: 0 8px 24px rgba(27,58,140,0.15); transform: translateY(-2px); }
@@ -1039,7 +1063,16 @@
   <div class="top-bar">
     <div>
       <div class="top-bar-eyebrow">JJMT Supply Chain Customer Service — CS Optimization</div>
-      <div class="top-bar-title" id="top-bar-title">Detailed Initiative Review — 12 Levers</div>
+      <div id="view-dropdown-wrap" style="display:none;position:relative">
+        <div onclick="toggleViewDropdown()" style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none">
+          <div class="top-bar-title" id="top-bar-title">Detailed Initiative Review — Fixing Foundations + Tech · 12 Levers</div>
+          <span id="view-dropdown-caret" style="color:rgba(255,255,255,0.8);font-size:14px;transition:transform 0.2s;flex-shrink:0">▾</span>
+        </div>
+        <div id="view-dropdown-menu" style="display:none;position:absolute;top:calc(100% + 8px);left:0;background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.15);z-index:300;min-width:320px;padding:6px;white-space:nowrap">
+          <div onclick="switchListView('levers')" id="view-opt-levers" style="padding:9px 14px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;color:#1B3A8C;background:#EFF6FF" onmouseover="this.style.background='#DBEAFE'" onmouseout="this.style.background='#EFF6FF'">⚙️ Fixing Foundations + Tech · 12 Levers</div>
+          <div onclick="switchListView('other')" id="view-opt-other" style="padding:9px 14px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;color:#334155;background:none" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">🗂️ Other Initiatives</div>
+        </div>
+      </div>
     </div>
     <div class="top-bar-actions">
       <span class="saved-indicator" id="saved-indicator">✓ Saved</span>
@@ -1052,8 +1085,46 @@
   <!-- Lever list -->
   <div id="lever-list">
     <div style="font-size:14px;color:#64748b;margin-bottom:8px" id="user-greeting"></div>
-    <div style="font-size:14px;color:#64748b;margin-bottom:20px">Select a lever to review its initiative details and submit your reactions.</div>
-    <div class="lever-grid" id="lever-grid"></div>
+
+    <!-- CS Optimization view -->
+    <div id="view-levers">
+      <div style="font-size:14px;color:#64748b;margin-bottom:20px">Select a lever to review its initiative details and submit your reactions.</div>
+      <div class="lever-grid" id="lever-grid"></div>
+    </div>
+
+    <!-- Other Initiatives view -->
+    <div id="view-other" style="display:none">
+      <div style="font-size:14px;color:#64748b;margin-bottom:20px">Select an initiative area to explore.</div>
+      <div class="other-grid">
+        <div class="other-card" onclick="openOtherInitiative('metrics')">
+          <div class="other-card-icon">📊</div>
+          <div class="other-card-title">Metrics &amp; Excellence</div>
+          <div class="other-card-badge">Initiative Area</div>
+        </div>
+        <div class="other-card" onclick="openOtherInitiative('separation')">
+          <div class="other-card-icon">🔀</div>
+          <div class="other-card-title">Separation Strategy</div>
+          <div class="other-card-badge">Initiative Area</div>
+        </div>
+        <div class="other-card" onclick="openOtherInitiative('change')">
+          <div class="other-card-icon">📢</div>
+          <div class="other-card-title">Change Management &amp; Communication</div>
+          <div class="other-card-badge">Initiative Area</div>
+        </div>
+        <div class="other-grid-bottom">
+          <div class="other-card" onclick="openOtherInitiative('footprint')">
+            <div class="other-card-icon">🌍</div>
+            <div class="other-card-title">Footprint</div>
+            <div class="other-card-badge">Initiative Area</div>
+          </div>
+          <div class="other-card" onclick="openOtherInitiative('collab')">
+            <div class="other-card-icon">🤝</div>
+            <div class="other-card-title">Customer Collaboration</div>
+            <div class="other-card-badge">Initiative Area</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Lever detail -->
@@ -1153,17 +1224,22 @@
         <div class="takeaway-divider"></div>
 
         <!-- Cols 2+3: Proposed + Ratified side by side -->
-        <div class="takeaway-right-cols">
-          <div class="takeaway-col-proposed">
-            <div class="takeaway-col-title" style="color:#8B5CF6">
+        <div class="takeaway-right-cols" id="takeaway-right-cols">
+          <!-- Header row -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;background:#fafafa;border-bottom:1.5px solid #e2e8f0;padding:10px 20px;">
+            <div style="font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#8B5CF6;display:flex;align-items:center;gap:8px">
               💡 Proposed Changes
-              <button onclick="generateProposedChanges()" class="btn-generate-ai" id="btn-proposed" style="font-size:12px;padding:6px 14px">✨ Generate</button>
+              <button onclick="generateProposedChanges()" class="btn-generate-ai" id="btn-proposed" style="font-size:11px;padding:4px 10px">✨ Generate</button>
             </div>
-            <div id="takeaway-proposed"><div class="takeaway-empty">Generate Key Feedback first, then click ✨ Generate.</div></div>
-            <button class="btn-add-proposed" onclick="addProposedItem()">＋ Add proposed change</button>
+            <div style="font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#10B981;padding-left:20px">📝 Notes</div>
           </div>
-          <div class="takeaway-col-ratified">
-            <div id="ratified-items-col" style="padding-top:4px"><div class="takeaway-empty">Generated from Proposed Changes.</div></div>
+          <!-- Paired rows -->
+          <div id="paired-rows-container">
+            <div style="padding:24px;color:#94a3b8;font-size:13px;font-style:italic">Generate Key Feedback first, then click ✨ Generate.</div>
+          </div>
+          <!-- Add row -->
+          <div style="padding:10px 20px;border-top:1px solid #f1f5f9">
+            <button class="btn-add-proposed" onclick="addProposedItem()" style="margin:0;width:100%">＋ Add proposed change</button>
           </div>
         </div>
 
@@ -1915,7 +1991,9 @@ function leverCompletionBar(leverId, total) {
 function renderLeverList() {
   document.getElementById("lever-detail").style.display = "none";
   document.getElementById("lever-list").style.display = "block";
-  document.getElementById("top-bar-title").textContent = "Detailed Initiative Review — 12 Levers";
+  document.getElementById("top-bar-title").textContent = "Detailed Initiative Review — Fixing Foundations + Tech · 12 Levers";
+  document.getElementById("view-dropdown-wrap").style.display = "flex";
+  switchListView("levers");
   // summary button removed
   document.getElementById("btn-back").style.display = "none";
   document.getElementById("btn-dashboard").style.display = "none";
@@ -1979,6 +2057,85 @@ function renderLeverList() {
 }
 
 document.getElementById("btn-back").addEventListener("click", renderLeverList);
+
+document.addEventListener("click", (e) => {
+  const wrap = document.getElementById("view-dropdown-wrap");
+  if (wrap && !wrap.contains(e.target)) {
+    const menu = document.getElementById("view-dropdown-menu");
+    const caret = document.getElementById("view-dropdown-caret");
+    if (menu) { menu.style.display = "none"; }
+    if (caret) { caret.style.transform = ""; }
+  }
+});
+
+function toggleViewDropdown() {
+  const menu = document.getElementById("view-dropdown-menu");
+  const caret = document.getElementById("view-dropdown-caret");
+  const open = menu.style.display !== "none";
+  menu.style.display = open ? "none" : "block";
+  caret.style.transform = open ? "" : "rotate(180deg)";
+}
+
+function switchListView(view) {
+  const isLevers = view === "levers";
+  document.getElementById("view-levers").style.display = isLevers ? "block" : "none";
+  document.getElementById("view-other").style.display = isLevers ? "none" : "block";
+  // Update option styles
+  document.getElementById("view-opt-levers").style.background = isLevers ? "#EFF6FF" : "none";
+  document.getElementById("view-opt-levers").style.color = isLevers ? "#1B3A8C" : "#334155";
+  document.getElementById("view-opt-other").style.background = !isLevers ? "#EFF6FF" : "none";
+  document.getElementById("view-opt-other").style.color = !isLevers ? "#1B3A8C" : "#334155";
+  document.getElementById("top-bar-title").textContent = isLevers
+    ? "Detailed Initiative Review — Fixing Foundations + Tech · 12 Levers"
+    : "Detailed Initiative Review — Other Initiatives";
+  // Close dropdown
+  document.getElementById("view-dropdown-menu").style.display = "none";
+  document.getElementById("view-dropdown-caret").style.transform = "";
+
+}
+
+const OTHER_INITIATIVES = {
+  metrics:    { title: "Metrics & Excellence",                   icon: "📊" },
+  separation: { title: "Separation Strategy",                    icon: "🔀" },
+  change:     { title: "Change Management & Communication",      icon: "📢" },
+  footprint:  { title: "Footprint",                              icon: "🌍" },
+  collab:     { title: "Customer Collaboration",                 icon: "🤝" },
+};
+
+function openOtherInitiative(id) {
+  const init = OTHER_INITIATIVES[id];
+  if (!init) return;
+  // Show lever-detail panel with placeholder content
+  document.getElementById("lever-list").style.display = "none";
+  document.getElementById("lever-detail").style.display = "flex";
+  document.getElementById("lever-detail").style.flexDirection = "column";
+  document.getElementById("top-bar-title").textContent = init.title;
+  document.getElementById("view-dropdown-wrap").style.display = "none";
+  document.getElementById("btn-back").style.display = "inline-flex";
+  document.getElementById("btn-dashboard").style.display = "none";
+  document.getElementById("btn-rapid-start").style.display = "none";
+
+  // Build placeholder sidebar + content
+  const sidebar = document.getElementById("section-sidebar");
+  const area = document.getElementById("section-content-area");
+  const titleEl = document.getElementById("section-title-text");
+  const counterEl = document.getElementById("section-counter");
+  if (titleEl) titleEl.textContent = "Overview";
+  if (counterEl) counterEl.textContent = "";
+
+  if (sidebar) sidebar.innerHTML = `
+    <div class="sidebar-group-label">OVERVIEW</div>
+    <div class="sidebar-item active-section">
+      <span>${init.icon}</span><span style="flex:1">Overview</span>
+    </div>`;
+
+  if (area) area.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:60px 40px;text-align:center;color:#94a3b8">
+      <div style="font-size:52px;margin-bottom:16px">${init.icon}</div>
+      <div style="font-size:22px;font-weight:800;color:#1e293b;margin-bottom:10px">${init.title}</div>
+      <div style="font-size:15px;color:#64748b;max-width:400px;line-height:1.6">Content for this initiative area is coming soon.<br>Check back after the next update.</div>
+    </div>`;
+}
 
 // ── Open lever ─────────────────────────────────────────────────────────────────
 async function openLever(lever) {
@@ -3140,45 +3297,41 @@ function renderProposedChanges(text) {
   });
   if (curTitle) proposedItems.push({ section: curSection, title: curTitle, desc: curDesc });
 
-  const proposedEl = document.getElementById("takeaway-proposed");
-  const ratifiedCol = document.getElementById("ratified-items-col");
-
+  const container = document.getElementById("paired-rows-container");
+  if (!container) return;
   if (proposedItems.length === 0) {
-    proposedEl.innerHTML = "<div class='takeaway-empty'>No proposed changes extracted.</div>";
-    ratifiedCol.innerHTML = "<div class='takeaway-empty'>No proposed changes yet.</div>";
+    container.innerHTML = "<div style='padding:24px;color:#94a3b8;font-size:13px;font-style:italic'>No proposed changes extracted.</div>";
     return;
   }
 
   const CHARTER_SECS = ["Mission Statement","From → To","Impact","Interdependencies","Execution Risk","Deliverables & Milestones","Geographic Responsibility","Resourcing Categories","Owner & Next Steps"];
-  proposedEl.innerHTML = proposedItems.map((item, i) =>
-    "<div class='proposed-item' id='proposed-item-" + i + "'>" +
-      "<div style='display:flex;align-items:flex-start;gap:8px'>" +
-        "<span style='flex-shrink:0;width:18px;height:18px;border-radius:50%;background:#8B5CF6;color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:2px'>" + (i+1) + "</span>" +
-        "<div style='flex:1;min-width:0'>" +
-          "<select class='proposed-section-select' id='proposed-sec-" + i + "' oninput='showProposedSaveBtn(" + i + ")'>" +
-            CHARTER_SECS.map(s => "<option value='" + s + "'" + (s === item.section ? " selected" : "") + ">" + s + "</option>").join("") +
-          "</select>" +
-          "<input class='proposed-title-input' id='proposed-title-" + i + "' value='" + (item.title || "").replace(/'/g,"&#39;") + "' placeholder='2-3 word title...' oninput='showProposedSaveBtn(" + i + ")' />" +
-          "<textarea class='proposed-edit-textarea' id='proposed-ta-" + i + "' oninput='showProposedSaveBtn(" + i + ")' placeholder='Edit proposed change...'>" + (item.desc || "") + "</textarea>" +
-          "<div class='proposed-save-row'>" +
-            "<span class='proposed-save-indicator' id='proposed-saved-" + i + "'></span>" +
-            "<button class='btn-proposed-save' id='proposed-save-btn-" + i + "' onclick='saveProposedItem(" + i + ")' style='display:none'>Save</button>" +
+
+  container.innerHTML = proposedItems.map((item, i) => {
+    const key = "ratified__" + currentTakeawayLeverId + "__" + i;
+    return "<div class='paired-row' id='paired-row-" + i + "'>" +
+      "<div class='paired-proposed'>" +
+        "<div style='display:flex;align-items:flex-start;gap:8px'>" +
+          "<span style='flex-shrink:0;width:18px;height:18px;border-radius:50%;background:#8B5CF6;color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:2px'>" + (i+1) + "</span>" +
+          "<div style='flex:1;min-width:0'>" +
+            "<select class='proposed-section-select' id='proposed-sec-" + i + "' oninput='showProposedSaveBtn(" + i + ")'>" +
+              CHARTER_SECS.map(s => "<option value='" + s + "'" + (s === item.section ? " selected" : "") + ">" + s + "</option>").join("") +
+            "</select>" +
+            "<input class='proposed-title-input' id='proposed-title-" + i + "' value='" + (item.title || "").replace(/'/g,"&#39;") + "' placeholder='2-3 word title...' oninput='showProposedSaveBtn(" + i + ")' />" +
+            "<textarea class='proposed-edit-textarea' id='proposed-ta-" + i + "' oninput='showProposedSaveBtn(" + i + ")' placeholder='Edit proposed change...'>" + (item.desc || "") + "</textarea>" +
+            "<div class='proposed-save-row'>" +
+              "<span class='proposed-save-indicator' id='proposed-saved-" + i + "'></span>" +
+              "<button class='btn-proposed-save' id='proposed-save-btn-" + i + "' onclick='saveProposedItem(" + i + ")' style='display:none'>Save</button>" +
+            "</div>" +
           "</div>" +
         "</div>" +
       "</div>" +
-    "</div>"
-  ).join("");
-
-  ratifiedCol.innerHTML = proposedItems.map((item, i) => {
-    const key = "ratified__" + currentTakeawayLeverId + "__" + i;
-    const section = item.section || "";
-    const title = item.title || "";
-    return "<div class='ratified-item'>" +
-      "<textarea class='ratified-textarea' id='ratified-ta-" + i + "' data-key='" + key + "' data-idx='" + i + "'" +
-      " placeholder='Add notes...' oninput='scheduleRatifiedItemSave(this)'></textarea>" +
-      "<div class='ratified-saved' id='ratified-saved-" + i + "'></div>" +
+      "<div class='paired-notes'>" +
+        "<textarea class='ratified-textarea' id='ratified-ta-" + i + "' data-key='" + key + "' data-idx='" + i + "' placeholder='Add notes...' oninput='scheduleRatifiedItemSave(this)' style='height:100%;min-height:80px;resize:none'></textarea>" +
+        "<div class='ratified-saved' id='ratified-saved-" + i + "'></div>" +
+      "</div>" +
     "</div>";
   }).join("");
+
   loadRatifiedItems(currentTakeawayLeverId, proposedItems.length);
   loadSavedProposedEdits(currentTakeawayLeverId, proposedItems.length);
 }
@@ -3324,10 +3477,10 @@ function addProposedItem() {
     "Deliverables & Milestones","Geographic Responsibility","Resourcing Categories","Owner & Next Steps"
   ];
 
-  // Add proposed item
-  const div = document.createElement("div");
-  div.className = "proposed-item";
-  div.id = "proposed-item-" + i;
+  const key2 = "ratified__" + currentTakeawayLeverId + "__" + i;
+  const row = document.createElement("div");
+  row.className = "paired-row";
+  row.id = "paired-row-" + i;
   div.innerHTML =
     "<div style='display:flex;align-items:flex-start;gap:8px'>" +
       "<span style='flex-shrink:0;width:18px;height:18px;border-radius:50%;background:#8B5CF6;color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:2px'>" + (i+1) + "</span>" +
