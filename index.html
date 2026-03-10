@@ -2940,10 +2940,15 @@ async function showDashboard() {
   buildLeverCarousel();
   await Promise.all([loadDashboard(), loadParticipantFeedback()]);
 
-  // Always select a lever — previously selected one or default to lever 1
-  const targetId = currentTakeawayLeverId ||
-    (LEVERS.find(l => l.number === 1) || LEVERS.slice().sort((a,b)=>a.number-b.number)[0])?.id;
-  if (targetId) selectTakeawayLever(targetId);
+  if (currentTakeawayLeverId) {
+    const lever = LEVERS.find(l => l.id === currentTakeawayLeverId);
+    const titleEl = document.getElementById("lever-dropdown-title");
+    if (titleEl && lever) titleEl.textContent = lever.icon + " Lever " + lever.number + " — " + lever.title;
+    document.querySelectorAll(".lever-dropdown-item").forEach(b => b.classList.remove("active"));
+    const activeItem = document.getElementById("carousel-" + currentTakeawayLeverId);
+    if (activeItem) activeItem.classList.add("active");
+    loadTakeawayCache(currentTakeawayLeverId);
+  }
 }
 
 function switchDashTab(tab) {
