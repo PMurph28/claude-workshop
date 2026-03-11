@@ -2707,19 +2707,38 @@ function showSaved() {
 // ── Navigation ─────────────────────────────────────────────────────────────────
 function navigate(dir) {
   const total = currentLever.sections.length;
-  if (dir===1 && currentSectionIdx >= total-1) {
-    if (rapidMode) { rapidNextLever(); return; }
-    renderLeverList(); return;  // renderLeverList restores currentListView automatically
+
+  // Forward navigation in rapid mode: always use rapidAdvance to find next unvisited section
+  if (dir === 1 && rapidMode) {
+    // Show nudge if current section has no rating yet
+    const sec = currentLever.sections[currentSectionIdx];
+    const prefix = currentLever.id + "__" + sec.id;
+    const hasRated = allVotes.some(v =>
+      v.user_name === currentUser &&
+      v.bullet_key && v.bullet_key.startsWith(prefix) &&
+      !isNaN(parseInt(v.reaction))
+    );
+    const nudge = document.getElementById("react-nudge");
+    if (!hasRated && nudge) {
+      nudge.classList.add("show");
+      setTimeout(() => nudge.classList.remove("show"), 3000);
+    }
+    rapidAdvance();
+    return;
   }
-  // Only show nudge if moving forward AND no Likert scores saved for any bullet in this section
+
+  // Non-rapid: last section of lever → return to list
+  if (dir === 1 && currentSectionIdx >= total - 1) {
+    renderLeverList(); return;
+  }
+
+  // Non-rapid forward nudge
   if (dir === 1) {
     const sec = currentLever.sections[currentSectionIdx];
     const prefix = currentLever.id + "__" + sec.id;
-    // Check for any numeric Likert rating (reaction "1"-"5") on any bullet in this section
     const hasRated = allVotes.some(v =>
       v.user_name === currentUser &&
-      v.bullet_key &&
-      v.bullet_key.startsWith(prefix) &&
+      v.bullet_key && v.bullet_key.startsWith(prefix) &&
       !isNaN(parseInt(v.reaction))
     );
     const nudge = document.getElementById("react-nudge");
@@ -2728,9 +2747,9 @@ function navigate(dir) {
       setTimeout(() => nudge.classList.remove("show"), 3000);
     }
   }
-  currentSectionIdx = Math.max(0, Math.min(total-1, currentSectionIdx+dir));
+
+  currentSectionIdx = Math.max(0, Math.min(total - 1, currentSectionIdx + dir));
   pendingText = {}; renderSidebar(); renderSection();
-  if (rapidMode) updateRapidBar();
 }
 
 // ── Summary ────────────────────────────────────────────────────────────────────
@@ -2811,6 +2830,7 @@ let rapidTimerInterval = null;
 let rapidElapsedBeforePause = 0;  // tracks time accumulated before pausing
 let rapidStreak = 0;              // consecutive levers completed in rapid mode
 let soundEnabled = true;          // click sound toggle
+let _rapidSectionsPreVisited = 0; // sections already visited before rapid mode started
 const RAPID_ORDER = [...LEVERS].sort((a,b) => a.number - b.number);
 
 // Returns true if a lever has been opened at all outside/before rapid mode
@@ -2818,31 +2838,120 @@ function leverAlreadyVisited(lever) {
   return visitedLevers.has(lever.id) && !rapidVisitedLevers.has(lever.id);
 }
 
-// Find the next unvisited lever index at or after startIdx
+// Find the next unvisited lever index at or after startIdx (used only for fresh-start jump)
 function getNextUnvisitedLeverIdx(startIdx) {
   for (let li = startIdx; li < RAPID_ORDER.length; li++) {
     if (!visitedLevers.has(RAPID_ORDER[li].id)) return li;
   }
-  return null; // all remaining levers already visited
-}
-
-// Find the next lever+section to resume from — respects rapidLeverIdx position
-function getRapidResumePoint() {
-  for (let li = rapidLeverIdx; li < RAPID_ORDER.length; li++) {
-    const lever = RAPID_ORDER[li];
-    const visited = visitedSections[lever.id];
-    if (!visited) return { leverIdx: li, sectionIdx: 0 };
-    const totalSections = lever.sections.length;
-    for (let si = 0; si < totalSections; si++) {
-      if (!visited.has(si)) return { leverIdx: li, sectionIdx: si };
-    }
-    if (li === rapidLeverIdx) rapidLeverIdx = li + 1;
-  }
   return null;
 }
 
+// Core section-level scanner: find the next {leverIdx, sectionIdx} not yet in visitedSections,
+// starting from the given position (inclusive). Scans across all levers in RAPID_ORDER order.
+function getNextUnvisitedSection(fromLeverIdx, fromSectionIdx) {
+  for (let li = fromLeverIdx; li < RAPID_ORDER.length; li++) {
+    const lever = RAPID_ORDER[li];
+    const visited = visitedSections[lever.id];
+    const totalSections = lever.sections.length;
+    const startSi = (li === fromLeverIdx) ? fromSectionIdx : 0;
+    for (let si = startSi; si < totalSections; si++) {
+      if (!visited || !visited.has(si)) return { leverIdx: li, sectionIdx: si };
+    }
+  }
+  return null; // everything visited
+}
+
+// Count total unvisited sections across all levers in RAPID_ORDER (for progress bar)
+function countUnvisitedSections() {
+  let total = 0;
+  RAPID_ORDER.forEach(lever => {
+    const visited = visitedSections[lever.id];
+    lever.sections.forEach((_, si) => {
+      if (!visited || !visited.has(si)) total++;
+    });
+  });
+  return total;
+}
+
+// Count sections visited during this rapid session
+function countRapidVisitedSections() {
+  let count = 0;
+  RAPID_ORDER.forEach(lever => {
+    const visited = visitedSections[lever.id];
+    if (!visited) return;
+    lever.sections.forEach((_, si) => {
+      if (visited.has(si)) count++;
+    });
+  });
+  // Subtract sections visited before rapid mode started (tracked at session start)
+  return Math.max(0, count - _rapidSectionsPreVisited);
+}
+
+// Navigate to a specific lever+section within rapid mode
+function rapidGoTo(leverIdx, sectionIdx) {
+  const lever = RAPID_ORDER[leverIdx];
+  const changingLever = !currentLever || currentLever.id !== lever.id;
+
+  rapidLeverIdx = leverIdx;
+
+  if (changingLever) {
+    // Full lever open — openLever resets currentSectionIdx to 0
+    openLever(lever);
+    // Then jump to the right section after openLever initialises
+    currentSectionIdx = sectionIdx;
+    renderSidebar(); renderSection();
+  } else {
+    // Same lever, just jump to the section
+    currentSectionIdx = sectionIdx;
+    pendingText = {};
+    renderSidebar(); renderSection();
+  }
+  document.getElementById("rapid-bar").classList.add("active");
+  updateRapidBar();
+}
+
+// The single entry point for all rapid-mode advancement (replaces rapidNextLever)
+function rapidAdvance() {
+  // Check if we just finished an entire lever — fire celebration if so
+  if (currentLever) {
+    const visited = visitedSections[currentLever.id];
+    const allSeen = visited && currentLever.sections.every((_, si) => visited.has(si));
+    if (allSeen) {
+      rapidVisitedLevers.add(currentLever.id);
+      rapidStreak++;
+      if (rapidStreak >= 3) {
+        const badge = document.getElementById("streak-badge");
+        const count = document.getElementById("streak-count");
+        if (badge && count) { count.textContent = rapidStreak; badge.classList.add("show"); }
+      }
+    }
+  }
+
+  // Find next unvisited section — start scanning from current position + 1
+  const nextSectionInLever = currentSectionIdx + 1;
+  const nextPoint = getNextUnvisitedSection(rapidLeverIdx, nextSectionInLever);
+
+  if (!nextPoint) {
+    // All sections across all levers visited — done
+    rapidMode = false;
+    rapidStarted = false;
+    clearInterval(rapidTimerInterval);
+    document.getElementById("rapid-bar").classList.remove("active");
+    swapNextBtn(false);
+    rapidStreak = 0;
+    showRapidComplete();
+    return;
+  }
+
+  rapidGoTo(nextPoint.leverIdx, nextPoint.sectionIdx);
+}
+
+function getRapidResumePoint() {
+  return getNextUnvisitedSection(rapidLeverIdx, currentSectionIdx);
+}
+
 function hasRapidProgress() {
-  return rapidStarted && !rapidMode && rapidLeverIdx < RAPID_ORDER.length;
+  return rapidStarted && !rapidMode;
 }
 
 // Pause rapid mode and return to lever list — timer pauses, state preserved, button says Resume
@@ -2874,34 +2983,41 @@ function startRapidMode(resume) {
   currentListView = "levers";
 
   if (!resume) {
-    // Fresh start — reset timing and progress, then find first unvisited lever
+    // Fresh start — reset all rapid state
     rapidElapsedBeforePause = 0;
     rapidVisitedLevers.clear();
     rapidStreak = 0;
-    const firstUnvisited = getNextUnvisitedLeverIdx(0);
-    if (firstUnvisited === null) {
-      // Every lever has already been viewed — go straight to complete screen
+    rapidLeverIdx = 0;
+
+    // Snapshot how many sections are already visited before rapid starts
+    // so countRapidVisitedSections() can subtract them for accurate progress
+    _rapidSectionsPreVisited = 0;
+    RAPID_ORDER.forEach(lever => {
+      const visited = visitedSections[lever.id];
+      if (visited) _rapidSectionsPreVisited += visited.size;
+    });
+
+    // Find first unvisited section anywhere in the sequence
+    const firstPoint = getNextUnvisitedSection(0, 0);
+    if (!firstPoint) {
       rapidMode = false;
       rapidStarted = false;
       showRapidComplete();
       return;
     }
-    rapidLeverIdx = firstUnvisited;
+    rapidLeverIdx = firstPoint.leverIdx;
+    rapidStartTime = Date.now();
+    clearInterval(rapidTimerInterval);
+    rapidTimerInterval = setInterval(updateRapidTimer, 1000);
+    rapidGoTo(firstPoint.leverIdx, firstPoint.sectionIdx);
   } else {
     rapidLeverIdx = resumePoint.leverIdx;
+    rapidStartTime = Date.now();
+    clearInterval(rapidTimerInterval);
+    rapidTimerInterval = setInterval(updateRapidTimer, 1000);
+    rapidGoTo(resumePoint.leverIdx, resumePoint.sectionIdx);
   }
 
-  rapidStartTime = Date.now();
-  clearInterval(rapidTimerInterval);
-  rapidTimerInterval = setInterval(updateRapidTimer, 1000);
-
-  openLever(RAPID_ORDER[rapidLeverIdx]);
-  if (resumePoint && resumePoint.sectionIdx > 0) {
-    currentSectionIdx = resumePoint.sectionIdx;
-    renderSidebar(); renderSection();
-  }
-  document.getElementById("rapid-bar").classList.add("active");
-  updateRapidBar();
   swapNextBtn(true);
   updateRapidStartBtn();
 }
@@ -2956,6 +3072,7 @@ function exitRapidMode() {
   rapidElapsedBeforePause = 0;
   rapidVisitedLevers.clear();
   rapidStreak = 0;
+  _rapidSectionsPreVisited = 0;
   clearInterval(rapidTimerInterval);
   document.getElementById("rapid-bar").classList.remove("active");
   const badge = document.getElementById("streak-badge");
@@ -2964,46 +3081,13 @@ function exitRapidMode() {
   renderLeverList();
 }
 
-function rapidNextLever() {
-  if (currentLever) rapidVisitedLevers.add(currentLever.id);
-  rapidStreak++;
-  rapidLeverIdx++;
-
-  // Skip any levers already visited before/outside rapid mode
-  const nextIdx = getNextUnvisitedLeverIdx(rapidLeverIdx);
-
-  if (nextIdx === null) {
-    // No more unvisited levers
-    rapidMode = false;
-    rapidStarted = false;
-    clearInterval(rapidTimerInterval);
-    document.getElementById("rapid-bar").classList.remove("active");
-    swapNextBtn(false);
-    rapidStreak = 0;
-    showRapidComplete();
-    return;
-  }
-
-  rapidLeverIdx = nextIdx;
-
-  // Show streak badge after 3+ levers
-  if (rapidStreak >= 3) {
-    const badge = document.getElementById("streak-badge");
-    const count = document.getElementById("streak-count");
-    if (badge && count) {
-      count.textContent = rapidStreak;
-      badge.classList.add("show");
-    }
-  }
-  openLever(RAPID_ORDER[rapidLeverIdx]);
-  document.getElementById("rapid-bar").classList.add("active");
-  updateRapidBar();
-}
+// rapidNextLever is superseded by rapidAdvance() — kept as no-op for safety
+function rapidNextLever() { rapidAdvance(); }
 
 function doneReviewing() {
   showLeverCelebration(currentLever?.title || "Lever");
   playClickSound(880, 0.15, "sine");
-  if (rapidMode) { setTimeout(() => rapidNextLever(), 1800); }
+  if (rapidMode) { setTimeout(() => rapidAdvance(), 1800); }
   else { setTimeout(renderLeverList, 1800); }
 }
 
@@ -3022,19 +3106,17 @@ function showLeverCelebration(title) {
 function updateRapidBar() {
   if (!currentLever) return;
   const secLabel = currentLever.sections[currentSectionIdx]?.label || "";
-  const totalSections = currentLever.sections.length;
 
-  // Count how many levers rapid review will cover (unvisited at start + ones visited during this run)
-  const unvisitedAtStart = RAPID_ORDER.filter(l => !visitedLevers.has(l.id) || rapidVisitedLevers.has(l.id));
-  const totalToReview = unvisitedAtStart.length;
-  const doneCount = rapidVisitedLevers.size;
-  const currentNum = doneCount + 1;
+  // Count total sections still to visit (at this moment) across all levers
+  const remaining = countUnvisitedSections();
+  // Sections visited so far during this rapid session
+  const done = countRapidVisitedSections();
+  const total = done + remaining;
+  const pct = total > 0 ? (done / total) * 100 : 0;
 
-  // Progress = levers done + fraction of current lever's sections viewed
-  const pct = totalToReview > 0 ? ((doneCount + (currentSectionIdx / totalSections)) / totalToReview) * 100 : 0;
   document.getElementById("rapid-progress-fill").style.width = pct.toFixed(1) + "%";
   document.getElementById("rapid-progress-label").textContent =
-    `Lever ${currentNum} of ${totalToReview} — ${currentLever.title} › ${secLabel}`;
+    `${done + 1} of ${total} sections — ${currentLever.title} › ${secLabel}`;
 }
 
 function updateRapidTimer() {
@@ -3064,12 +3146,12 @@ function showRapidComplete() {
   const mins = Math.floor(totalElapsed / 60);
   const secs = totalElapsed % 60;
   // Capture count before clearing state
-  const leversReviewedCount = rapidVisitedLevers.size;
-  const leversText = leversReviewedCount === 0
-    ? "All levers were already reviewed"
-    : leversReviewedCount === 1
-      ? "You reviewed 1 new lever"
-      : `You reviewed ${leversReviewedCount} new levers`;
+  const sectionsReviewedCount = countRapidVisitedSections();
+  const leversText = sectionsReviewedCount === 0
+    ? "All sections were already reviewed"
+    : sectionsReviewedCount === 1
+      ? "You reviewed 1 new section"
+      : `You reviewed ${sectionsReviewedCount} new section${sectionsReviewedCount !== 1 ? "s" : ""} across ${rapidVisitedLevers.size || "multiple"} lever${(rapidVisitedLevers.size || 2) !== 1 ? "s" : ""}`;
   // Reset all rapid state now that we're done
   rapidElapsedBeforePause = 0;
   rapidStartTime = null;
