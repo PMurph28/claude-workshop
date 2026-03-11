@@ -1159,7 +1159,7 @@
       <div class="sidebar" id="sidebar" style="display:flex;flex-direction:column;">
         <div id="sidebar-items" style="flex:1;overflow-y:auto;"></div>
         <div style="padding:20px 24px;border-top:1px solid rgba(255,255,255,0.08);flex-shrink:0;">
-          <button onclick="renderLeverList()" style="width:100%;background:rgba(255,255,255,0.08);color:#cbd5e1;border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:12px 16px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">
+          <button onclick="pauseAndReturnToList()" style="width:100%;background:rgba(255,255,255,0.08);color:#cbd5e1;border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:12px 16px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">
             ← Back to All Levers
           </button>
         </div>
@@ -2069,7 +2069,7 @@ function renderLeverList() {
   otherLevers.forEach(lever => grid.appendChild(makeCard(lever, false)));
 }
 
-document.getElementById("btn-back").addEventListener("click", renderLeverList);
+document.getElementById("btn-back").addEventListener("click", pauseAndReturnToList);
 
 document.addEventListener("click", (e) => {
   const wrap = document.getElementById("view-dropdown-wrap");
@@ -2729,7 +2729,8 @@ async function showSummaryScreen() {
 
 // ── Rapid Review Mode ────────────────────────────────────────────────────────
 let rapidMode = false;
-let rapidVisitedLevers = new Set(); // only levers visited during rapid mode
+let rapidStarted = false;          // true once rapid mode has ever been started this session
+let rapidVisitedLevers = new Set(); // levers advanced through via rapidNextLever
 let rapidLeverIdx = 0;
 let rapidStartTime = null;
 let rapidTimerInterval = null;
@@ -2738,9 +2739,10 @@ let rapidStreak = 0;              // consecutive levers completed in rapid mode
 let soundEnabled = true;          // click sound toggle
 const RAPID_ORDER = [...LEVERS].sort((a,b) => a.number - b.number);
 
-// Find the furthest unvisited lever+section to resume from
+// Find the next lever+section to resume from based on rapidLeverIdx progress
 function getRapidResumePoint() {
-  for (let li = 0; li < RAPID_ORDER.length; li++) {
+  // Resume from exactly where we left off in the rapid sequence
+  for (let li = rapidLeverIdx; li < RAPID_ORDER.length; li++) {
     const lever = RAPID_ORDER[li];
     const visited = visitedSections[lever.id];
     if (!visited) return { leverIdx: li, sectionIdx: 0 };
@@ -2748,13 +2750,33 @@ function getRapidResumePoint() {
     for (let si = 0; si < totalSections; si++) {
       if (!visited.has(si)) return { leverIdx: li, sectionIdx: si };
     }
+    // All sections of this lever visited — advance rapidLeverIdx to keep it in sync
+    if (li === rapidLeverIdx) rapidLeverIdx = li + 1;
   }
   return null; // all done
 }
 
 function hasRapidProgress() {
-  // Only show Resume if rapid mode was actually started and has progress
-  return rapidVisitedLevers.size > 0 && !rapidMode;
+  // Show "Resume" if rapid was ever started and we haven't finished, and we're not currently in it
+  return rapidStarted && !rapidMode && rapidLeverIdx < RAPID_ORDER.length;
+}
+
+// Pause rapid mode and return to lever list — timer pauses, state preserved, button says Resume
+function pauseAndReturnToList() {
+  if (rapidMode) {
+    // Accumulate elapsed time before pausing
+    if (rapidStartTime) {
+      rapidElapsedBeforePause += Math.floor((Date.now() - rapidStartTime) / 1000);
+      rapidStartTime = null;
+    }
+    rapidMode = false;
+    clearInterval(rapidTimerInterval);
+    document.getElementById("rapid-bar").classList.remove("active");
+    const badge = document.getElementById("streak-badge");
+    if (badge) badge.classList.remove("show");
+    swapNextBtn(false);
+  }
+  renderLeverList();
 }
 
 function startRapidMode(resume) {
@@ -2764,15 +2786,20 @@ function startRapidMode(resume) {
   if (resume && !resumePoint) { showRapidComplete(); return; }
 
   rapidMode = true;
-  rapidLeverIdx = resumePoint ? resumePoint.sectionIdx === 0 ? resumePoint.leverIdx : resumePoint.leverIdx : 0;
+  rapidStarted = true;
 
-  // Timer: fresh start resets, resume just restarts the interval from where we paused
   if (!resume) {
+    // Fresh start — reset everything
+    rapidLeverIdx = 0;
     rapidElapsedBeforePause = 0;
     rapidVisitedLevers.clear();
+    rapidStreak = 0;
+  } else {
+    // Resume — use the index getRapidResumePoint resolved to
+    rapidLeverIdx = resumePoint.leverIdx;
   }
-  rapidStartTime = Date.now(); // always mark current segment start
 
+  rapidStartTime = Date.now(); // always mark current segment start
   clearInterval(rapidTimerInterval);
   rapidTimerInterval = setInterval(updateRapidTimer, 1000);
 
@@ -2830,9 +2857,13 @@ function updateRapidStartBtn() {
 function exitRapidMode() {
   if (rapidStartTime) {
     rapidElapsedBeforePause += Math.floor((Date.now() - rapidStartTime) / 1000);
+    rapidStartTime = null;
   }
   rapidMode = false;
-  updateRapidStartBtn();
+  rapidStarted = false;       // full exit — button resets to "⚡ Rapid Review"
+  rapidLeverIdx = 0;
+  rapidElapsedBeforePause = 0;
+  rapidVisitedLevers.clear();
   rapidStreak = 0;
   clearInterval(rapidTimerInterval);
   document.getElementById("rapid-bar").classList.remove("active");
@@ -2848,6 +2879,7 @@ function rapidNextLever() {
   rapidLeverIdx++;
   if (rapidLeverIdx >= RAPID_ORDER.length) {
     rapidMode = false;
+    rapidStarted = false;
     clearInterval(rapidTimerInterval);
     document.getElementById("rapid-bar").classList.remove("active");
     swapNextBtn(false);
@@ -2923,13 +2955,18 @@ function swapNextBtn(isRapid) {
 }
 
 function showRapidComplete() {
-  // Show a completion overlay
+  launchConfetti();
+  const totalElapsed = rapidElapsedBeforePause + (rapidStartTime ? Math.floor((Date.now() - rapidStartTime) / 1000) : 0);
+  const mins = Math.floor(totalElapsed / 60);
+  const secs = totalElapsed % 60;
+  // Reset all rapid state now that we're done
+  rapidElapsedBeforePause = 0;
+  rapidStartTime = null;
+  rapidVisitedLevers.clear();
+  rapidLeverIdx = 0;
   const overlay = document.createElement("div");
   overlay.id = "rapid-complete-overlay";
   overlay.style.cssText = "position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(27,58,140,0.92);z-index:999;display:flex;align-items:center;justify-content:center;font-family:Segoe UI,sans-serif;";
-  const elapsed = Math.floor((Date.now() - rapidStartTime) / 1000);
-  const mins = Math.floor(elapsed / 60);
-  const secs = elapsed % 60;
   overlay.innerHTML = `
     <div style="background:#fff;border-radius:24px;padding:52px 56px;text-align:center;max-width:460px;box-shadow:0 32px 80px rgba(0,0,0,0.3);">
       <div style="font-size:52px;margin-bottom:16px">🎉</div>
