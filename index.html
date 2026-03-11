@@ -1159,7 +1159,7 @@
       <div class="sidebar" id="sidebar" style="display:flex;flex-direction:column;">
         <div id="sidebar-items" style="flex:1;overflow-y:auto;"></div>
         <div style="padding:20px 24px;border-top:1px solid rgba(255,255,255,0.08);flex-shrink:0;">
-          <button onclick="pauseAndReturnToList()" style="width:100%;background:rgba(255,255,255,0.08);color:#cbd5e1;border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:12px 16px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">
+          <button onclick="pauseAndReturnToList()" style="width:100%;background:rgba(255,255,255,0.08);color:#cbd5e1;border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:12px 16px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'" id="sidebar-back-btn">
             ← Back to All Levers
           </button>
         </div>
@@ -1835,6 +1835,9 @@ let pollInterval = null;
 // pending text inputs: { bulletKey: { reaction, text } }
 let pendingText = {};
 
+// Tracks which list view the user was last on ("levers" or "other") so back-navigation restores correctly
+let currentListView = "levers";
+
 // Per-section contextual reaction labels: { sectionId: [agreeLabel, disagreeLabel] }
 const SECTION_REACTIONS = {
   "overview":    ["Agree with this lever framing",              "Do not agree with lever framing"],
@@ -2004,10 +2007,8 @@ function leverCompletionBar(leverId, total) {
 function renderLeverList() {
   document.getElementById("lever-detail").style.display = "none";
   document.getElementById("lever-list").style.display = "block";
-  document.getElementById("top-bar-title").textContent = "Detailed Initiative Review — Fixing Foundations + Tech · 12 Levers";
   document.getElementById("view-dropdown-wrap").style.display = "flex";
-  switchListView("levers");
-  // summary button removed
+  switchListView(currentListView);   // restore whichever view the user was last on
   document.getElementById("btn-back").style.display = "none";
   document.getElementById("btn-dashboard").style.display = "none";
   document.getElementById("btn-rapid-start").style.display = "none";
@@ -2090,6 +2091,7 @@ function toggleViewDropdown() {
 }
 
 function switchListView(view) {
+  currentListView = view;   // remember for back-navigation
   const isLevers = view === "levers";
   document.getElementById("view-levers").style.display = isLevers ? "block" : "none";
   document.getElementById("view-other").style.display = isLevers ? "none" : "block";
@@ -2118,7 +2120,7 @@ const OTHER_INITIATIVES = {
 function openOtherInitiative(id) {
   const init = OTHER_INITIATIVES[id];
   if (!init) return;
-  // Build a fake lever with placeholderSections and open it normally
+  currentListView = "other";   // back buttons inside this initiative should return here
   const fakeLever = {
     id: "other__" + id,
     number: null,
@@ -2141,8 +2143,10 @@ async function openLever(lever) {
   document.getElementById("lever-detail").style.flexDirection = "column";
   document.getElementById("summary-screen").style.display = "none";
   document.getElementById("top-bar-title").textContent = lever.title;
-  // summary button removed
-  document.getElementById("btn-back").style.display = "inline-flex";
+  // Back button label reflects which list the user came from
+  const backBtn = document.getElementById("btn-back");
+  backBtn.textContent = currentListView === "other" ? "← Other Initiatives" : "← All Levers";
+  backBtn.style.display = "inline-flex";
   document.getElementById("btn-dashboard").style.display = "none";
   renderSidebar(); renderSection();
   clearInterval(pollInterval);
@@ -2161,6 +2165,11 @@ function renderSidebar() {
   if (!currentLever) return;
   const sidebar = document.getElementById("sidebar-items");
   sidebar.innerHTML = "";
+  // Keep sidebar back button label in sync with which list was active
+  const sidebarBackBtn = document.getElementById("sidebar-back-btn");
+  if (sidebarBackBtn) {
+    sidebarBackBtn.textContent = currentListView === "other" ? "← Back to Other Initiatives" : "← Back to All Levers";
+  }
   let lastGroup = null;
   currentLever.sections.forEach((sec, idx) => {
     // Insert group header divider when group changes
@@ -2635,7 +2644,7 @@ function navigate(dir) {
   const total = currentLever.sections.length;
   if (dir===1 && currentSectionIdx >= total-1) {
     if (rapidMode) { rapidNextLever(); return; }
-    renderLeverList(); return;
+    renderLeverList(); return;  // renderLeverList restores currentListView automatically
   }
   // Only show nudge if moving forward AND no Likert scores saved for any bullet in this section
   if (dir === 1) {
@@ -2739,9 +2748,21 @@ let rapidStreak = 0;              // consecutive levers completed in rapid mode
 let soundEnabled = true;          // click sound toggle
 const RAPID_ORDER = [...LEVERS].sort((a,b) => a.number - b.number);
 
-// Find the next lever+section to resume from based on rapidLeverIdx progress
+// Returns true if a lever has been opened at all outside/before rapid mode
+function leverAlreadyVisited(lever) {
+  return visitedLevers.has(lever.id) && !rapidVisitedLevers.has(lever.id);
+}
+
+// Find the next unvisited lever index at or after startIdx
+function getNextUnvisitedLeverIdx(startIdx) {
+  for (let li = startIdx; li < RAPID_ORDER.length; li++) {
+    if (!visitedLevers.has(RAPID_ORDER[li].id)) return li;
+  }
+  return null; // all remaining levers already visited
+}
+
+// Find the next lever+section to resume from — respects rapidLeverIdx position
 function getRapidResumePoint() {
-  // Resume from exactly where we left off in the rapid sequence
   for (let li = rapidLeverIdx; li < RAPID_ORDER.length; li++) {
     const lever = RAPID_ORDER[li];
     const visited = visitedSections[lever.id];
@@ -2750,14 +2771,12 @@ function getRapidResumePoint() {
     for (let si = 0; si < totalSections; si++) {
       if (!visited.has(si)) return { leverIdx: li, sectionIdx: si };
     }
-    // All sections of this lever visited — advance rapidLeverIdx to keep it in sync
     if (li === rapidLeverIdx) rapidLeverIdx = li + 1;
   }
-  return null; // all done
+  return null;
 }
 
 function hasRapidProgress() {
-  // Show "Resume" if rapid was ever started and we haven't finished, and we're not currently in it
   return rapidStarted && !rapidMode && rapidLeverIdx < RAPID_ORDER.length;
 }
 
@@ -2787,23 +2806,30 @@ function startRapidMode(resume) {
 
   rapidMode = true;
   rapidStarted = true;
+  currentListView = "levers";
 
   if (!resume) {
-    // Fresh start — reset everything
-    rapidLeverIdx = 0;
+    // Fresh start — reset timing and progress, then find first unvisited lever
     rapidElapsedBeforePause = 0;
     rapidVisitedLevers.clear();
     rapidStreak = 0;
+    const firstUnvisited = getNextUnvisitedLeverIdx(0);
+    if (firstUnvisited === null) {
+      // Every lever has already been viewed — go straight to complete screen
+      rapidMode = false;
+      rapidStarted = false;
+      showRapidComplete();
+      return;
+    }
+    rapidLeverIdx = firstUnvisited;
   } else {
-    // Resume — use the index getRapidResumePoint resolved to
     rapidLeverIdx = resumePoint.leverIdx;
   }
 
-  rapidStartTime = Date.now(); // always mark current segment start
+  rapidStartTime = Date.now();
   clearInterval(rapidTimerInterval);
   rapidTimerInterval = setInterval(updateRapidTimer, 1000);
 
-  // Open lever at resume point
   openLever(RAPID_ORDER[rapidLeverIdx]);
   if (resumePoint && resumePoint.sectionIdx > 0) {
     currentSectionIdx = resumePoint.sectionIdx;
@@ -2877,7 +2903,12 @@ function rapidNextLever() {
   if (currentLever) rapidVisitedLevers.add(currentLever.id);
   rapidStreak++;
   rapidLeverIdx++;
-  if (rapidLeverIdx >= RAPID_ORDER.length) {
+
+  // Skip any levers already visited before/outside rapid mode
+  const nextIdx = getNextUnvisitedLeverIdx(rapidLeverIdx);
+
+  if (nextIdx === null) {
+    // No more unvisited levers
     rapidMode = false;
     rapidStarted = false;
     clearInterval(rapidTimerInterval);
@@ -2887,6 +2918,9 @@ function rapidNextLever() {
     showRapidComplete();
     return;
   }
+
+  rapidLeverIdx = nextIdx;
+
   // Show streak badge after 3+ levers
   if (rapidStreak >= 3) {
     const badge = document.getElementById("streak-badge");
@@ -2922,15 +2956,20 @@ function showLeverCelebration(title) {
 
 function updateRapidBar() {
   if (!currentLever) return;
-  const leverNum = rapidLeverIdx + 1;
-  const totalLevers = RAPID_ORDER.length;
   const secLabel = currentLever.sections[currentSectionIdx]?.label || "";
   const totalSections = currentLever.sections.length;
-  // Progress = levers completed + fraction of current lever done
-  const pct = ((rapidLeverIdx + (currentSectionIdx / totalSections)) / totalLevers) * 100;
+
+  // Count how many levers rapid review will cover (unvisited at start + ones visited during this run)
+  const unvisitedAtStart = RAPID_ORDER.filter(l => !visitedLevers.has(l.id) || rapidVisitedLevers.has(l.id));
+  const totalToReview = unvisitedAtStart.length;
+  const doneCount = rapidVisitedLevers.size;
+  const currentNum = doneCount + 1;
+
+  // Progress = levers done + fraction of current lever's sections viewed
+  const pct = totalToReview > 0 ? ((doneCount + (currentSectionIdx / totalSections)) / totalToReview) * 100 : 0;
   document.getElementById("rapid-progress-fill").style.width = pct.toFixed(1) + "%";
   document.getElementById("rapid-progress-label").textContent =
-    `Lever ${leverNum} of ${totalLevers} — ${currentLever.title} › ${secLabel}`;
+    `Lever ${currentNum} of ${totalToReview} — ${currentLever.title} › ${secLabel}`;
 }
 
 function updateRapidTimer() {
@@ -2959,6 +2998,13 @@ function showRapidComplete() {
   const totalElapsed = rapidElapsedBeforePause + (rapidStartTime ? Math.floor((Date.now() - rapidStartTime) / 1000) : 0);
   const mins = Math.floor(totalElapsed / 60);
   const secs = totalElapsed % 60;
+  // Capture count before clearing state
+  const leversReviewedCount = rapidVisitedLevers.size;
+  const leversText = leversReviewedCount === 0
+    ? "All levers were already reviewed"
+    : leversReviewedCount === 1
+      ? "You reviewed 1 new lever"
+      : `You reviewed ${leversReviewedCount} new levers`;
   // Reset all rapid state now that we're done
   rapidElapsedBeforePause = 0;
   rapidStartTime = null;
@@ -2971,7 +3017,7 @@ function showRapidComplete() {
     <div style="background:#fff;border-radius:24px;padding:52px 56px;text-align:center;max-width:460px;box-shadow:0 32px 80px rgba(0,0,0,0.3);">
       <div style="font-size:52px;margin-bottom:16px">🎉</div>
       <div style="font-size:28px;font-weight:800;color:#1B3A8C;margin-bottom:8px">Rapid Review Complete!</div>
-      <div style="font-size:15px;color:#64748b;margin-bottom:8px">You reviewed all 12 levers</div>
+      <div style="font-size:15px;color:#64748b;margin-bottom:8px">${leversText}</div>
       <div style="font-size:36px;font-weight:800;color:#F59E0B;margin:20px 0">${mins}:${secs.toString().padStart(2,"0")}</div>
       <div style="font-size:13px;color:#94a3b8;margin-bottom:32px">Total time</div>
       <button onclick="document.getElementById('rapid-complete-overlay').remove();renderLeverList();"
