@@ -144,6 +144,24 @@
   .pr-pair-row {
     display: contents;
   }
+  /* ── Paired row layout (proposed changes + notes side-by-side) ── */
+  .paired-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-bottom: 1.5px solid #f1f5f9;
+    min-height: 120px;
+  }
+  .paired-row:last-child { border-bottom: none; }
+  .paired-proposed {
+    padding: 16px 20px;
+    border-right: 1.5px solid #f1f5f9;
+  }
+  .paired-notes {
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
   .proposed-item { flex: 1; }
   .proposed-item:last-child { border-bottom: none; }
   .proposed-item-title {
@@ -3013,8 +3031,8 @@ async function selectTakeawayLever(leverId) {
   if (!loaded) {
     _lastFeedbackItems = [];
     document.getElementById("takeaway-feedback").innerHTML = "<div class='takeaway-empty'>Click ✨ Refresh to generate Key Feedback for this lever.</div>";
-    document.getElementById("takeaway-proposed").innerHTML = "<div class='takeaway-empty'>Generate Key Feedback first, then click ✨ Generate.</div>";
-    document.getElementById("ratified-items-col").innerHTML = "<div class='takeaway-empty'>No proposed changes yet.</div>";
+    const _prc = document.getElementById("paired-rows-container");
+    if (_prc) _prc.innerHTML = "<div style='padding:24px;color:#94a3b8;font-size:13px;font-style:italic'>Generate Key Feedback first, then click ✨ Generate.</div>";
   }
 }
 
@@ -3127,11 +3145,11 @@ async function generateTakeawayForLever(leverId) {
     "Produce 3-5 balanced feedback themes that represent the FULL range of sentiment — both areas of agreement/alignment AND areas of concern or suggested improvement. " +
     "Do NOT skew towards negativity; if comments are mixed or absent, lead with positive themes about areas of alignment. " +
     (hasComments ? "" : "Since no comments were submitted, generate 2-3 plausible observations based on what a typical workshop participant might note about this lever type. ") +
-    "Each theme needs a 3-5 word title and ONE concise sentence with a bullet below on Positive Feedbacks and Negative Feedback (max 40 words).\n" +
+    "Each theme needs a 3-5 word title and ONE concise sentence (max 20 words).\n" +
     "Format EXACTLY as:\n" +
     "KEY FEEDBACK\n" +
     "THEME: [3-5 word title]\n" +
-    "DESC: [one sentence, max 40 words with a bullet below on Positive Feedbacks and Negative Feedback]\n" +
+    "DESC: [one sentence, max 20 words]\n" +
     "CONTRIBUTORS: [name1, name2 — or 'General' if no specific contributors]\n" +
     "No other text. Max 5 themes.";
 
@@ -3450,8 +3468,7 @@ let _proposedCount = 0; // track total items including manually added
 
 function addProposedItem() {
   const proposedEl = document.getElementById("paired-rows-container");
-  const ratifiedCol = null; // merged into paired-rows-container
-  const i = proposedEl.querySelectorAll(".proposed-item").length;
+  const i = proposedEl.querySelectorAll(".paired-row").length;
   _proposedCount = i + 1;
 
   const CHARTER_SECTIONS = [
@@ -3459,39 +3476,34 @@ function addProposedItem() {
     "Deliverables & Milestones","Geographic Responsibility","Resourcing Categories","Owner & Next Steps"
   ];
 
-  const key2 = "ratified__" + currentTakeawayLeverId + "__" + i;
+  const ratifiedKey = "ratified__" + currentTakeawayLeverId + "__" + i;
   const row = document.createElement("div");
   row.className = "paired-row";
   row.id = "paired-row-" + i;
-  div.innerHTML =
-    "<div style='display:flex;align-items:flex-start;gap:8px'>" +
-      "<span style='flex-shrink:0;width:18px;height:18px;border-radius:50%;background:#8B5CF6;color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:2px'>" + (i+1) + "</span>" +
-      "<div style='flex:1;min-width:0'>" +
-        "<select class='proposed-section-select' id='proposed-sec-" + i + "'>" +
-          "<option value=''>— Select charter section —</option>" +
-          CHARTER_SECTIONS.map(s => "<option value='" + s + "'>" + s + "</option>").join("") +
-        "</select>" +
-        "<input class='proposed-title-input' id='proposed-title-" + i + "' placeholder='2-3 word title...' />" +
-        "<textarea class='proposed-edit-textarea' id='proposed-ta-" + i + "' oninput='showProposedSaveBtn(" + i + ")' placeholder='Describe the proposed change (7-12 words)...'></textarea>" +
-        "<div class='proposed-save-row'>" +
-          "<span class='proposed-save-indicator' id='proposed-saved-" + i + "'></span>" +
-          "<button class='btn-proposed-save' id='proposed-save-btn-" + i + "' onclick='saveProposedItem(" + i + ")' style='display:none'>Save</button>" +
+  row.innerHTML =
+    "<div class='paired-proposed'>" +
+      "<div style='display:flex;align-items:flex-start;gap:8px'>" +
+        "<span style='flex-shrink:0;width:18px;height:18px;border-radius:50%;background:#8B5CF6;color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:2px'>" + (i+1) + "</span>" +
+        "<div style='flex:1;min-width:0'>" +
+          "<select class='proposed-section-select' id='proposed-sec-" + i + "' oninput='showProposedSaveBtn(" + i + ")'>" +
+            "<option value=''>— Select charter section —</option>" +
+            CHARTER_SECTIONS.map(s => "<option value='" + s + "'>" + s + "</option>").join("") +
+          "</select>" +
+          "<input class='proposed-title-input' id='proposed-title-" + i + "' placeholder='2-3 word title...' oninput='showProposedSaveBtn(" + i + ")' />" +
+          "<textarea class='proposed-edit-textarea' id='proposed-ta-" + i + "' oninput='showProposedSaveBtn(" + i + ")' placeholder='Describe the proposed change (7-12 words)...'></textarea>" +
+          "<div class='proposed-save-row'>" +
+            "<span class='proposed-save-indicator' id='proposed-saved-" + i + "'></span>" +
+            "<button class='btn-proposed-save' id='proposed-save-btn-" + i + "' onclick='saveProposedItem(" + i + ")' style='display:none'>Save</button>" +
+          "</div>" +
         "</div>" +
       "</div>" +
+    "</div>" +
+    "<div class='paired-notes'>" +
+      "<textarea class='ratified-textarea' id='ratified-ta-" + i + "' data-key='" + ratifiedKey + "' data-idx='" + i + "'" +
+      " placeholder='Add notes...' oninput='scheduleRatifiedItemSave(this)' style='height:100%;min-height:80px;resize:none'></textarea>" +
+      "<div class='ratified-saved' id='ratified-saved-" + i + "'></div>" +
     "</div>";
-  proposedEl.appendChild(div);
-
-  // Add matching ratified textarea
-  const ratDiv = document.createElement("div");
-  ratDiv.className = "ratified-item";
-  ratDiv.id = "ratified-item-" + i;
-  const key = "ratified__" + currentTakeawayLeverId + "__" + i;
-  ratDiv.innerHTML =
-    "<div class='ratified-connector'>↳ New Change " + (i+1) + "</div>" +
-    "<textarea class='ratified-textarea' id='ratified-ta-" + i + "' data-key='" + key + "' data-idx='" + i + "'" +
-    " placeholder='Agree, modify, or reject...' oninput='scheduleRatifiedItemSave(this)'></textarea>" +
-    "<div class='ratified-saved' id='ratified-saved-" + i + "'></div>";
-  ratifiedCol.appendChild(ratDiv);
+  proposedEl.appendChild(row);
 }
 
 // ── Ratified changes — per-item save/load ────────────────────────────────────
@@ -3678,26 +3690,9 @@ function hideDashboard() {
 }
 
 async function loadDashboard() {
-  document.getElementById("dash-loading").style.display = "flex";
-  document.getElementById("dash-content").style.display = "none";
-
-  // Fetch all votes with notes across all levers and users
-  const rows = await sbReq("GET", "votes?select=*&note=not.is.null&order=created_at.desc", null);
-  // Likert: reactions are now "1"-"6" scores; also keep Freetext
-  const allWithNotes = (rows || []).filter(v => v.note && v.note.trim().length > 0);
-  const likertVotes = (rows || []).filter(v => !isNaN(parseInt(v.reaction)));
-  const votes = allWithNotes.filter(v => !isNaN(parseInt(v.reaction)) || v.reaction === "Freetext");
-
-  document.getElementById("dash-loading").style.display = "none";
-  document.getElementById("dash-content").style.display = "block";
-
-  // Split: scores 4-6 = disagreement side, scores 1-3 = agreement side (show all with comments)
-  const disagreements = likertVotes.filter(v => parseInt(v.reaction) >= 4 && v.note && v.note.trim());
-  document.getElementById("dash-qc-count").textContent = disagreements.length;
-
-  document.getElementById("dash-qc-list").innerHTML = disagreements.length === 0
-    ? '<div class="dash-empty">No disagreements submitted yet.</div>'
-    : disagreements.map(v => dashCard(v)).join("");
+  // No-op: legacy function stub kept for call-site compatibility.
+  // The dashboard now renders entirely via the Takeaway Summary and
+  // Participant Feedback tabs — no separate dash-loading/dash-content elements.
 }
 
 function dashCard(v) {
@@ -3772,7 +3767,7 @@ async function generateAISummary() {
     const subKey = parts[1] || v.section_key || "";
     const sec = lever ? lever.sections.find(s => subKey === s.id || subKey.startsWith(s.id)) : null;
     const secLabel = sec ? sec.label : subKey;
-    const [, disagreeLabel] = getReactionLabels(subKey);
+    const [agreeLabel, disagreeLabel] = getReactionLabels(subKey);
 
     if (!byLever[leverTitle]) byLever[leverTitle] = [];
     byLever[leverTitle].push({
