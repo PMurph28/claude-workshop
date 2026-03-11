@@ -1042,6 +1042,64 @@
   .sum-note-author { font-size: 12px; color: #64748b; margin-top: 3px; }
   .empty-state { color: #94a3b8; font-size: 14px; }
   .agenda-row { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
+
+  /* ── Agreement Scores Tab ── */
+  .scores-lever-block {
+    background: #fff; border-radius: 14px; border: 1px solid #e2e8f0;
+    margin-bottom: 20px; overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .scores-lever-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px 22px; border-bottom: 1.5px solid #f1f5f9;
+    background: #fafafa;
+  }
+  .scores-lever-title {
+    flex: 1; font-size: 15px; font-weight: 800; color: #1e293b;
+  }
+  .scores-lever-avg {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .scores-lever-avg-pill {
+    border-radius: 20px; padding: 4px 14px;
+    font-size: 13px; font-weight: 800;
+  }
+  .scores-lever-respondents {
+    font-size: 11px; color: #94a3b8; font-weight: 600;
+  }
+  .scores-section-row {
+    display: grid;
+    grid-template-columns: 200px 1fr 100px 60px;
+    align-items: center; gap: 14px;
+    padding: 11px 22px; border-bottom: 1px solid #f8fafc;
+  }
+  .scores-section-row:last-child { border-bottom: none; }
+  .scores-section-label {
+    font-size: 13px; font-weight: 600; color: #334155;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .scores-bar-track {
+    height: 8px; background: #f1f5f9; border-radius: 10px; overflow: hidden;
+  }
+  .scores-bar-fill {
+    height: 8px; border-radius: 10px;
+    transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .scores-avg-label {
+    font-size: 12px; font-weight: 700; text-align: right;
+  }
+  .scores-count-label {
+    font-size: 11px; color: #94a3b8; text-align: right; font-weight: 600;
+  }
+  .scores-empty {
+    padding: 14px 22px; font-size: 13px; color: #94a3b8; font-style: italic;
+  }
+  .scores-legend {
+    display: flex; align-items: center; justify-content: flex-end; gap: 16px;
+    margin-bottom: 18px; font-size: 11px; font-weight: 700;
+  }
+  .scores-legend-item { display: flex; align-items: center; gap: 5px; }
+  .scores-legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 </style>
 </head>
 <body>
@@ -1205,6 +1263,7 @@
     <div class="dash-tab-ribbon">
       <div class="dash-tab active" id="tab-takeaway" onclick="switchDashTab('takeaway')">📋 Takeaway Summary</div>
       <div class="dash-tab" id="tab-participants" onclick="switchDashTab('participants')">💬 Participant Feedback</div>
+      <div class="dash-tab" id="tab-scores" onclick="switchDashTab('scores')">📊 Agreement Scores</div>
     </div>
 
     <!-- ── TAB 1: Takeaway Summary ── -->
@@ -1263,6 +1322,12 @@
     <div id="dash-tab-participants" style="display:none">
       <div id="pf-loading" class="dash-loading" style="display:none"><div class="ai-spinner"></div> Loading...</div>
       <div id="pf-content"></div>
+    </div>
+
+    <!-- ── TAB 3: Agreement Scores ── -->
+    <div id="dash-tab-scores" style="display:none">
+      <div id="scores-loading" class="dash-loading" style="display:none"><div class="ai-spinner"></div> Loading scores...</div>
+      <div id="scores-content"></div>
     </div>
 
 
@@ -3058,10 +3123,14 @@ async function showDashboard() {
 
 function switchDashTab(tab) {
   currentDashTab = tab;
-  ["takeaway","participants"].forEach(t => {
+  ["takeaway","participants","scores"].forEach(t => {
     document.getElementById("dash-tab-" + t).style.display = t === tab ? "block" : "none";
     document.getElementById("tab-" + t).classList.toggle("active", t === tab);
   });
+  // Lazy-load scores tab on first open
+  if (tab === "scores" && !document.getElementById("scores-content").dataset.loaded) {
+    loadAgreementScores();
+  }
 }
 
 // ── Lever carousel ─────────────────────────────────────────────────────────────
@@ -3765,6 +3834,161 @@ async function loadParticipantFeedback() {
       sectionsHTML +
     "</div>";
   }).join("");
+}
+
+// ── Agreement Scores Tab ──────────────────────────────────────────────────────
+async function loadAgreementScores() {
+  const content = document.getElementById("scores-content");
+  const loading = document.getElementById("scores-loading");
+  loading.style.display = "flex";
+  content.innerHTML = "";
+
+  // Fetch all numeric Likert votes across all levers and all users
+  const rows = await sbReq("GET", "votes?select=*&order=lever_id.asc,bullet_key.asc", null) || [];
+  const votes = rows.filter(v =>
+    v.user_name !== "FACILITATOR" &&
+    !isNaN(parseInt(v.reaction)) &&
+    v.bullet_key
+  );
+
+  loading.style.display = "none";
+  content.dataset.loaded = "1";
+
+  if (votes.length === 0) {
+    content.innerHTML = "<div class='dash-empty' style='padding:48px 0'>No ratings submitted yet.</div>";
+    return;
+  }
+
+  // Section display config — maps section ID prefix → {label, icon, group}
+  // Matches the section IDs used in bullet_key (leverId__sectionId__idx)
+  const SECTION_META = {
+    "overview":          { label: "Mission Statement",        icon: "🗺️", group: "OVERVIEW" },
+    "fromto_cur":        { label: "From → To (Current)",      icon: "🔄", group: "OVERVIEW" },
+    "fromto_fut":        { label: "From → To (Future)",       icon: "🔄", group: "OVERVIEW" },
+    "impact":            { label: "Impact",                   icon: "📊", group: "OVERVIEW" },
+    "interdep":          { label: "Interdependencies",        icon: "🔗", group: "OVERVIEW" },
+    "execrisk":          { label: "Execution Risk",           icon: "⚠️", group: "OVERVIEW" },
+    "phasing_0":         { label: "Quick Wins",               icon: "⚡", group: "ACTION PLAN" },
+    "phasing_1":         { label: "Steady State",             icon: "🏗️", group: "ACTION PLAN" },
+    "geo":               { label: "Geographic Responsibility",icon: "🌍", group: "ACTION PLAN" },
+    "resourcing":        { label: "Resourcing",               icon: "🤝", group: "ACTION PLAN" },
+    "owner_own":         { label: "Owners",                   icon: "🧑‍💼", group: "ACTION PLAN" },
+    "owner_ns":          { label: "Next Steps",               icon: "🗺️", group: "ACTION PLAN" },
+  };
+
+  // Section ordering
+  const SECTION_ORDER = Object.keys(SECTION_META);
+
+  // Group votes by lever, then by section prefix
+  // bullet_key format: leverId__subKey__idx  (subKey may be e.g. "phasing_0", "fromto_cur")
+  const byLever = {};
+  votes.forEach(v => {
+    const parts = (v.bullet_key || "").split("__");
+    if (parts.length < 2) return;
+    const leverId = parts[0];
+    const subKey = parts[1];
+    // Find matching section meta key (longest prefix match)
+    const metaKey = SECTION_ORDER.find(k => subKey === k || subKey.startsWith(k + "_") || subKey === k);
+    if (!metaKey) return;
+
+    if (!byLever[leverId]) byLever[leverId] = {};
+    if (!byLever[leverId][metaKey]) byLever[leverId][metaKey] = [];
+    byLever[leverId][metaKey].push(parseInt(v.reaction));
+  });
+
+  // Sort levers by number
+  const sortedLevers = LEVERS.filter(l => byLever[l.id]).sort((a,b) => a.number - b.number);
+
+  if (sortedLevers.length === 0) {
+    content.innerHTML = "<div class='dash-empty' style='padding:48px 0'>No ratings submitted yet.</div>";
+    return;
+  }
+
+  // Score → agreement % (1=100%, 2=75%, 3=50%, 4=25%, 5=0%)
+  function scoreToAgreementPct(avg) { return Math.round(((5 - avg) / 4) * 100); }
+
+  function agreementColor(pct) {
+    if (pct >= 70) return "#10B981";
+    if (pct >= 45) return "#F59E0B";
+    return "#DC2626";
+  }
+
+  function agreementBg(pct) {
+    if (pct >= 70) return "#f0fdf4";
+    if (pct >= 45) return "#fffbeb";
+    return "#fef2f2";
+  }
+
+  function agreementTextColor(pct) {
+    if (pct >= 70) return "#166534";
+    if (pct >= 45) return "#92400E";
+    return "#991B1B";
+  }
+
+  // Build HTML
+  let html = `<div class="scores-legend">
+    <span class="scores-legend-item"><span class="scores-legend-dot" style="background:#10B981"></span><span style="color:#64748b">Strong agreement (70%+)</span></span>
+    <span class="scores-legend-item"><span class="scores-legend-dot" style="background:#F59E0B"></span><span style="color:#64748b">Mixed (45–69%)</span></span>
+    <span class="scores-legend-item"><span class="scores-legend-dot" style="background:#DC2626"></span><span style="color:#64748b">Disagreement (&lt;45%)</span></span>
+  </div>`;
+
+  sortedLevers.forEach(lever => {
+    const leverSections = byLever[lever.id];
+
+    // Compute lever-level avg across all its votes
+    const allLeverScores = Object.values(leverSections).flat();
+    const leverAvg = allLeverScores.reduce((s,n) => s+n, 0) / allLeverScores.length;
+    const leverPct = scoreToAgreementPct(leverAvg);
+    const leverColor = agreementColor(leverPct);
+    const leverBg = agreementBg(leverPct);
+    const leverTextColor = agreementTextColor(leverPct);
+    const uniqueRespondents = new Set(
+      votes.filter(v => v.bullet_key && v.bullet_key.startsWith(lever.id + "__")).map(v => v.user_name)
+    ).size;
+
+    html += `<div class="scores-lever-block">
+      <div class="scores-lever-header">
+        <span style="font-size:22px">${lever.icon}</span>
+        <div class="scores-lever-title">Lever ${lever.number} — ${lever.title}</div>
+        <div class="scores-lever-avg">
+          <span class="scores-lever-avg-pill" style="background:${leverBg};color:${leverTextColor}">${leverPct}% agreement</span>
+          <span class="scores-lever-respondents">${uniqueRespondents} respondent${uniqueRespondents !== 1 ? "s" : ""}</span>
+        </div>
+      </div>`;
+
+    // Render section rows in order
+    SECTION_ORDER.forEach(metaKey => {
+      const scores = leverSections[metaKey];
+      if (!scores || scores.length === 0) return;
+      const meta = SECTION_META[metaKey];
+      const avg = scores.reduce((s,n) => s+n, 0) / scores.length;
+      const pct = scoreToAgreementPct(avg);
+      const color = agreementColor(pct);
+      const textColor = agreementTextColor(pct);
+      const lowConfidence = scores.length < 3;
+
+      html += `<div class="scores-section-row">
+        <div class="scores-section-label">
+          <span style="font-size:15px">${meta.icon}</span>
+          <span>${meta.label}</span>
+        </div>
+        <div>
+          <div class="scores-bar-track">
+            <div class="scores-bar-fill" style="width:${pct}%;background:${color}"></div>
+          </div>
+        </div>
+        <div class="scores-avg-label" style="color:${textColor}">${pct}%${lowConfidence ? " ⚠" : ""}</div>
+        <div class="scores-count-label">${scores.length}${lowConfidence ? `<span title="Low response count" style="color:#F59E0B"> low</span>` : ""}</div>
+      </div>`;
+    });
+
+    html += `</div>`;
+  });
+
+  // Low confidence note
+  html += `<div style="font-size:11px;color:#94a3b8;margin-top:4px;text-align:right">⚠ = fewer than 3 responses · Scores calculated from ${votes.length} total rating${votes.length !== 1 ? "s" : ""}</div>`;
+
+  content.innerHTML = html;
 }
 
 function hideDashboard() {
