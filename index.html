@@ -3294,7 +3294,6 @@ function bulletCardHTML(subKey, idx, text, useStar, hideNum, dualSlider) {
   const [tlAgree, tlDisagree] = getReactionLabels("phasing_timeline");
 
   const sliderHTML = `<div class="likert-left">
-    <div class="likert-comment-label" style="margin-bottom:6px">DELIVERABLE SCOPE</div>
     <div class="likert-labels">
       <span class="likert-label-agree">${agreeLabel}</span>
       <span class="likert-label-neutral">Neutral</span>
@@ -3311,7 +3310,6 @@ function bulletCardHTML(subKey, idx, text, useStar, hideNum, dualSlider) {
     <div class="likert-saved" id="ls-${bulletKey}"></div>
     ${dualSlider ? `
     <div style="margin-top:18px;padding-top:16px;border-top:1px solid #f1f5f9">
-      <div class="likert-comment-label" style="margin-bottom:6px">TIMELINE</div>
       <div class="likert-labels">
         <span class="likert-label-agree">${tlAgree}</span>
         <span class="likert-label-neutral">Neutral</span>
@@ -3330,15 +3328,13 @@ function bulletCardHTML(subKey, idx, text, useStar, hideNum, dualSlider) {
   </div>`;
 
   const commentHTML = `<div class="likert-right">
-    <div class="likert-comment-label">SCOPE COMMENT (OPTIONAL)</div>
     <textarea class="likert-comment" data-key="${bulletKey}"
-      placeholder="Share context on your scope rating..."
+      placeholder="Share your thoughts..."
       maxlength="250">${escHtml(note)}</textarea>
     ${dualSlider ? `
     <div style="margin-top:14px">
-      <div class="likert-comment-label">TIMELINE COMMENT (OPTIONAL)</div>
       <textarea class="likert-comment" data-key="${timelineKey}"
-        placeholder="Share context on your timeline rating..."
+        placeholder="Share your thoughts on the timeline..."
         maxlength="250">${escHtml(timelineNote)}</textarea>
     </div>` : ""}
   </div>`;
