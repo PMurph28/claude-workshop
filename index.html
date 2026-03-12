@@ -721,6 +721,23 @@
   .lever-card.greyed-out:hover {
     opacity: 0.75; filter: grayscale(0);
   }
+  .lever-card.priority-lever {
+    border: 1.5px solid #e2e8f0;
+  }
+  .priority-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: #FFF7ED; color: #C2410C;
+    border: 1.5px solid #FDBA74; border-radius: 6px;
+    padding: 2px 9px; font-size: 10px; font-weight: 600;
+    font-style: italic; letter-spacing: 0.2px;
+  }
+  .workshop-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: #F0F9FF; color: #0369A1;
+    border: 1.5px solid #7DD3FC; border-radius: 6px;
+    padding: 2px 9px; font-size: 10px; font-weight: 600;
+    letter-spacing: 0.2px;
+  }
 
   .lever-card.rapid-current {
     border: 2.5px solid #F59E0B !important;
@@ -1454,112 +1471,100 @@ const LEVERS = [
     id:"kms", number:8, title:"Centralized Knowledge Base (KMS)", icon:"📚",
     valueProvided:"Moderate value", valueColor:"#F59E0B",
     sections:[
-      // ── OVERVIEW ──
       { id:"overview", label:"Mission Statement", icon:"🗺️", group:"OVERVIEW",
-        content:{ type:"bullets", title:"📚 Knowledge Management System",
-          items:[{label:"Lever Outline",text:"Globally governed Knowledge Management System, consolidating SOPs and other knowledge assets into a governed, searchable global system"}], starFirst:true } },
-
+        content:{ type:"bullets", title:"📚 Centralized Knowledge Base (KMS)",
+          items:[{label:"Lever Outline", text:"Globally governed knowledge management system, consolidating SOPs & other knowledge assets into a governed, searchable global system"}], starFirst:true }
+      },
       { id:"fromto", label:"From → To", icon:"🔄", group:"OVERVIEW",
         content:{ type:"fromto",
           current:{
-            title:"Fragmented Knowledge",
-            headline:"Fragmented, siloed, and often lost knowledge across teams — tribal know-how, no content lifecycle or governance",
+            title:"Fragmented, Siloed Knowledge",
+            headline:"Fragmented, siloed, & often lost knowledge across teams — tribal know-how, no content lifecycle or governance",
             subpoints:[
-              {label:"Inconsistent Enablement", text:"Long ramp of new reps"},
+              {label:"Inconsistent enablement", text:"Long ramp of new reps"},
               {label:"System challenges", text:"Excess AHT driven by data triage, fragmented knowledge repos"}
             ]
           },
           future:{
-            title:"Unified Knowledge Layer",
+            title:"Single Source of Truth",
             headline:"Single source of truth surfaced in real time within agent workflows across all support channels",
             subpoints:[
-              {label:"Agent enablement", text:"Accelerated ramp with structured, role-specific content paths"},
+              {label:"Agent enablement", text:"Accelerated ramp with structured, role-specific content"},
               {label:"Workflow efficiency", text:"Measurable AHT reduction via AI surfaced in-call knowledge search"}
             ]
           }
         }
       },
-
       { id:"impact", label:"Impact", icon:"📊", group:"OVERVIEW",
         content:{ type:"impact", level:"Moderate",
           bullets:[
-            {label:"Knowledge Lookup",text:"10–20% reduction in knowledge lookup time per interaction on complex case types (e.g., returns, disputes, order exceptions) — variability expected across regions and process types"},
-            {label:"Ramp-Up Time",text:"20–35% reduction in new agent time-to-proficiency by replacing tribal knowledge and peer shadowing with a structured, governed content layer"},
-            {label:"Critical Enabler",text:"Key enabler for highest-value AI levers (Levers 1 & 4) — both degrade materially without governed, versioned knowledge assets as the underlying content layer"}
+            {label:"Knowledge Lookup", text:"~10–20% reduction in knowledge lookup time on complex case types (e.g., returns, disputes)"},
+            {label:"Ramp-Up Time", text:"~20–40% reduction in new agent time-to-proficiency by replacing tribal knowledge & peer shadowing with a structured, governed content layer"},
+            {label:"Critical Enabler", text:"Key enabler for highest-value AI levers (Levers 1 & 4) — both degrade materially without governed, versioned knowledge assets as the underlying content layer"}
           ]
         }
       },
-
       { id:"interdep", label:"Interdependencies", icon:"🔗", group:"OVERVIEW",
         content:{ type:"interdep",
           items:[
-            {system:"Butterfly", level:"Low", detail:"Mostly process/content governance — ERP only matters for embedded 'how-to' aligned to future processes"},
-            {system:"TranSCend", level:"Low", detail:"Limited impact as long as KMS can be built in modular fashion & embedded in the new CRM UI later"},
-            {system:"Osprey", level:"Low", detail:"Limited impact as long as DPS SOPs can be easily incorporated and segmented out later"},
-            {system:"Other Systems", level:"Moderate", detail:"Requires integration with existing repositories (SharePoint/Confluence), search, permissions, and CRM/Genesys embedding"}
+            {system:"Butterfly", level:"Low", detail:"Primarily process/content — ERP only matters for embedded \"how-to\" aligned to future processes"},
+            {system:"TranSCend", level:"Low", detail:"Limited impact if KMS can be built in modular fashion & embedded in the new CRM UI later"},
+            {system:"Other Systems", level:"Moderate", detail:"Requires integration with existing repositories (SharePoint/Confluence) & Genesys"}
           ]
         }
       },
-
       { id:"execrisk", label:"Execution Risk", icon:"⚠️", group:"OVERVIEW",
         content:{ type:"execrisk",
           risks:[
-            {level:"Low", description:"Platform selection risk is low given maturity of commercial KMS vendors (Guru, Bloomfire, Confluence) — off-the-shelf solutions reduce build complexity and timeline uncertainty"}
+            {level:"Low", description:"— Weak governance around source of truth could degrade effectiveness of KMS<br>— High regional variation in systems, processes, languages, and culture could rapidly multiply KMS needs<br>— Limited AI build & deployment experience / resourcing (Build versus buy decision key factor to resourcing)"}
           ]
         }
       },
-
-      // ── ACTION PLAN ──
       { id:"phasing", label:"Deliverables & Milestones", icon:"🗓️", group:"ACTION PLAN",
         content:{ type:"phasing",
           phases:[
             {label:"Quick Wins", items:[
-              {label:"Initial Content Consolidation", text:"Consolidation of top 50 SOPs and FAQ articles from existing sources (e.g., TruVault) into tagged / searchable KB", date:"Target Q2 2026, top 50 aggregated across regions globally"},
-              {label:"Interim AI UI Deployment", text:"Deployment of MSFT Copilot as interim front-end for consolidated repository", date:"Target Q3 2026, Copilot UI deployed globally"}
+              {label:"Initial Content Consolidation", text:"Consolidation of top 50 SOPs & FAQ sources (e.g., TruVault) into tagged & searchable knowledge base", date:"Target Q2 2026, top 50 aggregated & standardized across regions globally"},
+              {label:"Interim AI UI Deployment", text:"Deployment of MSFT Copilot as interim \"front-end\" for consolidated repository", date:"Target End Q3 2026, Copilot UI deployed in hubs (Prague, Bogota)"}
             ]},
             {label:"Steady State", feature:true, items:[
-              {label:"Content Scope Expansion", text:"Expansion to full scope of agent knowledge assets globally (SOPs, FAQs, process guides, exception playbooks)", date:"Target Q4 2026, all regions onboarded with locally maintained content layers"},
-              {label:"Content Lifecycle Management", text:"Implementation of dynamic content lifecycle management (ownership rules, review cadences, retirement triggers)", date:"Target Q1 2027, governance framework live with assigned content owners per region"},
-              {label:"Gap Identification", text:"Deployment of AI-assisted content gap detection to surface missing or outdated articles automatically", date:"Target Q1 2027, integrated into KMS platform post steady-state rollout"},
-              {label:"Multilingual Launch", text:"Launch of multilingual Knowledge Base with regional overlays maintained by regional KMS leads", date:"Target Q2 2027, priority languages covering top 5 markets by contact volume"}
+              {label:"Content Lifecycle Management", text:"Implementation of content lifecycle management (owner rules, review cadences, etc.)", date:"Target Q3 2026, to prepare for steady state #1 — further refinement until Q1 2027"},
+              {label:"Full Knowledge Asset Coverage", text:"Expansion to full global scope of agent knowledge (SOPs, FAQs, guides, playbooks)", date:"Target Q4 2026, for all L2 taxonomy into tagged & searchable knowledge bases"},
+              {label:"Multilingual Knowledge Base", text:"Multilingual knowledge base with regional overlays", date:"Target Q2 2027, for priority languages (top 5 markets by contact revenue) & expansion into rest of the world"},
+              {label:"SPOG Integration", text:"AI assisted integration of KMS system into single pane of glass (Lever 5)", date:"Target Q3 2027, integrated into KMS platform post-steady state in a modular design, then as part of the larger data layer"}
             ]}
           ]
         }
       },
-
       { id:"geo", label:"Geographic Responsibility", icon:"🌍", group:"ACTION PLAN",
         content:{ type:"geo",
           items:[
-            {scope:"Global Responsibility", detail:"Uphold standards of KMS as centralized, JJMT-owned core asset regardless of global services sourcing decision"},
-            {scope:"Local Responsibility", detail:"Region-specific KMS leads identification of content gaps and improvement opportunities to global KMS team for resolution"}
+            {scope:"Global Responsibility", detail:"Uphold standards of KMS as centralized, JJMT owned core asset regardless of global services outsourcing decision"},
+            {scope:"Local Responsibility", detail:"Region-specific KMS maintaining language compatibility & escalating improvement opportunities to global KMS team for addition"}
           ]
         }
       },
-
       { id:"resourcing", label:"Resourcing Categories", icon:"🤝", group:"ACTION PLAN",
         content:{ type:"resourcing",
           categories:[
-            {
-              title: "LABOR",
-              question: "We believe this initiative will require the involvement of:",
-              tags: ["Program Manager", "Business Analyst", "Content Architect", "KMS Platform Admin", "Regional KMS Lead"]
-            }
+            { title:"Labor", question:"We believe this initiative will require the involvement of:",
+              tags:["Product Leads", "Business Analysts", "Data Analysts", "Tenured CSRs"] }
           ]
         }
       },
-
       { id:"owner", label:"Owner & Next Steps", icon:"🧑‍💼", group:"ACTION PLAN",
         content:{ type:"owner",
           owners:[
-            {role:"JJMT Owner", name:"MedTech SC — Digital Strategy & Innovation"},
+            {role:"JJMT Biz. Owner", name:"GCS: Training & Coaching (Interim: US Training)"},
+            {role:"JJMT Tech Owner", name:"GCS: Business Systems (Interim: Digital Strat. & Innovation)"},
             {role:"External Support", name:"BCG"}
           ],
           nextSteps:{
             quickWins:[
-              {label:"Quick Wins", desc:"Complete detailed solution design & feasibility assessment for the KMS build", owner:"Digital Strategy & Innovation team"}
+              {label:"Quick Wins", desc:"Complete detailed solution design & feasibility assessment for MVP", owner:"Digital Strategy & Innovation team"}
             ],
             steadyState:[
-              {label:"Steady State", desc:"Complete detailed solution design & feasibility assessment for the KMS build", owner:"Digital Strategy & Innovation team"}
+              {label:"Steady State", desc:"Complete detailed solution design & feasibility assessment for full KMS", owner:"Digital Strategy & Innovation team"}
             ]
           }
         }
@@ -1610,7 +1615,7 @@ const LEVERS = [
       { id:"execrisk", label:"Execution Risk", icon:"⚠️", group:"OVERVIEW",
         content:{ type:"execrisk",
           risks:[
-            {level:"Moderate", description:"— Concurrent execution against Butterfly, TranSCend, Osprey creates pressure on business / tech resources<br>— Limited AI build & deployment experience / resourcing (during period of underlying system changes [ERP, CM])"}
+            {level:"Moderate", description:"— Concurrent execution against Butterfly, TranSCend, Osprey creates pressure on business / tech resources<br>— Limited AI build & deployment experience / resourcing (Build versus buy decision key factor to resourcing)"}
           ]
         }
       },
@@ -1663,7 +1668,107 @@ const LEVERS = [
       },
     ]
   },
-  { id:"routing", number:4, title:"Dynamic Routing & Capacity", icon:"⚡", valueProvided:"High value", valueColor:"#10B981", sections:placeholderSections("Dynamic Routing & Capacity") },
+  { id:"routing", number:4, title:"Dynamic Routing & Capacity", icon:"🔀", valueProvided:"High value", valueColor:"#10B981",
+    sections:[
+      { id:"overview", label:"Mission Statement", icon:"🗺️", group:"OVERVIEW",
+        content:{ type:"bullets", title:"🔀 Dynamic Routing & Capacity",
+          items:[{label:"Lever Outline", text:"Deploy intelligent customer & CSR-skill based routing as well as predictive & real-time capacity balancing across CSR queues to match inbound contact demand to the right agent across all channels & availabilities"}], starFirst:true }
+      },
+      { id:"fromto", label:"From → To", icon:"🔄", group:"OVERVIEW",
+        content:{ type:"fromto",
+          current:{
+            title:"Static, Siloed Routing Logic",
+            headline:"Routing logic is largely static & siloed by region — queues overflow without visibility, creating uneven workload distribution & avoidable SLA misses",
+            subpoints:[
+              {label:"Poor routing & prioritization", text:"Undifferentiated routing across agent skill sets, mismatched queue capacity, & inconsistent resolution quality"},
+              {label:"Bad demand", text:"Demand spikes in one region while capacity sits idle in another"}
+            ]
+          },
+          future:{
+            title:"Intelligent, Real-Time Queue Management",
+            headline:"Intelligent, attribute-based routing dynamically assigns the best-available CSR across queues in real time, with surge protocols preventing SLA breaches",
+            subpoints:[
+              {label:"Optimized routing & throughput", text:"Contacts matched to the best-qualified CSR in real time; while surge protocols balance capacity automatically before SLA impact occurs"}
+            ]
+          }
+        }
+      },
+      { id:"impact", label:"Impact", icon:"📊", group:"OVERVIEW",
+        content:{ type:"impact", level:"High",
+          bullets:[
+            {label:"FCR Improvement", text:"~10–20% improvement in first contact resolution rate by reducing escalation complexity"},
+            {label:"AHT Reduction", text:"~15–20% decrease in AHT for CSRs due to pre-case visibility of customer intent & attributes"},
+            {label:"CSR Utilization", text:"Improvements in CSR utilization & quality of life by eliminating queue imbalances"},
+            {label:"Critical Enabler", text:"Intent & attribute routing logic is a structural pre-requisite for AI agent triaging (Lever 1)"}
+          ]
+        }
+      },
+      { id:"interdep", label:"Interdependencies", icon:"🔗", group:"OVERVIEW",
+        content:{ type:"interdep",
+          items:[
+            {system:"Butterfly", level:"Moderate", detail:"Dependent on Butterfly taxonomy & case ownership structure, routing logic can be built in Genesys"},
+            {system:"TranSCend", level:"Low", detail:"Indirect dependency as TranSCend stabilization improves data reliability for order-type routing triggers"},
+            {system:"Other Systems", level:"High", detail:"Routing primarily in Genesys, requiring integration with Butterfly to achieve stability"}
+          ]
+        }
+      },
+      { id:"execrisk", label:"Execution Risk", icon:"⚠️", group:"OVERVIEW",
+        content:{ type:"execrisk",
+          risks:[
+            {level:"Moderate", description:"— Incorrect assessment of customer \"value\" or \"intent\" could anger customers if routed incorrectly<br>— Low number of cross-skilled agents require high amount of additional training for solution to scale"}
+          ]
+        }
+      },
+      { id:"phasing", label:"Deliverables & Milestones", icon:"🗓️", group:"ACTION PLAN",
+        content:{ type:"phasing",
+          phases:[
+            {label:"Quick Wins", items:[
+              {label:"Global Agent Skills Taxonomy", text:"Define global agent skills taxonomy (channel, inquiry type, product lines, language, agent tenure), & map to Genesys queue structure", date:"Target End Q3 2026, completed across all hubs"},
+              {label:"Dynamic Capacity Pilot", text:"Deploy pilot of dynamic live capacity & queue load balancing with manual intervention", date:"Target End Q3 2026, completed across all hubs"}
+            ]},
+            {label:"Steady State", feature:true, items:[
+              {label:"Full CSR Skill Classification", text:"Classify all CSRs to global skill taxonomy (channels, inquiry type, product line, language, & agent tenure) & deploy agent characterization on CRM & Genesys", date:"Target Q1 2027, to all regions on Genesys & gradual implementation to CRM with Project Butterfly releases"},
+              {label:"Predictive Load Redistribution", text:"AI control tower for automatic & predictive cross-queue load distribution, priming the queues based on historical trends and triggered by real-time queue threshold breaches", date:"Target Q1 2027, integrated into Genesys queue management for all regions"},
+              {label:"Global Intent-Based Routing", text:"Global deployment of routing logic based on customer intent & attributes", date:"Target Q2 2027, dependent on NLU & Genesys deployment with refinement until Q4 2027 for AI tools (Lever 1)"}
+            ]}
+          ]
+        }
+      },
+      { id:"geo", label:"Geographic Responsibility", icon:"🌍", group:"ACTION PLAN",
+        content:{ type:"geo",
+          items:[
+            {scope:"Global Responsibility", detail:"Centrally governed skill taxonomy, routing standards, & SLA thresholds"},
+            {scope:"Local Responsibility", detail:"Hub-level leads own agent skilling profile, local queue configuration validation, & real-time capacity response during demand spikes within global routing guardrails"}
+          ]
+        }
+      },
+      { id:"resourcing", label:"Resourcing Categories", icon:"🤝", group:"ACTION PLAN",
+        content:{ type:"resourcing",
+          categories:[
+            { title:"Labor", question:"We believe this initiative will require the involvement of:",
+              tags:["Product Managers", "Back-end Engineers", "Business Analysts", "Hub Leaders"] }
+          ]
+        }
+      },
+      { id:"owner", label:"Owner & Next Steps", icon:"🧑‍💼", group:"ACTION PLAN",
+        content:{ type:"owner",
+          owners:[
+            {role:"JJMT Biz. Owner", name:"GCS: Quality & Compliance (Interim: Digital Strat. & Innovation)"},
+            {role:"JJMT Tech Owner", name:"GCS: Genesys/MSD (Interim: Digital CX)"},
+            {role:"External Support", name:"BCG"}
+          ],
+          nextSteps:{
+            quickWins:[
+              {label:"Quick Wins", desc:"Audit current Genesys routing configuration & existing plan capabilities", owner:"Digital Strategy & Innovation team"}
+            ],
+            steadyState:[
+              {label:"Steady State", desc:"Facilitate cross-hub workshop to define & validate global agent skill taxonomy", owner:"Digital Strategy & Innovation team"}
+            ]
+          }
+        }
+      },
+    ]
+  },
   { id:"proactive", number:2, title:"Proactive Comms", icon:"📣", valueProvided:"High value", valueColor:"#10B981",
     sections:[
       { id:"overview", label:"Mission Statement", icon:"🗺️", group:"OVERVIEW",
@@ -1713,7 +1818,7 @@ const LEVERS = [
       { id:"execrisk", label:"Execution Risk", icon:"⚠️", group:"OVERVIEW",
         content:{ type:"execrisk",
           risks:[
-            {level:"Moderate", description:"Concurrent execution against Butterfly, TranSCend, Osprey creates pressure on resourcing"}
+            {level:"Moderate", description:"— Concurrent execution against Butterfly, TranSCend, Osprey creates pressure on resourcing<br>— Limited AI build & deployment experience / resourcing (Build versus buy decision key factor to resourcing)"}
           ]
         }
       },
@@ -1772,122 +1877,806 @@ const LEVERS = [
       },
     ]
   },
-  { id:"desktop", number:5, title:"Unified Desktop w/ AI Assistant", icon:"🖥️", valueProvided:"High value", valueColor:"#10B981", sections:placeholderSections("Unified Desktop w/ AI Assistant") },
-  { id:"oti", number:6, title:"OTI Fixes", icon:"🔧", valueProvided:"Moderate value", valueColor:"#F59E0B", sections:placeholderSections("OTI Fixes") },
-  { id:"kpi", number:7, title:"KPI-Oriented Perf. Mgmt.", icon:"📈", valueProvided:"Moderate value", valueColor:"#F59E0B", sections:placeholderSections("KPI-Oriented Perf. Mgmt.") },
-  { id:"selfdef", number:9, title:"Improved Cust. Self-Service", icon:"🙋", valueProvided:"Moderate value", valueColor:"#F59E0B", sections:placeholderSections("Improved Cust. Self-Service") },
-  { id:"process", number:10, title:"Process Optimization", icon:"⚙️", valueProvided:"Incremental value", valueColor:"#6B7280", sections:placeholderSections("Process Optimization") },
-  { id:"skillset", number:3, title:"Skillset of the Future", icon:"🎓", valueProvided:"Incremental → Enabler", valueColor:"#8B5CF6",
+  { id:"desktop", number:5, title:"Unified Desktop w/ AI Assistant", icon:"🖥️", valueProvided:"High value", valueColor:"#10B981",
     sections:[
       { id:"overview", label:"Mission Statement", icon:"🗺️", group:"OVERVIEW",
-        content:{ type:"bullets", title:"🎓 Skillset of the Future",
-          items:[{label:"Lever Outline", text:"Establish a global CSR capability model emphasizing business context awareness, digital-first handling, and automation readiness to elevate CSR productivity and accelerate adoption of new tools and ways of working"}], starFirst:true }
+        content:{ type:"bullets", title:"🖥️ Unified Desktop with AI Assistant",
+          items:[{label:"Lever Outline", text:"Deploy a single, integrated CSR desktop consolidating views from CRM, order management, & case data into one interface augmented by an AI assistant that surfaces real-time guidance, suggested responses, & next-best actions during live interactions"}], starFirst:true }
       },
-
       { id:"fromto", label:"From → To", icon:"🔄", group:"OVERVIEW",
         content:{ type:"fromto",
           current:{
-            title:"Variable Capability, Missed Self-Service",
-            headline:"Variable CSR capability levels within regions, long ramp-up time for new agents, and missed opportunities to drive customer adoption of self-service (e.g., JJCC)",
+            title:"Fragmented Tooling, Excess Handle Time",
+            headline:"CSRs navigate 4–8 disconnected systems per interaction increasing AHT due to toggling time & manual data triaging",
             subpoints:[
-              {label:"Inconsistent enablement", text:"Variations in CSR ability (e.g., >100% variance in AHT across select inquiry types in NA); long ramp-up for new agents"}
+              {label:"Fragmented tooling", text:"No single pane of glass, requiring agents to swap between CRM, ERP, logistic portal, & knowledge repos constantly"}
             ]
           },
           future:{
-            title:"Global Capability Standard",
-            headline:"Globally consistent competency model defining what 'great' looks like, with standardized onboarding and continuous upskilling",
+            title:"Intelligent, Unified Workplace",
+            headline:"A unified desktop gives every CSR a single, context-aware workplace with AI tools proactively surfacing the right info at every moment of the interaction",
             subpoints:[
-              {label:"Agent enablement", text:"Accelerated agent ramp and continuous upskilling — including readiness for new digital & AI tooling"}
+              {label:"Single workplace", text:"Order data, case history, customer profile, & knowledge assets accessible from one interface"}
             ]
           }
         }
       },
-
       { id:"impact", label:"Impact", icon:"📊", group:"OVERVIEW",
-        content:{ type:"impact", level:"Incremental → Enabler",
+        content:{ type:"impact", level:"High",
           bullets:[
-            {label:"Time-to-Proficiency", text:"Reduction in new agent ramp time through standardized onboarding curriculum and embedded competency assessments"},
-            {label:"Adoption Multiplier", text:"More effective use of high-value technology levers (e.g., unified desktop with AI agent) — capability gaps are a leading cause of underrealization on technology investments"},
-            {label:"Self-Service Penetration", text:"Greater penetration of self-service and automation due to agent-driven adoption behaviors embedded in competency model"}
+            {label:"AHT Reduction", text:"Reduce AHT by 30–60% on multi-system cases (order exceptions, returns, disputes) driven by consolidated information on the customer, elimination of system switching, & AI-surfaced guidance"},
+            {label:"FCR Improvement", text:"Measurable FCR improvement on escalated case types as AI assistant reduces knowledge gaps"},
+            {label:"Critical Enabler", text:"Important enabler for Levers 1, 2, & 7 by surfacing everything within a unified desktop layer"}
           ]
         }
       },
-
       { id:"interdep", label:"Interdependencies", icon:"🔗", group:"OVERVIEW",
         content:{ type:"interdep",
           items:[
-            {system:"Butterfly", level:"Low", detail:"Competency model and handling standards must align to new CRM workflow definitions as Butterfly rolls out — training content will need versioning to track platform changes"},
-            {system:"TranSCend", level:"Low", detail:"Alignment to future SAP process templates required for ERP-related handling standards — not a hard blocker for capability model design"},
-            {system:"Other Systems", level:"Low", detail:"Alignment to future SAP process templates required for ERP-related handling standards"}
+            {system:"Butterfly", level:"High", detail:"New CRM is the backbone of the unified desktop with UX & back-end built on MSD configuration"},
+            {system:"TranSCend", level:"High", detail:"Order data, shipment, & other ERP data must integrate reliably into the single pane of glass"},
+            {system:"Other Systems", level:"High", detail:"AI assistant requires a globally governed knowledge layer in the form of a KMS to draw know-how from"}
           ]
         }
       },
-
       { id:"execrisk", label:"Execution Risk", icon:"⚠️", group:"OVERVIEW",
         content:{ type:"execrisk",
           risks:[
-            {level:"Low", description:"Concurrent execution against Butterfly, TranSCend, Osprey creates pressure on resourcing"}
+            {level:"High", description:"— Concurrent execution against Butterfly, TranSCend, & KMS place pressure on business / tech resources<br>— Significant investment & resources needed to customize existing tools (JJCC/MSD) into a SPOG"}
           ]
         }
       },
-
       { id:"phasing", label:"Deliverables & Milestones", icon:"🗓️", group:"ACTION PLAN",
         content:{ type:"phasing",
           phases:[
             {label:"Quick Wins", items:[
-              {label:"CSR Competency Model v1", text:"Global competency model defined for traditional CSRs by role / work type, with new assessment & KPI rubric (incl. digital / self-service adoption behaviors)", date:"Target Q2 2026, with continual refinement through 2027"},
-              {label:"Supervisor Competency Model v1", text:"Global competency model defined for CSR supervisors with new assessment & KPI rubric (incl. coaching expectations)", date:"Target Q2 2026, with continual refinement through 2027"}
+              {label:"Functional Requirements & Scope", text:"North America: Complete functional requirements for unified desktop UX, data integrations, & AI assistant capability scope", date:"Target Q2 2026, with input from CSRs from the Prague & Bogota hub"},
+              {label:"MSFT Copilot Proof of Concept", text:"Deploy MSFT Copilot as a widget in Salesforce as proof of concept", date:"Target Q3 2026, pilot hub live with structured feedback form & concurrent build in MSD for Q1 2027 launch"}
             ]},
             {label:"Steady State", feature:true, items:[
-              {label:"Full Role Coverage", text:"Expanded global competency model for all frontline CS roles, including Customer Collaboration", date:"Target Q3 2026, future global function to maintain and update curriculum going forward"},
-              {label:"Global Onboarding Curriculum", text:"Standard global onboarding curriculum with localized variants (role- and work-type segmented)", date:"Target Q4 2026, future global function to maintain and update curriculum going forward"},
-              {label:"Upskilling & Coaching Program", text:"Standard global upskilling & coaching program continuously updated to reflect latest CSR tooling releases & process updates", date:"Target Q4 2026, future global function to maintain and update curriculum going forward"}
+              {label:"Unified Desktop MVP", text:"North America: Unified desktop MVP — Single pane desktop with CRM, order management, case history, & KMS integration live for pilot hub cohort", date:"Target Q2 2027, as a UX layer on top of MSD or JJCC pulling data from SAP S4 & data layer"},
+              {label:"AI Assistant Rollout", text:"AI assistant in MVP surfacing next best action & knowledge surfacing", date:"Target Q3 2027, using Copilot while assessing alternatives (e.g. Decagon)"},
+              {label:"Global Desktop Rollout", text:"Global desktop rollout across all hubs & regions with localized data & language", date:"Target Q3 2028, with Butterfly & TranSCend release globally"}
             ]}
           ]
         }
       },
-
       { id:"geo", label:"Geographic Responsibility", icon:"🌍", group:"ACTION PLAN",
         content:{ type:"geo",
           items:[
-            {scope:"Global Responsibility", detail:"Centrally governed competency model, onboarding curriculum, and KPI rubric"},
-            {scope:"Local Responsibility", detail:"Region and hub-level nodes own training delivery, language-adapted content, and regional process nuances within global framework guardrails"}
+            {scope:"Global Responsibility", detail:"Core desktop platform, AI assistant, governance, & UX design centrally designed & governed"},
+            {scope:"Local Responsibility", detail:"Language config., CSR management, & feedback collection to central team"}
           ]
         }
       },
-
       { id:"resourcing", label:"Resourcing Categories", icon:"🤝", group:"ACTION PLAN",
         content:{ type:"resourcing",
           categories:[
-            {
-              title:"Labor",
-              question:"We believe this initiative will require the involvement of:",
-              tags:["Program Manager", "Regional L&D Delegates", "Dedicated HR Support"]
-            }
+            { title:"Labor", question:"We believe this initiative will require the involvement of:",
+              tags:["Product Managers", "AI Engineers", "UX Designers", "Data Architects"] }
           ]
         }
       },
-
       { id:"owner", label:"Owner & Next Steps", icon:"🧑‍💼", group:"ACTION PLAN",
         content:{ type:"owner",
           owners:[
-            {role:"JJMT Owner", name:"US Regional Operations"},
+            {role:"JJMT Biz. Owner", name:"GCS: Trans. & Innovation (Interim: Digital Strat. & Innovation)"},
+            {role:"JJMT Tech Owner", name:"GCS: Global Business Systems (Interim: Digital Strat. & Innovation)"},
             {role:"External Support", name:"BCG"}
           ],
           nextSteps:{
             quickWins:[
-              {label:"Quick Wins", desc:"Complete detailed solution design & feasibility assessment for the Skillset program", owner:"US Regional Operations"}
+              {label:"Quick Wins", desc:"Define functional requirements & integration structure for unified desktop", owner:"Digital Strategy & Innovation team"}
             ],
             steadyState:[
-              {label:"Steady State", desc:"Complete detailed solution design & feasibility assessment for the Skillset program", owner:"US Regional Operations"}
+              {label:"Steady State", desc:"Support pilot MVP design & create copilot design in either Genesys or MSD", owner:"Digital Strategy & Innovation team"}
             ]
           }
         }
       },
     ]
   },
-  { id:"datalake", number:11, title:"Unified Data Lake", icon:"🗄️", valueProvided:"Enabler", valueColor:"#8B5CF6", sections:placeholderSections("Unified Data Lake") },
-  { id:"sysint", number:12, title:"System Integration", icon:"🔌", valueProvided:"Enabler", valueColor:"#8B5CF6", sections:placeholderSections("System Integration") },
+  { id:"oti", number:6, title:"OTI Fixes", icon:"🔧", valueProvided:"Moderate value", valueColor:"#F59E0B",
+    sections:[
+      { id:"overview", label:"Mission Statement", icon:"🗺️", group:"OVERVIEW",
+        content:{ type:"bullets", title:"🔧 OTI Fixes",
+          items:[{label:"Lever Outline", text:"Improve OCR accuracy & enforce structured EDI validation rules to reduce order \"kick-outs\" & manual remediation effort across the order intake process"}], starFirst:true }
+      },
+      { id:"fromto", label:"From → To", icon:"🔄", group:"OVERVIEW",
+        content:{ type:"fromto",
+          current:{
+            title:"High Error Rates, Manual Remediation Loop",
+            headline:"High rates of OCR misread & EDI validation failures generate large volumes of manual order remediation work & delays for customers",
+            subpoints:[
+              {label:"Repeat types", text:"OTI defects from Esker & EDI errors generate large case volumes"},
+              {label:"Reactive resolution model", text:"No mechanism to triage OTI defects, leading to no resolutions"}
+            ]
+          },
+          future:{
+            title:"Proactive Defect Resolution",
+            headline:"Root cause issues in the OTI process are identified & resolved, eliminating upstream error that generates the highest-volume of CSR queues",
+            subpoints:[
+              {label:"Structural contact reduction", text:"Regular analytics flag highest frequency issues for resolution"}
+            ]
+          }
+        }
+      },
+      { id:"impact", label:"Impact", icon:"📊", group:"OVERVIEW",
+        content:{ type:"impact", level:"Moderate",
+          bullets:[
+            {label:"Inbound Contact Reduction", text:"Estimated 30–50% reduction in OTI-driven inbound contacts on certain exception types based on OCR error rates by region"},
+            {label:"CSR Rework Reduction", text:"Measurable reduction in manual CSR rework redirecting time to higher-complexity interactions"},
+            {label:"Data Integrity", text:"Improves data integrity & reduces error rate when feeding AI agents (Lever 1) / Proactive Comms (Lever 2)"}
+          ]
+        }
+      },
+      { id:"interdep", label:"Interdependencies", icon:"🔗", group:"OVERVIEW",
+        content:{ type:"interdep",
+          items:[
+            {system:"Butterfly", level:"Low", detail:"OTI defect fixes only affect case management & process flows not dependent on Butterfly"},
+            {system:"TranSCend", level:"High", detail:"Most OTI defects originate or pass through SAP/JDE with TranSCend for standardizing ERP-layer data integrity"},
+            {system:"Other Systems", level:"High", detail:"Requires remediation of OCR systems, EDI tools, & order intake processes"}
+          ]
+        }
+      },
+      { id:"execrisk", label:"Execution Risk", icon:"⚠️", group:"OVERVIEW",
+        content:{ type:"execrisk",
+          risks:[
+            {level:"Low", description:"— Modular build for OTI defects can reduce execution risk if executed correctly<br>— Dependency of OTI success on customer education and on commercial & SCCS alignment"}
+          ]
+        }
+      },
+      { id:"phasing", label:"Deliverables & Milestones", icon:"🗓️", group:"ACTION PLAN",
+        content:{ type:"phasing",
+          phases:[
+            {label:"Quick Wins", items:[
+              {label:"Esker Standardization", text:"Standardize & fix Esker (Einstein prediction engine) to improve manual order intake", date:"Target Q3 2026, mimicking best-practices of lowest OCR failure region (LATAM)"},
+              {label:"High-Volume Defect Remediation", text:"Targeted remediation of 3 high-volume defect types identified in AI transcript analysis", date:"Target Q3 2026, fixes live with before/after contact volume tracking in place"}
+            ]},
+            {label:"Steady State", feature:true, items:[
+              {label:"OTI Defect Review Cadence", text:"Create formal OTI defect review cadence & business analytics layer", date:"Target Q3 2026, build on Qualtrics in a dashboard view to show high frequency issues in OTI process"},
+              {label:"Priority-Tier Defect Remediation", text:"Remediation of all priority-tier OTI defects identified by formal BI steady state", date:"Target Q4 2026, rapid remediation using a lean team piloting in NA"},
+              {label:"Residual Defect Remediation", text:"Residual remediation of all non-priority OTI defects", date:"Target Q3 2027, with prioritization dependent on business analytics layer & CSR requests"}
+            ]}
+          ]
+        }
+      },
+      { id:"geo", label:"Geographic Responsibility", icon:"🌍", group:"ACTION PLAN",
+        content:{ type:"geo",
+          items:[
+            {scope:"Global Responsibility", detail:"OTI defect methodology, BI layer, governance model, & prioritization logic, and tooling managed centrally"},
+            {scope:"Local Responsibility", detail:"Regional leads surface market-specific OTI exceptions & own implementation of locally scoped fixes using global tools & systems"}
+          ]
+        }
+      },
+      { id:"resourcing", label:"Resourcing Categories", icon:"🤝", group:"ACTION PLAN",
+        content:{ type:"resourcing",
+          categories:[
+            { title:"Labor", question:"We believe this initiative will require the involvement of:",
+              tags:["Project Leads", "Backend Engineers", "Data Architects", "Business Analysts"] }
+          ]
+        }
+      },
+      { id:"owner", label:"Owner & Next Steps", icon:"🧑‍💼", group:"ACTION PLAN",
+        content:{ type:"owner",
+          owners:[
+            {role:"JJMT Biz. Owner", name:"GCS: Vendor Partner Mgmt. (Interim: Digital Strat. & Innovation)"},
+            {role:"JJMT Tech Owner", name:"GCS: JJCC/EDI (Interim: Digital Strat. & Innovation)"},
+            {role:"External Support", name:"BCG"}
+          ],
+          nextSteps:{
+            quickWins:[
+              {label:"Quick Wins", desc:"Identify current Esker pain points & roadmap remediation strategy", owner:"Digital Strategy & Innovation team"}
+            ],
+            steadyState:[
+              {label:"Steady State", desc:"Create OTI business analytics layer with formal path for CSR complaints", owner:"Digital Strategy & Innovation team"}
+            ]
+          }
+        }
+      },
+    ]
+  },
+  { id:"kpi", number:7, title:"KPI-Oriented Perf. Mgmt.", icon:"📈", valueProvided:"Moderate value", valueColor:"#F59E0B",
+    sections:[
+      { id:"overview", label:"Mission Statement", icon:"🗺️", group:"OVERVIEW",
+        content:{ type:"bullets", title:"📈 KPI-Oriented Performance Management",
+          items:[{label:"Lever Outline", text:"Implement a standardized global KPI spine (AHT, resolution rate, repeat contacts) with consistent metric definitions, a corresponding incentive structure, & performance review structure across all JJMT hubs"}], starFirst:true }
+      },
+      { id:"fromto", label:"From → To", icon:"🔄", group:"OVERVIEW",
+        content:{ type:"fromto",
+          current:{
+            title:"Fragmented Metrics, Misaligned Incentives",
+            headline:"Performance & incentives vary by region, hubs, & teams making it difficult to identify underperformance or attribute improvement to specific levers",
+            subpoints:[
+              {label:"Metric fragmentation", text:"No globally consistent KPIs, making benchmarking & reporting unreliable"},
+              {label:"Misaligned incentives", text:"Lack of specificity in incentives to role reduce CSR motivation"}
+            ]
+          },
+          future:{
+            title:"Unified Performance Visibility",
+            headline:"A unified KPI framework gives every CSR & supervisor visibility into performance against targets & unifies objectives",
+            subpoints:[
+              {label:"Shared accountability", text:"Globally consistent KPI set with hub-level targets & real-time dashboard allows benchmarking"}
+            ]
+          }
+        }
+      },
+      { id:"impact", label:"Impact", icon:"📊", group:"OVERVIEW",
+        content:{ type:"impact", level:"Moderate",
+          bullets:[
+            {label:"Productivity & Resolution Improvement", text:"Estimated 10–15% improvement in productivity & resolution metrics (e.g. AHT, FCR) driven by coaching cadence & real-time performance visibility"},
+            {label:"Value Measurement", text:"Enables precise measurement of value creation against a unified goal"},
+            {label:"Reporting Backbone", text:"Provides reporting backbone for stakeholder governance & connects all hub/region/CSR performances"}
+          ]
+        }
+      },
+      { id:"interdep", label:"Interdependencies", icon:"🔗", group:"OVERVIEW",
+        content:{ type:"interdep",
+          items:[
+            {system:"Butterfly", level:"Moderate", detail:"CRM & Genesys data is the main source of info. for metrics; can be done in SFDC first, then migrated to MSD"},
+            {system:"TranSCend", level:"Low", detail:"Limited relevance to ERP systems"},
+            {system:"Other Systems", level:"Low", detail:"Limited relevance to other JJMT CS systems excluding a light HR & business analytics layer"}
+          ]
+        }
+      },
+      { id:"execrisk", label:"Execution Risk", icon:"⚠️", group:"OVERVIEW",
+        content:{ type:"execrisk",
+          risks:[
+            {level:"Moderate", description:"— Risk of misalignment of incentive structure & CSR needs, resulting in low CSR morale & motivation<br>— Osprey separation could harm retention of higher performance reps"}
+          ]
+        }
+      },
+      { id:"phasing", label:"Deliverables & Milestones", icon:"🗓️", group:"ACTION PLAN",
+        content:{ type:"phasing",
+          phases:[
+            {label:"Quick Wins", items:[
+              {label:"Global KPI Framework", text:"Define global KPI framework (AHT, FCR, SLA, CSAT) with hub specific targets", date:"Target Q2 2026, with input from hub leads & senior CS leadership"},
+              {label:"Pilot Incentive Structure", text:"Define pilot (bonus/target) structure for CSRs to be tested on outsourced APAC reps", date:"Target Q2–Q3 2026, pilot deployed dependent on APAC reps"}
+            ]},
+            {label:"Steady State", feature:true, items:[
+              {label:"Full KPI Dashboard", text:"Full KPI framework dashboard with consolidated hubs, regional, & global view initially built modularly then slotted into the unified data lake (Lever 11)", date:"Target Q4 2026, built in Qualtrics or PowerBI with real time data from Genesys/Salesforce/Project Butterfly"},
+              {label:"Structured Coaching Cadence", text:"Structured weekly & monthly coaching for supervisors & CSRs based on formal KPIs", date:"Target Q1 2027, after identification of formal KPIs"},
+              {label:"Cross-Hub Benchmarking", text:"Ongoing cross-hub performance benchmarking with structured improvement planning for hubs below KPI expectations", date:"Target Q3 2026 – Q3 2027, with quarterly review cycles"}
+            ]}
+          ]
+        }
+      },
+      { id:"geo", label:"Geographic Responsibility", icon:"🌍", group:"ACTION PLAN",
+        content:{ type:"geo",
+          items:[
+            {scope:"Global Responsibility", detail:"Global KPI definitions, target-setting methodology, reporting standards, & coaching framework design centrally owned & governed"},
+            {scope:"Local Responsibility", detail:"Hubs & regional leaders own coaching cadence execution & local performance improvement planning"}
+          ]
+        }
+      },
+      { id:"resourcing", label:"Resourcing Categories", icon:"🤝", group:"ACTION PLAN",
+        content:{ type:"resourcing",
+          categories:[
+            { title:"Labor", question:"We believe this initiative will require the involvement of:",
+              tags:["Project Lead", "Business Analysts", "Human Resources Rep", "Regional Biz. SMEs"] }
+          ]
+        }
+      },
+      { id:"owner", label:"Owner & Next Steps", icon:"🧑‍💼", group:"ACTION PLAN",
+        content:{ type:"owner",
+          owners:[
+            {role:"JJMT Biz. Owner", name:"GCS: Workforce/Perf. Mgmt. (Interim: US Training)"},
+            {role:"JJMT Tech Owner", name:"N/A"},
+            {role:"External Support", name:"BCG"}
+          ],
+          nextSteps:{
+            quickWins:[
+              {label:"Quick Wins", desc:"Audit current metrics tracked across all hubs to identify most impactful KPIs", owner:"Digital Strategy & Innovation team"}
+            ],
+            steadyState:[
+              {label:"Steady State", desc:"Scope & design dashboard build from existing Genesys & CRM data sources", owner:"Digital Strategy & Innovation team"}
+            ]
+          }
+        }
+      },
+    ]
+  },
+  { id:"selfdef", number:9, title:"Improved Cust. Self-Service", icon:"🛒", valueProvided:"Moderate value · 🔄 In-flight", valueColor:"#F59E0B",
+    sections:[
+      { id:"overview", label:"Mission Statement", icon:"🗺️", group:"OVERVIEW",
+        content:{ type:"bullets", title:"🛒 Improved Customer Self-Serve",
+          items:[{label:"Lever Outline", text:"Expand & improve customer-facing self-serve capabilities within the existing portal to enable customers to independently resolve order status, shipment tracking, & invoice queries without CSR involvement"}], starFirst:true }
+      },
+      { id:"fromto", label:"From → To", icon:"🔄", group:"OVERVIEW",
+        content:{ type:"fromto",
+          current:{
+            title:"Low Adoption, Limited Scope",
+            headline:"Along with customer unwillingness to use JJCC, the existing self-serve portal has limited scope & poor UX design leading to low adoption & customers calling/emailing for queries the portal can handle",
+            subpoints:[
+              {label:"Lack of awareness", text:"Customers are unwilling to migrate to platforms due to lack of training & abundance of MedTech self-service portals"}
+            ]
+          },
+          future:{
+            title:"Reliable, Intuitive Self-Serve",
+            headline:"An improved, consistently reliable self-serve portal that handles the highest-frequency routing queries end to end, reducing inbound volume for CSRs",
+            subpoints:[
+              {label:"Reliable, intuitive UX", text:"Accurate, real-time data in an interface that is quicker to access than call"},
+              {label:"Front-of-mind", text:"JJMT training helps customer understand use cases & how to use"}
+            ]
+          }
+        }
+      },
+      { id:"impact", label:"Impact", icon:"📊", group:"OVERVIEW",
+        content:{ type:"impact", level:"Moderate",
+          bullets:[
+            {label:"Inbound Contact Reduction", text:"Estimated 10–20% reduction in avoidable inbound contacts on order status, shipment tracking, & invoice query from shift to JJCC"},
+            {label:"Contact Mix Shift", text:"Measurable shift in contact mix for routine inquiry types reducing less-complex CSR workloads/cases"},
+            {label:"Customer Satisfaction", text:"Improves customer satisfaction & retention via real-time updates & ease of information access"}
+          ]
+        }
+      },
+      { id:"interdep", label:"Interdependencies", icon:"🔗", group:"OVERVIEW",
+        content:{ type:"interdep",
+          items:[
+            {system:"Butterfly", level:"Low", detail:"JJCC not dependent on Butterfly, however future integration with MSD can be a dependency"},
+            {system:"TranSCend", level:"High", detail:"Current deployment of improved JJCC requires SAP S4 as a pre-requisite"},
+            {system:"Other Systems", level:"Moderate", detail:"Integration with 3rd party shipping, order, invoicing systems important to the functionality of JJCC"}
+          ]
+        }
+      },
+      { id:"execrisk", label:"Execution Risk", icon:"⚠️", group:"OVERVIEW",
+        content:{ type:"execrisk",
+          risks:[
+            {level:"Moderate", description:"— High dependency on 3rd party systems (e.g. USPS) to integrate<br>— Low adoption of customer for current JJCC due to abundance of MedTech self-service portals<br>— Requires buy-in from front-line SCCS & sales reps to push customers towards self-service portals"}
+          ]
+        }
+      },
+      { id:"phasing", label:"Deliverables & Milestones", icon:"🗓️", group:"ACTION PLAN",
+        content:{ type:"phasing",
+          phases:[
+            {label:"Quick Wins", items:[
+              {label:"Gap Assessment", text:"Gap assessment to understand customer pain points & current capabilities missing and alignment with commercial & SCCS to identify plan to improve customer adoption", date:"Completed as part of \"new JJCC\""},
+              {label:"Order Status & Tracking Enhancement", text:"Order status & tracking enhancement by improving real-time accuracy & visibility of order status & shipment tracking within new JJCC", date:"Target Q4 2026, dependent on integration with 3rd party shipping platforms & in regions that have completed TranSCend"}
+            ]},
+            {label:"Steady State", feature:true, items:[
+              {label:"Customer Adoption Incentive Structure", text:"Implement incentive structures within JJMT SCCS to encourage training of customers to adopt JJCC", date:"Target Q4 2026, after alignment on JJMT SCCS function globally"},
+              {label:"Portal Navigation & UX Streamlining", text:"Redesign portal navigation & data presentation to streamline CS functionality for the few key use cases", date:"Completed & deploying as part of the JJCC upgrade"},
+              {label:"Channel Boundary Formalization", text:"Formalize self-serve vs AI agents vs assisted channel scope boundaries in BI reporting", date:"Target Q4 2026, to deploy after inclusion of the copilot AI assistant supporting CSRs"},
+              {label:"AI Support Agent for JJCC Adoption", text:"AI support agent walking through JJCC functionality for customers flagged as \"adopters\"", date:"Target Q4 2027, customer master are aligned with commercial's definitions"}
+            ]}
+          ]
+        }
+      },
+      { id:"geo", label:"Geographic Responsibility", icon:"🌍", group:"ACTION PLAN",
+        content:{ type:"geo",
+          items:[
+            {scope:"Global Responsibility", detail:"Core portal capability roadmap, UX standards, data integration requirements, & channel boundary definitions centrally governed"},
+            {scope:"Local Responsibility", detail:"Regional leads own customer communication for portal changes, local language content, market-specific use case validation, & adoption tracking"}
+          ]
+        }
+      },
+      { id:"resourcing", label:"Resourcing Categories", icon:"🤝", group:"ACTION PLAN",
+        content:{ type:"resourcing",
+          categories:[
+            { title:"Labor", question:"We believe this initiative will require the involvement of:",
+              tags:["Program Manager", "Regional SCCS Delegates", "Regional Sales Delegates"] }
+          ]
+        }
+      },
+      { id:"owner", label:"Owner & Next Steps", icon:"🧑‍💼", group:"ACTION PLAN",
+        content:{ type:"owner",
+          owners:[
+            {role:"JJMT Biz. Owner", name:"Global CS: Trans. & Innov. (Interim: US SCCS)"},
+            {role:"JJMT Tech Owner", name:"Global CS: JJCC/EDI (Interim: Digital Strat. & Innovation)"},
+            {role:"External Support", name:"BCG"}
+          ],
+          nextSteps:{
+            quickWins:[
+              {label:"Quick Wins", desc:"Analyze portal usage & abandonment data to quantify deflection opportunity", owner:"Digital Strategy & Innovation team"}
+            ],
+            steadyState:[
+              {label:"Steady State", desc:"Align on value proposition of JJCC & adjust JJMT SCCS incentive structure", owner:"Digital Strategy & Innovation team"}
+            ]
+          }
+        }
+      },
+    ]
+  },
+  { id:"process", number:10, title:"Process Optimization", icon:"⚙️", valueProvided:"Incremental value", valueColor:"#6B7280",
+    sections:[
+      { id:"overview", label:"Mission Statement", icon:"🗺️", group:"OVERVIEW",
+        content:{ type:"bullets", title:"⚙️ Process Optimization",
+          items:[{label:"Lever Outline", text:"Systematically identify & eliminate process-level waste across CS (e.g. standardizing handling procedures, removing tedious manual steps, & moving to future state tech capabilities) to improve agent efficiency"}], starFirst:true }
+      },
+      { id:"fromto", label:"From → To", icon:"🔄", group:"OVERVIEW",
+        content:{ type:"fromto",
+          current:{
+            title:"Inconsistent Execution, Embedded Workarounds",
+            headline:"CS workflows are inconsistently executed & classified across the world with non-standard handling steps & undocumented processes inflating handling time & creating quality risks",
+            subpoints:[
+              {label:"Process variation", text:"No globally standardized handling procedure across queues/teams"},
+              {label:"Embedded workaround", text:"Persistent manual workaround to broken processes"}
+            ]
+          },
+          future:{
+            title:"Standardized, Globally Consistent Workflows",
+            headline:"Globally standardized efficient CS workflows aligned to future-state technology capabilities, with continual improvements in operations governance",
+            subpoints:[
+              {label:"Standardized execution", text:"Consistent & documented procedures across the globe w/ regional nuance"}
+            ]
+          }
+        }
+      },
+      { id:"impact", label:"Impact", icon:"📊", group:"OVERVIEW",
+        content:{ type:"impact", level:"Incremental",
+          bullets:[
+            {label:"AHT Reduction", text:"Estimated 5–10% AHT reduction on targeted process types through elimination of manual workaround"},
+            {label:"Tech Lever Enablement", text:"Standardized processes baseline is a prerequisite for enabling tech lever impact (e.g. AI agent accuracy, routing logic, & desktop workflow design)"},
+            {label:"Quality & FCR Improvement", text:"Reduction in handling quality variance improves FCR & improves customer sentiment"}
+          ]
+        }
+      },
+      { id:"interdep", label:"Interdependencies", icon:"🔗", group:"OVERVIEW",
+        content:{ type:"interdep",
+          items:[
+            {system:"Butterfly", level:"High", detail:"Process redesigns must be tightly sequenced in new Butterfly CRM deployment"},
+            {system:"TranSCend", level:"High", detail:"Manual workarounds are dependent on ERP data & configuration, standardize across new platform"},
+            {system:"Other Systems", level:"Low", detail:"Process optimization depends on various systems, with most non-critical outside of a few exceptions"}
+          ]
+        }
+      },
+      { id:"execrisk", label:"Execution Risk", icon:"⚠️", group:"OVERVIEW",
+        content:{ type:"execrisk",
+          risks:[
+            {level:"Moderate", description:"— Variance in regional systems & requirements makes global standards difficult to cement<br>— Pushback from CSRs & reps from changing entrenched processes"}
+          ]
+        }
+      },
+      { id:"phasing", label:"Deliverables & Milestones", icon:"🗓️", group:"ACTION PLAN",
+        content:{ type:"phasing",
+          phases:[
+            {label:"Quick Wins", items:[
+              {label:"Process Mapping & Waste Analysis", text:"Structured process mapping & waste analysis across top contact/case types to identify non-value add steps, workarounds, & variations", date:"Target Q4 2026, after deployment of L2 taxonomy globally"},
+              {label:"Top 10 Process Targeted Elimination", text:"Target top 10 processes (defined by % of CSR time spent on L2 taxonomy from above) & create targeted elimination efforts identified in the diagnostic", date:"Target Q1 2027, after quick win #1 & structured framework of variation"}
+            ]},
+            {label:"Steady State", feature:true, items:[
+              {label:"Global Process Review Cycle", text:"Defined & structured process review cycle established globally with BI flags & regional leads proposing regional variations & changes", date:"Target Q2 2027, for design structure & cadence in anticipation of Osprey spin-off"},
+              {label:"Global SOPs Consolidated in KMS", text:"Global standard operating procedures with standardized SOPs consolidated in KMS", date:"Target Q3 2027, after deployment of KMS system"},
+              {label:"Continuous Improvement Cycle", text:"Continued improvement cycle focusing on the long tail of process improvements", date:"Target Q2 2027 – Q4 2028, after successful pilot of quick win #2 & running until all processes >1% of CSR time are optimized"}
+            ]}
+          ]
+        }
+      },
+      { id:"geo", label:"Geographic Responsibility", icon:"🌍", group:"ACTION PLAN",
+        content:{ type:"geo",
+          items:[
+            {scope:"Global Responsibility", detail:"Global SOP standards, process design methodology, & continuous improvement governance framework centrally owned"},
+            {scope:"Local Responsibility", detail:"Region-level leads local workaround identification, SOP adoption, & escalation of market-specific process exceptions to the global"}
+          ]
+        }
+      },
+      { id:"resourcing", label:"Resourcing Categories", icon:"🤝", group:"ACTION PLAN",
+        content:{ type:"resourcing",
+          categories:[
+            { title:"Labor", question:"We believe this initiative will require the involvement of:",
+              tags:["Program Manager", "Business Analysts", "Data Analysts", "Regional Biz. SMEs"] }
+          ]
+        }
+      },
+      { id:"owner", label:"Owner & Next Steps", icon:"🧑‍💼", group:"ACTION PLAN",
+        content:{ type:"owner",
+          owners:[
+            {role:"JJMT Biz. Owner", name:"Global CS: Trans. & Innov. (Interim: US Regional Operations)"},
+            {role:"JJMT Tech Owner", name:"Global CS: Global Insights (Interim: Digital Strat. & Innovation)"},
+            {role:"External Support", name:"BCG"}
+          ],
+          nextSteps:{
+            quickWins:[
+              {label:"Quick Wins", desc:"Structured process mapping methodology & L2 taxonomy organization", owner:"BCG team"}
+            ],
+            steadyState:[
+              {label:"Steady State", desc:"Process optimization process review cycle & cadence", owner:"Digital Strategy & Innovation team"}
+            ]
+          }
+        }
+      },
+    ]
+  },
+  { id:"skillset", number:3, title:"Skillset of the Future", icon:"🎓", valueProvided:"Incremental → Enabler", valueColor:"#8B5CF6",
+    sections:[
+      { id:"overview", label:"Mission Statement", icon:"🗺️", group:"OVERVIEW",
+        content:{ type:"bullets", title:"🎓 Skillset of the Future",
+          items:[{label:"Lever Outline", text:"Establish global CSR capability model & skilling program emphasizing business context awareness, digital-first handling, & automation readiness — elevating productivity & accelerating adoption of new digital tools"}], starFirst:true }
+      },
+      { id:"fromto", label:"From → To", icon:"🔄", group:"OVERVIEW",
+        content:{ type:"fromto",
+          current:{
+            title:"Variable Capability, Long Ramp-Up",
+            headline:"Variable CSR capability levels within region, long ramp-up time for new agents, & \"missed opportunities\" to drive customer adoption of self-service (e.g., JJCC)",
+            subpoints:[
+              {label:"Inconsistent enablement", text:"Variations in CSR ability (e.g., >100% variance in AHT across select inquiry types in NA); long ramp-up for new agents"}
+            ]
+          },
+          future:{
+            title:"Globally Consistent, AI-Ready Competency",
+            headline:"Globally consistent competency model defining what \"great\" looks like, with standardized onboarding & continuous upskilling ready for an AI age",
+            subpoints:[
+              {label:"Agent enablement", text:"Accelerated agent ramp & continuous upskilling — including readiness for new digital & AI tooling"}
+            ]
+          }
+        }
+      },
+      { id:"impact", label:"Impact", icon:"📊", group:"OVERVIEW",
+        content:{ type:"impact", level:"Incremental → Enabler",
+          bullets:[
+            {label:"Time-to-Proficiency", text:"Reduction in new agent ramp time through standardized onboarding curriculum"},
+            {label:"Adoption Multiplier", text:"Effective use of high-value technology levers (e.g., unified desktop with AI agent)"},
+            {label:"Self-Service Penetration", text:"Greater penetration of self-service & automation due to agent-driven adoption"}
+          ]
+        }
+      },
+      { id:"interdep", label:"Interdependencies", icon:"🔗", group:"OVERVIEW",
+        content:{ type:"interdep",
+          items:[
+            {system:"Butterfly", level:"Low", detail:"Competency model & handling standards must align to new CRM systems as Butterfly rolls out"},
+            {system:"TranSCend", level:"Low", detail:"Final enablement must reflect TranSCend changes to process templates"},
+            {system:"Other Systems", level:"Low", detail:"Alignment to future SAP process templates required for ERP-related handling standards"}
+          ]
+        }
+      },
+      { id:"execrisk", label:"Execution Risk", icon:"⚠️", group:"OVERVIEW",
+        content:{ type:"execrisk",
+          risks:[
+            {level:"Low", description:"— Skillsets required may have regional variation due to local culture, practices, and systems<br>— Skillset of the future may cause changes in performance for reps in the interim"}
+          ]
+        }
+      },
+      { id:"phasing", label:"Deliverables & Milestones", icon:"🗓️", group:"ACTION PLAN",
+        content:{ type:"phasing",
+          phases:[
+            {label:"Quick Wins", items:[
+              {label:"CSR Competency Model v1", text:"Global competency model defined for traditional CSRs by role / work type, with new assessment & KPI rubric (incl. digital / self-service adoption behaviors)", date:"Target Q2 2026, with continual refinement until 2027"},
+              {label:"Supervisor Competency Model v1", text:"Global competency model defined for CSR supervisors with new assessment & KPI rubric (incl. coaching expectations)", date:"Target Q2 2026, with continual refinement until 2027"}
+            ]},
+            {label:"Steady State", feature:true, items:[
+              {label:"Full Role Competency Coverage", text:"Expanded global competency model for all frontline CS roles with scale pilot of AI transcript analysis and sentiment analysis, including Customer Collaboration", date:"Target Q3 2026, with future global function maintaining & updating curriculum"},
+              {label:"Global Onboarding Curriculum", text:"Standard global onboarding curriculum with localized variants (role & work type segmented)", date:"Target Q4 2026, with future global function maintaining & updating curriculum"},
+              {label:"AI-Integrated Coaching Program", text:"AI coaching integrated with standard global upskilling & coaching program that provides daily feedback on CSR cases", date:"Target Q4 2027, dependent on success of AI in KMS system"}
+            ]}
+          ]
+        }
+      },
+      { id:"geo", label:"Geographic Responsibility", icon:"🌍", group:"ACTION PLAN",
+        content:{ type:"geo",
+          items:[
+            {scope:"Global Responsibility", detail:"Centrally governed competency model, onboarding curriculum, & KPI rubric"},
+            {scope:"Local Responsibility", detail:"Region & hub-level nodes own training delivery, language-adapted content, & regional process nuances within global framework guardrails"}
+          ]
+        }
+      },
+      { id:"resourcing", label:"Resourcing Categories", icon:"🤝", group:"ACTION PLAN",
+        content:{ type:"resourcing",
+          categories:[
+            { title:"Labor", question:"We believe this initiative will require the involvement of:",
+              tags:["Program Manager", "Regional L&D Delegates", "Dedicated HR Support"] }
+          ]
+        }
+      },
+      { id:"owner", label:"Owner & Next Steps", icon:"🧑‍💼", group:"ACTION PLAN",
+        content:{ type:"owner",
+          owners:[
+            {role:"JJMT Biz. Owner", name:"GCS: Training & Coaching (Interim: US Regional Operations)"},
+            {role:"JJMT Tech Owner", name:"N/A"},
+            {role:"External Support", name:"BCG"}
+          ],
+          nextSteps:{
+            quickWins:[
+              {label:"Quick Wins", desc:"Define global competency models for frontline CSRs (by role) & supervisors", owner:"US Regional Operations"}
+            ],
+            steadyState:[
+              {label:"Steady State", desc:"Define global competency models for frontline CSRs (by role) & supervisors", owner:"US Regional Operations"}
+            ]
+          }
+        }
+      },
+    ]
+  },
+  { id:"datalake", number:11, title:"Unified Data Lake", icon:"🗄️", valueProvided:"Enabler", valueColor:"#8B5CF6",
+    sections:[
+      { id:"overview", label:"Mission Statement", icon:"🗺️", group:"OVERVIEW",
+        content:{ type:"bullets", title:"🗄️ Unified Data Lake",
+          items:[{label:"Lever Outline", text:"Unified data lake does not deliver standalone CSR productivity gains, instead providing value by unblocking data constraints on virtually every other lever"}], starFirst:true }
+      },
+      { id:"fromto", label:"From → To", icon:"🔄", group:"OVERVIEW",
+        content:{ type:"fromto",
+          current:{
+            title:"Fragmented Data, No Single Layer",
+            headline:"CS data is fragmented across disconnected source systems with no consolidated layer; primary data ownership exists outside of JJMT CS",
+            subpoints:[
+              {label:"Reporting blind spots", text:"No unified source of truth incentivizes reps to triage through various sources hoping to find a different \"truth\""},
+              {label:"No single layer", text:"Contact, case, order, & performance data are not unified requiring manual reconciliation & prone to inconsistency"}
+            ]
+          },
+          future:{
+            title:"Governed, Accessible Unified Data",
+            headline:"A governed unified data lake consolidating all CS-relevant data streams into a single accessible platform to power AI, real-time reporting, & BIs",
+            subpoints:[
+              {label:"Unified data access", text:"A single global unified data conversion platform enables BI & data analytic views for anything the CS function requires"},
+              {label:"AI & Customer friendly", text:"Clean, structured, & versioned data that can be transformed with minimal effort to provide to customers or for AI"}
+            ]
+          }
+        }
+      },
+      { id:"impact", label:"Impact", icon:"📊", group:"OVERVIEW",
+        content:{ type:"impact", level:"Enabler",
+          bullets:[
+            {label:"Cross-Lever Enablement", text:"Provides clean, structured data for business analytics required for dynamic routing (Lever 4), KPI consolidation (Lever 7), process optimization (Lever 10)"},
+            {label:"AHT Reduction", text:"Reduces AHT by 5–15% for complex case types (e.g. order disputes or returns) by reducing data inaccuracies & manual data triaging"},
+            {label:"AI Readiness", text:"Clear data labelling & structured dataset ingestion empower AI to be accurate & deployable"}
+          ]
+        }
+      },
+      { id:"interdep", label:"Interdependencies", icon:"🔗", group:"OVERVIEW",
+        content:{ type:"interdep",
+          items:[
+            {system:"Butterfly", level:"High", detail:"CRM case data is a critical data stream into the lake, requiring finalization before full ingestion"},
+            {system:"TranSCend", level:"High", detail:"ERP order & transaction data is the other critical data stream, with TranSCend required to ensure data quality"},
+            {system:"Other Systems", level:"High", detail:"Genesys, EDI API, customer data, etc. are also vital portions of the data lake, but can be ingested gradually"}
+          ]
+        }
+      },
+      { id:"execrisk", label:"Execution Risk", icon:"⚠️", group:"OVERVIEW",
+        content:{ type:"execrisk",
+          risks:[
+            {level:"High", description:"— Ownership of unified data lake will sit with enterprise systems & solutions team which is laden with concurrent projects (e.g. Butterfly, TranSCend, etc.)<br>— Large scale transformation is heavily dependent on RemainCo. stability for labor & tech resources"}
+          ]
+        }
+      },
+      { id:"phasing", label:"Deliverables & Milestones", icon:"🗓️", group:"ACTION PLAN",
+        content:{ type:"phasing",
+          phases:[
+            {label:"Quick Wins", items:[
+              {label:"Data Architecture Design", text:"Data architecture design requirements for JJMT CS, including data sources, ingestion pipeline, governance, & access control", date:"Target Q2 2027, then provided to the enterprise systems & solutions team"},
+              {label:"Pilot Environment Creation & Test", text:"Pilot environment creation, design, & test", date:"Target Q3 2027 – Q1 2028, with data ingestion & test environment in a single region (e.g. Switzerland)"}
+            ]},
+            {label:"Steady State", feature:true, items:[
+              {label:"AI Training Data Pipeline", text:"AI training data pipeline structured & versioned", date:"Target Q4 2026, for Lever 1 (AI assistant in copilot) with further refinement in a siloed environment pulling from a data layer"},
+              {label:"Program Analytics Suite", text:"Build out program analytics suite to measure deflection & automated resolution for CS", date:"Target Q4 2027, after pilot environment creation, design, & test with gradual addition of more capabilities"},
+              {label:"Unified Data Conversion Framework", text:"Single global unified data conversion framework design", date:"Target Q1 2028, with framework design provided to the enterprise tech & solutions team"}
+            ]}
+          ]
+        }
+      },
+      { id:"geo", label:"Geographic Responsibility", icon:"🌍", group:"ACTION PLAN",
+        content:{ type:"geo",
+          items:[
+            {scope:"Global Responsibility", detail:"Data lake platform, architecture standards, ingestion pipeline design, governance model, & access control framework centrally owned"},
+            {scope:"Local Responsibility", detail:"Regional leads ensure local system data quality, flagging specific schema variations for conversion, & validating local reporting requirements"}
+          ]
+        }
+      },
+      { id:"resourcing", label:"Resourcing Categories", icon:"🤝", group:"ACTION PLAN",
+        content:{ type:"resourcing",
+          categories:[
+            { title:"Labor", question:"We believe this initiative will require the involvement of:",
+              tags:["Program Manager", "Data Architects", "Data Analysts", "Backend Engineers"] }
+          ]
+        }
+      },
+      { id:"owner", label:"Owner & Next Steps", icon:"🧑‍💼", group:"ACTION PLAN",
+        content:{ type:"owner",
+          owners:[
+            {role:"JJMT Biz. Owner", name:"Global CS: Trans. & Innov. (Interim: US Regional Operations)"},
+            {role:"JJMT Tech Owner", name:"Global CS: Business Systems (Interim: Ent. Systems & Solutions)"},
+            {role:"External Support", name:"BCG"}
+          ],
+          nextSteps:{
+            quickWins:[
+              {label:"Quick Wins", desc:"Data source inventory across all CS-relevant systems", owner:"Digital Strategy & Innovation team"}
+            ],
+            steadyState:[
+              {label:"Steady State", desc:"Data source inventory across all CS-relevant systems", owner:"Digital Strategy & Innovation team"}
+            ]
+          }
+        }
+      },
+    ]
+  },
+  { id:"sysint", number:12, title:"System Integration", icon:"🔌", valueProvided:"Enabler · 🔄 In-flight", valueColor:"#8B5CF6",
+    sections:[
+      { id:"overview", label:"Mission Statement", icon:"🗺️", group:"OVERVIEW",
+        content:{ type:"bullets", title:"🔌 System Integrations",
+          items:[{label:"Lever Outline", text:"Ensure all CS-critical system integrations for MSD, SAPS4, & PIM are integrated & governed to work together to minimize manual reconciliation, reduce errors in triaging, & improve customer efficiency"}], starFirst:true }
+      },
+      { id:"fromto", label:"From → To", icon:"🔄", group:"OVERVIEW",
+        content:{ type:"fromto",
+          current:{
+            title:"Low Integration, Heavy Manual Triaging",
+            headline:"Low integrations between critical systems (ERP & CRM) requiring heavy manual triaging by CSRs & swivel chair between different systems",
+            subpoints:[
+              {label:"Multiple panes of glass", text:"Any CS inquiry requires switching between ~3–8 systems to triage the correct customer info & resolve the case"},
+              {label:"No data unity", text:"Inconsistent sources of data between different systems results in errors"}
+            ]
+          },
+          future:{
+            title:"Unified, Pre-filled System Views",
+            headline:"Systems integration reducing switching between windows with pre-filled entries to reduce CSR AHT",
+            subpoints:[
+              {label:"Unified data access", text:"A single global unified data conversion platform enables BI & data analytic views for anything the CS function requires"},
+              {label:"AI & Customer friendly", text:"Clean, structured, & versioned data that can be transformed with minimal effort to provide to customers or for AI"}
+            ]
+          }
+        }
+      },
+      { id:"impact", label:"Impact", icon:"📊", group:"OVERVIEW",
+        content:{ type:"impact", level:"Enabler",
+          bullets:[
+            {label:"Tech Lever Protection", text:"Reduces number of unresolved integration issues that can cause tech lever underperformance"},
+            {label:"AHT Reduction", text:"Reduces AHT by ~20–30% for critical & complex issues by reducing the number of windows & systems touched by a rep"},
+            {label:"Single Source of Truth", text:"Eliminates customers calling to force a \"better\" answer from a CSR by creating a single source of truth accessible to all internal/external stakeholders"}
+          ]
+        }
+      },
+      { id:"interdep", label:"Interdependencies", icon:"🔗", group:"OVERVIEW",
+        content:{ type:"interdep",
+          items:[
+            {system:"Butterfly", level:"High", detail:"Butterfly CRM critical as the central piece for all integrations (e.g. CRM to ERP, CRM to telephony, etc.)"},
+            {system:"TranSCend", level:"High", detail:"ERP stabilization in SAPS4 critical to integrate to provide supply chain information to other systems"},
+            {system:"Other Systems", level:"Moderate", detail:"Potential integrations needed with intermediary supply chain, financial, or telephony systems"}
+          ]
+        }
+      },
+      { id:"execrisk", label:"Execution Risk", icon:"⚠️", group:"OVERVIEW",
+        content:{ type:"execrisk",
+          risks:[
+            {level:"High", description:"— Integration between systems requires non-CS buy-in (e.g. enterprise systems & solutions team/IT)<br>— Project transformation could require greater resources than the CS team can muster alone<br>— High regional variation in tech requirements & corresponding integrations can multiply effort needed"}
+          ]
+        }
+      },
+      { id:"phasing", label:"Deliverables & Milestones", icon:"🗓️", group:"ACTION PLAN",
+        content:{ type:"phasing",
+          phases:[
+            {label:"Quick Wins", items:[
+              {label:"Integration Requirements Inventory", text:"North America: Define full inventory of CS program integration requirements across all regions", date:"Target Q4 2026, focusing on SAPS4/MSD/PIM integration with expansion into regions as Butterfly/TranSCend deploy"},
+              {label:"Readiness Dashboard", text:"Deploy shared integration readiness dashboard tracking endpoint status, milestone progress, blocker escalations in real time, & identify APIs with potential to reuse", date:"Target Q1 2027, with regions added to tracker based on deployment of Proj. Butterfly/TranSCend (whichever is later) by Q1"}
+            ]},
+            {label:"Steady State", feature:true, items:[
+              {label:"End-to-End Integration Testing", text:"End-to-end integration global testing with full cross-system integration with all CS critical data in a unified test environment (CRM, ERP, PIM)", date:"Target Q4 2028, with more system additions (e.g. Genesys) prioritized based on strategic value"},
+              {label:"Continual Integration Health Monitoring", text:"Continual integration health monitoring with validated checkpoints to ensure accuracy of information", date:"Target Q4 2028, dependent on deployment of steady state #1"}
+            ]}
+          ]
+        }
+      },
+      { id:"geo", label:"Geographic Responsibility", icon:"🌍", group:"ACTION PLAN",
+        content:{ type:"geo",
+          items:[
+            {scope:"Global Responsibility", detail:"Integration architecture, endpoint standards, testing protocols, & readiness governance owned centrally"},
+            {scope:"Local Responsibility", detail:"Regional leads locally configure for regional vendor integrations & define regional schemas & config variations as needed"}
+          ]
+        }
+      },
+      { id:"resourcing", label:"Resourcing Categories", icon:"🤝", group:"ACTION PLAN",
+        content:{ type:"resourcing",
+          categories:[
+            { title:"Labor", question:"We believe this initiative will require the involvement of:",
+              tags:["Program Manager", "Data Architects", "Business Analysts", "Backend Engineers"] }
+          ]
+        }
+      },
+      { id:"owner", label:"Owner & Next Steps", icon:"🧑‍💼", group:"ACTION PLAN",
+        content:{ type:"owner",
+          owners:[
+            {role:"JJMT Biz. Owner", name:"Global CS: Trans. & Innov. (Interim: US Regional Operations)"},
+            {role:"JJMT Tech Owner", name:"Global CS: Business Systems (Interim: Ent. Systems & Solutions)"},
+            {role:"External Support", name:"BCG"}
+          ],
+          nextSteps:{
+            quickWins:[
+              {label:"Quick Wins", desc:"System integration mapping to capture all necessary integrations across regions & systems", owner:"Digital Strategy & Innovation team"}
+            ],
+            steadyState:[
+              {label:"Steady State", desc:"System integration mapping to capture all necessary integrations across regions & systems", owner:"Digital Strategy & Innovation team"}
+            ]
+          }
+        }
+      },
+    ]
+  },
 ];
 
 // ── State ──────────────────────────────────────────────────────────────────────
@@ -2085,28 +2874,38 @@ function renderLeverList() {
   const grid = document.getElementById("lever-grid");
   grid.innerHTML = "";
 
-  const FOCUS_IDS = new Set(["ai-agent", "proactive", "skillset"]);
+  // Two groups:
+  // 1. Priority for Review — all levers except ai-agent + proactive
+  // 2. Reviewed Live in Tuesday Workshop — ai-agent + proactive
+
+  const WORKSHOP_IDS  = new Set(["ai-agent", "proactive"]);
   const sorted = [...LEVERS].sort((a,b) => a.number - b.number);
 
-  // Focus group label
-  const focusLabel = document.createElement("div");
-  focusLabel.className = "lever-grid-focus-label";
-  focusLabel.innerHTML = `<span>🎯 Session Focus — Today's Levers</span>`;
-  grid.appendChild(focusLabel);
+  const priorityLevers = sorted.filter(l => !WORKSHOP_IDS.has(l.id));
+  const workshopLevers = sorted.filter(l => WORKSHOP_IDS.has(l.id));
 
-  // Render focus levers first (1-3), then remaining
-  const focusLevers = sorted.filter(l => FOCUS_IDS.has(l.id));
-  const otherLevers = sorted.filter(l => !FOCUS_IDS.has(l.id));
-
-  const makeCard = (lever, isFocus) => {
+  const makeCard = (lever, cardType) => {
+    // cardType: "priority" | "workshop"
     const card = document.createElement("div");
     const isReviewed = visitedLevers.has(lever.id);
     const isRapidCurrent = rapidMode && RAPID_ORDER[rapidLeverIdx]?.id === lever.id;
-    const focusClass = isFocus ? "focus-lever" : "greyed-out";
-    card.className = "lever-card " + (isRapidCurrent ? "rapid-current" : focusClass + (isReviewed ? " is-reviewed" : " needs-review"));
-    const statusBadge = isReviewed
-      ? `<span class="reviewed-badge">✓ Reviewed</span>`
-      : `<span class="review-badge">● Review needed</span>`;
+
+    let cardClass, statusBadge;
+    if (isRapidCurrent) {
+      cardClass = "rapid-current";
+      statusBadge = `<span class="review-badge">● Review needed</span>`;
+    } else if (cardType === "priority") {
+      cardClass = (isReviewed ? "is-reviewed" : "needs-review");
+      statusBadge = isReviewed
+        ? `<span class="reviewed-badge">✓ Reviewed</span>`
+        : `<span class="priority-badge">📋 Priority for review</span>`;
+    } else {
+      // workshop — greyed out
+      cardClass = "greyed-out" + (isReviewed ? " is-reviewed" : "");
+      statusBadge = `<span class="workshop-badge">✅ Reviewed live in Tuesday workshop</span>`;
+    }
+
+    card.className = "lever-card " + cardClass;
     card.innerHTML = `
       <div style="position:absolute;bottom:calc(100% - 20px - 11px);right:20px">${statusBadge}</div>
       <div class="lever-card-inner">
@@ -2124,15 +2923,19 @@ function renderLeverList() {
     return card;
   };
 
-  focusLevers.forEach(lever => grid.appendChild(makeCard(lever, true)));
+  // Group 1: Priority for Review
+  const priorityLabel = document.createElement("div");
+  priorityLabel.className = "lever-grid-focus-label";
+  priorityLabel.innerHTML = `<span>📋 Priority for Review</span>`;
+  grid.appendChild(priorityLabel);
+  priorityLevers.forEach(lever => grid.appendChild(makeCard(lever, "priority")));
 
-  // Remaining levers label
-  const restLabel = document.createElement("div");
-  restLabel.className = "lever-grid-section-label";
-  restLabel.innerHTML = `<span>Remaining Levers</span>`;
-  grid.appendChild(restLabel);
-
-  otherLevers.forEach(lever => grid.appendChild(makeCard(lever, false)));
+  // Group 2: Reviewed Live
+  const workshopLabel = document.createElement("div");
+  workshopLabel.className = "lever-grid-section-label";
+  workshopLabel.innerHTML = `<span>✅ Reviewed Live in Tuesday Workshop</span>`;
+  grid.appendChild(workshopLabel);
+  workshopLevers.forEach(lever => grid.appendChild(makeCard(lever, "workshop")));
 }
 
 document.getElementById("btn-back").addEventListener("click", pauseAndReturnToList);
@@ -2321,8 +3124,8 @@ function buildSectionHTML(sec) {
       }
       return html;
     };
-    const currentText = buildStateText(cur, "Pain Points");
-    const futureText = buildStateText(fut, "Target Experiences");
+    const currentText = buildStateText(cur, cur.subpoints?.length === 1 ? "Pain Point" : "Pain Points");
+    const futureText = buildStateText(fut, fut.subpoints?.length === 1 ? "Target Experience" : "Target Experiences");
     let html = `<div class="section-subheader" style="color:#DC2626">❌ Current State</div><hr class="section-divider">`;
     html += bulletCardHTML(sec.id+"_cur", 0, currentText);
     html += `<div class="section-subheader" style="color:#059669;margin-top:24px">✅ Future State</div><hr class="section-divider">`;
