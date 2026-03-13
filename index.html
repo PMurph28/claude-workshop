@@ -1562,37 +1562,25 @@ async function enterWorkshop() {
   loginBtn.textContent = "Checking...";
   document.getElementById("login-error").style.display = "none";
 
-  // Validate email against Supabase allowlist
+  // Validate email + fetch decryption key via Edge Function (server-side — config table not publicly readable)
   try {
-    const configRow = await sbReq("GET", "config?key=eq.allowed_emails&select=value", null);
-    const allowedList = configRow && configRow[0] ? configRow[0].value : null;
-    if (!allowedList) throw new Error("No allowlist found");
-    const allowedEmails = allowedList.split(",").map(e => e.trim().toLowerCase());
-    if (!allowedEmails.includes(enteredEmail)) {
+    const res = await fetch("https://torfbjxvvdmycbufggbi.supabase.co/functions/v1/get-lever-key", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: enteredEmail })
+    });
+    const data = await res.json();
+    if (!res.ok || data.error) {
       document.getElementById("login-error").style.display = "block";
       loginBtn.disabled = false;
       loginBtn.textContent = "Enter Workshop →";
       updateLoginBtn();
       return;
     }
+    await decryptLevers(data.key);
   } catch(e) {
     document.getElementById("login-error").style.display = "block";
     document.getElementById("login-error").textContent = "Unable to verify access. Please check your connection.";
-    loginBtn.disabled = false;
-    loginBtn.textContent = "Enter Workshop →";
-    updateLoginBtn();
-    return;
-  }
-
-  // Fetch lever decryption key and decrypt content
-  try {
-    const keyRow = await sbReq("GET", "config?key=eq.lever_key&select=value", null);
-    const keyB64 = keyRow && keyRow[0] ? keyRow[0].value : null;
-    if (!keyB64) throw new Error("No key found");
-    await decryptLevers(keyB64);
-  } catch(e) {
-    document.getElementById("login-error").style.display = "block";
-    document.getElementById("login-error").textContent = "Unable to load workshop content. Please check your connection.";
     loginBtn.disabled = false;
     loginBtn.textContent = "Enter Workshop →";
     updateLoginBtn();
