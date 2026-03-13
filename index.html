@@ -1140,23 +1140,11 @@
     <div class="login-eyebrow">JJMT MEDTECH — SUPPLY CHAIN</div>
     <div class="login-title">Workshop Initiative Review</div>
     <div class="login-sub">Customer Service Optimization — 12 Levers</div>
-    <div class="login-label">Enter your name to begin</div>
+    <div class="login-label">First and last name</div>
     <input id="name-input" class="login-input" type="text" placeholder="First and last name" autofocus />
-    <div class="login-label">Workshop password</div>
-    <div style="position:relative;margin-bottom:16px">
-      <input id="password-input" class="login-input" type="password" placeholder="Enter password" style="margin-bottom:0;padding-right:44px" />
-      <button type="button" id="pw-toggle" onclick="togglePasswordVisibility()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:4px;color:#94a3b8;display:flex;align-items:center;" title="Show/hide password">
-        <svg id="pw-eye-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-          <circle cx="12" cy="12" r="3"></circle>
-        </svg>
-      </button>
-    </div>
-    <div id="login-error" style="color:#DC2626;font-size:13px;font-weight:600;margin-bottom:8px;display:none">Incorrect password. Please try again.</div>
-    <div id="hint-row" style="display:none;margin-bottom:12px">
-      <button type="button" onclick="showHint()" id="hint-btn" style="background:none;border:none;color:#94a3b8;font-size:12px;font-weight:600;cursor:pointer;padding:0;font-family:inherit;text-decoration:underline">💡 Do you want a hint?</button>
-      <div id="hint-text" style="display:none;margin-top:6px;background:#FFF7ED;border:1.5px solid #FDBA74;border-radius:8px;padding:8px 12px;font-size:13px;color:#92400E;font-weight:600">🗺️ Down Under Manhattan Bridge Overpass</div>
-    </div>
+    <div class="login-label">Work email address</div>
+    <input id="password-input" class="login-input" type="email" placeholder="name@company.com" />
+    <div id="login-error" style="color:#DC2626;font-size:13px;font-weight:600;margin-bottom:12px;display:none">Please reach out to the workshop facilitators to get access.</div>
     <button id="login-btn" class="login-btn" disabled>Enter Workshop →</button>
   </div>
 </div>
@@ -2762,30 +2750,10 @@ const nameInput = document.getElementById("name-input");
 const passwordInput = document.getElementById("password-input");
 const loginBtn = document.getElementById("login-btn");
 
-function togglePasswordVisibility() {
-  const input = document.getElementById("password-input");
-  const icon = document.getElementById("pw-eye-icon");
-  const btn = document.getElementById("pw-toggle");
-  if (input.type === "password") {
-    input.type = "text";
-    btn.style.color = "#1B3A8C";
-    icon.innerHTML = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>`;
-  } else {
-    input.type = "password";
-    btn.style.color = "#94a3b8";
-    icon.innerHTML = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>`;
-  }
-}
-
-let loginAttempts = 0;
-
-function showHint() {
-  document.getElementById("hint-text").style.display = "block";
-  document.getElementById("hint-btn").style.display = "none";
-}
-
 function updateLoginBtn() {
-  loginBtn.disabled = !nameInput.value.trim() || !passwordInput.value.trim();
+  const emailVal = passwordInput.value.trim().toLowerCase();
+  const hasEmail = emailVal.includes("@") && emailVal.includes(".");
+  loginBtn.disabled = !nameInput.value.trim() || !hasEmail;
 }
 nameInput.addEventListener("input", updateLoginBtn);
 passwordInput.addEventListener("input", updateLoginBtn);
@@ -2794,30 +2762,29 @@ passwordInput.addEventListener("keydown", e => { if (e.key === "Enter" && !login
 loginBtn.addEventListener("click", enterWorkshop);
 
 async function enterWorkshop() {
-  const enteredPassword = passwordInput.value.trim();
+  const enteredEmail = passwordInput.value.trim().toLowerCase();
   currentUser = nameInput.value.trim();
   isFacilitator = currentUser.trim().endsWith("(FR)");
   loginBtn.disabled = true;
   loginBtn.textContent = "Checking...";
   document.getElementById("login-error").style.display = "none";
 
-  // Validate password against Supabase config table
+  // Validate email against Supabase allowlist
   try {
-    const configRow = await sbReq("GET", "config?key=eq.workshop_password&select=value", null);
-    const correctPassword = configRow && configRow[0] ? configRow[0].value : null;
-    if (!correctPassword || enteredPassword !== correctPassword) {
-      loginAttempts++;
+    const configRow = await sbReq("GET", "config?key=eq.allowed_emails&select=value", null);
+    const allowedList = configRow && configRow[0] ? configRow[0].value : null;
+    if (!allowedList) throw new Error("No allowlist found");
+    const allowedEmails = allowedList.split(",").map(e => e.trim().toLowerCase());
+    if (!allowedEmails.includes(enteredEmail)) {
       document.getElementById("login-error").style.display = "block";
-      if (loginAttempts >= 1) document.getElementById("hint-row").style.display = "block";
       loginBtn.disabled = false;
       loginBtn.textContent = "Enter Workshop →";
       updateLoginBtn();
       return;
     }
   } catch(e) {
-    // If config table unreachable, fail closed — don't allow entry
     document.getElementById("login-error").style.display = "block";
-    document.getElementById("login-error").textContent = "Unable to verify password. Please check your connection.";
+    document.getElementById("login-error").textContent = "Unable to verify access. Please check your connection.";
     loginBtn.disabled = false;
     loginBtn.textContent = "Enter Workshop →";
     updateLoginBtn();
